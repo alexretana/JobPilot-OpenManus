@@ -12,7 +12,7 @@ interface ChatProps {
 const Chat: Component<ChatProps> = (props) => {
   const [inputMessage, setInputMessage] = createSignal('');
   let messagesContainer: HTMLDivElement | undefined;
-  let messageInput: HTMLInputElement | undefined;
+  let messageInput: HTMLTextAreaElement | undefined;
 
   createEffect(() => {
     // Auto-scroll to bottom when new messages arrive
@@ -88,19 +88,18 @@ const Chat: Component<ChatProps> = (props) => {
               <span>Processing...</span>
               <span>{props.progress().current}/{props.progress().total}</span>
             </div>
-            <progress 
-              class="progress progress-secondary w-full mt-1" 
-              value={props.progress().current} 
+            <progress
+              class="progress progress-secondary w-full mt-1"
+              value={props.progress().current}
               max={props.progress().total}
             ></progress>
           </div>
         )}
       </div>
-      
-      <div 
+
+      <div
         ref={messagesContainer}
         class="flex-1 p-4 overflow-y-auto scrollbar-thin space-y-4 min-h-0"
-        style="max-height: 400px;"
       >
         {props.messages().length === 0 && (
           <div class="assistant-message chat-message">
@@ -121,12 +120,12 @@ const Chat: Component<ChatProps> = (props) => {
             </div>
           </div>
         )}
-        
+
         <For each={props.messages()}>
           {(message) => (
             <div class={`chat-message ${
-              message.type === 'user' ? 'user-message' : 
-              message.type === 'progress' ? 'progress-message' : 
+              message.type === 'user' ? 'user-message' :
+              message.type === 'progress' ? 'progress-message' :
               'assistant-message'
             }`}>
               {message.type === 'progress' && (
@@ -142,31 +141,35 @@ const Chat: Component<ChatProps> = (props) => {
           )}
         </For>
       </div>
-      
-      <div class="card-footer p-4 border-t border-base-200">
-        <div class="join w-full">
-          <input 
-            ref={messageInput}
-            class="input input-bordered join-item flex-1" 
-            placeholder="Ask about job opportunities..."
-            value={inputMessage()}
-            onInput={(e) => setInputMessage(e.currentTarget.value)}
-            onKeyPress={handleKeyPress}
-            disabled={props.isProcessing()}
-          />
-          <button 
-            class="btn btn-primary join-item"
+
+      <div class="card-footer p-4 border-t border-base-200 space-y-3">
+        <textarea
+          ref={messageInput}
+          class="textarea textarea-bordered w-full resize-none"
+          rows="3"
+          placeholder="Ask about job opportunities... You can type multiple lines here."
+          value={inputMessage()}
+          onInput={(e) => setInputMessage(e.currentTarget.value)}
+          onKeyPress={handleKeyPress}
+          disabled={props.isProcessing()}
+        ></textarea>
+        <div class="flex justify-end">
+          <button
+            class="btn btn-primary"
             onClick={sendMessage}
             disabled={props.isProcessing() || !inputMessage().trim()}
           >
             {props.isProcessing() ? (
-              <span class="loading loading-spinner loading-sm"></span>
+              <>
+                <span class="loading loading-spinner loading-sm mr-2"></span>
+                Processing...
+              </>
             ) : (
               <>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                 </svg>
-                Send
+                Send Message
               </>
             )}
           </button>
