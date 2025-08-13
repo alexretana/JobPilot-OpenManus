@@ -144,40 +144,6 @@ const Chat: Component<ChatProps> = (props) => {
       </div>
       
       <div class="card-footer p-4 border-t border-base-200">
-        <div class="mb-3">
-          <div class="text-sm font-medium mb-2">🎯 Quick Actions</div>
-          <div class="flex flex-wrap gap-2">
-            <button 
-              class="btn btn-sm btn-outline" 
-              onClick={() => quickQuery('Show me remote Python developer jobs')}
-              disabled={props.isProcessing()}
-            >
-              🐍 Find Python Jobs
-            </button>
-            <button 
-              class="btn btn-sm btn-outline" 
-              onClick={() => quickQuery('Data science jobs for 5 years experience')}
-              disabled={props.isProcessing()}
-            >
-              📊 Data Science Positions
-            </button>
-            <button 
-              class="btn btn-sm btn-outline" 
-              onClick={() => quickQuery('Help me optimize my resume for tech roles')}
-              disabled={props.isProcessing()}
-            >
-              📄 Resume Help
-            </button>
-            <button 
-              class="btn btn-sm btn-outline" 
-              onClick={() => quickQuery('What are the current trends in AI/ML job market?')}
-              disabled={props.isProcessing()}
-            >
-              📈 Market Trends
-            </button>
-          </div>
-        </div>
-        
         <div class="join w-full">
           <input 
             ref={messageInput}

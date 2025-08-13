@@ -2,7 +2,7 @@ import { Component, createSignal, onMount, onCleanup } from 'solid-js';
 import Header from './components/Header';
 import Chat from './components/Chat';
 import BrowserViewport from './components/BrowserViewport';
-import ActivityLog from './components/ActivityLog';
+import ActivityModal from './components/ActivityModal';
 import StatusPanel from './components/StatusPanel';
 import { webSocketService } from './services/websocket';
 import type { ChatMessage, ActivityLogEntry, ProgressState, BrowserState, WebSocketMessage } from './types';
@@ -18,6 +18,8 @@ const App: Component = () => {
     url: 'No active browsing session',
     content: 'Waiting for browser activity...'
   });
+  const [showActivityModal, setShowActivityModal] = createSignal(false);
+  const [showStatusPanel, setShowStatusPanel] = createSignal(false);
 
   let messageIdCounter = 0;
   let activityIdCounter = 0;
@@ -146,14 +148,18 @@ const App: Component = () => {
   });
 
   return (
-    <div class="min-h-screen bg-base-200" data-theme="corporate">
-      <Header />
+    <div class="min-h-screen bg-base-200">
+      <Header 
+        activities={activities}
+        onShowActivityLog={() => setShowActivityModal(true)}
+        onShowStatusPanel={() => setShowStatusPanel(true)}
+      />
       
       <main class="container mx-auto p-4 h-[calc(100vh-80px)]">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
           {/* Left Column - Chat */}
           <div class="lg:col-span-1 flex flex-col min-h-0">
-            <div class="flex-1 min-h-0 mb-4">
+            <div class="flex-1 min-h-0">
               <Chat 
                 messages={messages}
                 onMessageSend={handleMessageSend}
@@ -161,25 +167,29 @@ const App: Component = () => {
                 progress={progress}
               />
             </div>
-            <div class="h-80">
-              <ActivityLog activities={activities} />
-            </div>
           </div>
           
-          {/* Middle Column - Browser Viewport */}
+          {/* Right Column - Browser Viewport */}
           <div class="lg:col-span-1 min-h-0">
             <BrowserViewport browserState={browserState} />
           </div>
-          
-          {/* Right Column - Status Panel */}
-          <div class="lg:col-span-1 min-h-0">
-            <StatusPanel 
-              onQuickAction={handleQuickAction}
-              isProcessing={isProcessing}
-            />
-          </div>
         </div>
       </main>
+      
+      {/* Activity Modal */}
+      <ActivityModal 
+        activities={activities}
+        isOpen={showActivityModal}
+        onClose={() => setShowActivityModal(false)}
+      />
+      
+      {/* Status Panel Drawer */}
+      <StatusPanel 
+        onQuickAction={handleQuickAction}
+        isProcessing={isProcessing}
+        isOpen={showStatusPanel}
+        onClose={() => setShowStatusPanel(false)}
+      />
       
       {/* Mobile responsive adjustments */}
       <div class="lg:hidden">
