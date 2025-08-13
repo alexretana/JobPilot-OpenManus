@@ -20,6 +20,7 @@ const App: Component = () => {
   });
   const [showActivityModal, setShowActivityModal] = createSignal(false);
   const [showStatusPanel, setShowStatusPanel] = createSignal(false);
+  const [systemHealthy, setSystemHealthy] = createSignal(true);
 
   let messageIdCounter = 0;
   let activityIdCounter = 0;
@@ -109,6 +110,7 @@ const App: Component = () => {
         if (message.content) {
           addMessage('assistant', `❌ Error: ${message.content}`);
           addActivity('error', `❌ Error: ${message.content}`);
+          setSystemHealthy(false);
         }
         setIsProcessing(false);
         setProgress(prev => ({ ...prev, isActive: false }));
@@ -153,6 +155,7 @@ const App: Component = () => {
         activities={activities}
         onShowActivityLog={() => setShowActivityModal(true)}
         onShowStatusPanel={() => setShowStatusPanel(true)}
+        systemHealthy={() => systemHealthy() && webSocketService.getIsConnected()()}
       />
       
       <main class="container mx-auto p-4 h-[calc(100vh-80px)]">
