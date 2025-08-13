@@ -1,91 +1,93 @@
-<p align="center">
-  <img src="assets/logo.jpg" width="200"/>
-</p>
+# 🚀 JobPilot-OpenManus
 
-English | [中文](README_zh.md) | [한국어](README_ko.md) | [日本語](README_ja.md)
+**AI-Powered Job Hunting Copilot** - An intelligent agent framework that automates job discovery, analysis, and application processes using OpenManus architecture.
 
-[![GitHub stars](https://img.shields.io/github/stars/FoundationAgents/OpenManus?style=social)](https://github.com/FoundationAgents/OpenManus/stargazers)
+JobPilot-OpenManus combines the power of OpenManus's agent framework with specialized job hunting capabilities, providing a comprehensive solution for modern job seekers.
+
+[![GitHub stars](https://img.shields.io/github/stars/alexretana/JobPilot-OpenManus?style=social)](https://github.com/alexretana/JobPilot-OpenManus/stargazers)
 &ensp;
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) &ensp;
-[![Discord Follow](https://dcbadge.vercel.app/api/server/DYn29wFk9z?style=flat)](https://discord.gg/DYn29wFk9z)
-[![Demo](https://img.shields.io/badge/Demo-Hugging%20Face-yellow)](https://huggingface.co/spaces/lyh-917/OpenManusDemo)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15186407.svg)](https://doi.org/10.5281/zenodo.15186407)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+&ensp;
+[![Based on OpenManus](https://img.shields.io/badge/Based%20on-OpenManus-blue)](https://github.com/FoundationAgents/OpenManus)
 
-# 👋 OpenManus
+## 🎯 Vision
 
-Manus is incredible, but OpenManus can achieve any idea without an *Invite Code* 🛫!
+JobPilot revolutionizes job hunting by automating tedious tasks while enhancing strategic decision-making. It acts as your personal AI job hunting assistant that works 24/7 to find, analyze, and help you apply to relevant opportunities.
 
-Our team members [@Xinbin Liang](https://github.com/mannaandpoem) and [@Jinyu Xiang](https://github.com/XiangJinyu) (core authors), along with [@Zhaoyang Yu](https://github.com/MoshiQAQ), [@Jiayi Zhang](https://github.com/didiforgithub), and [@Sirui Hong](https://github.com/stellaHSR), we are from [@MetaGPT](https://github.com/geekan/MetaGPT). The prototype is launched within 3 hours and we are keeping building!
+## 🌟 Key Features
 
-It's a simple implementation, so we welcome any suggestions, contributions, and feedback!
+### 🤖 AI-Powered Job Discovery
+- **Semantic Job Matching**: Advanced AI understands job requirements beyond keywords
+- **Intelligent Filtering**: Multi-factor scoring based on skills, experience, salary, and location
+- **Automated Scraping**: Extract job listings from multiple job boards and career pages
 
-Enjoy your own agent with OpenManus!
+### 🧠 Smart Job Analysis
+- **LLM-Powered Insights**: Deep analysis of job requirements and company culture
+- **Skill Gap Identification**: Understand what skills you need to develop
+- **Match Explanations**: Clear reasoning for why jobs are recommended
 
-We're also excited to introduce [OpenManus-RL](https://github.com/OpenManus/OpenManus-RL), an open-source project dedicated to reinforcement learning (RL)- based (such as GRPO) tuning methods for LLM agents, developed collaboratively by researchers from UIUC and OpenManus.
+### 🌐 Web Automation
+- **Browser Automation**: Automated job board navigation and data extraction
+- **Application Assistance**: Help with form filling and document upload
+- **Contact Discovery**: Find recruiters and hiring managers on LinkedIn
 
-## Project Demo
+### 🏗️ Agent Framework
+- **Multi-Agent Workflows**: Specialized agents for different job hunting tasks
+- **Real-time Interface**: WebSocket-based communication for immediate feedback  
+- **Local AI Integration**: Works with Ollama for privacy-first job searching
+- **Extensible Tools**: Easy to add new job hunting capabilities
 
-<video src="https://private-user-images.githubusercontent.com/61239030/420168772-6dcfd0d2-9142-45d9-b74e-d10aa75073c6.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDEzMTgwNTksIm5iZiI6MTc0MTMxNzc1OSwicGF0aCI6Ii82MTIzOTAzMC80MjAxNjg3NzItNmRjZmQwZDItOTE0Mi00NWQ5LWI3NGUtZDEwYWE3NTA3M2M2Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTAzMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwMzA3VDAzMjIzOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdiZjFkNjlmYWNjMmEzOTliM2Y3M2VlYjgyNDRlZDJmOWE3NWZhZjE1MzhiZWY4YmQ3NjdkNTYwYTU5ZDA2MzYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.UuHQCgWYkh0OQq9qsUWqGsUbhG3i9jcZDAMeHjLt5T4" data-canonical-src="https://private-user-images.githubusercontent.com/61239030/420168772-6dcfd0d2-9142-45d9-b74e-d10aa75073c6.mp4?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NDEzMTgwNTksIm5iZiI6MTc0MTMxNzc1OSwicGF0aCI6Ii82MTIzOTAzMC80MjAxNjg3NzItNmRjZmQwZDItOTE0Mi00NWQ5LWI3NGUtZDEwYWE3NTA3M2M2Lm1wND9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTAzMDclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwMzA3VDAzMjIzOVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdiZjFkNjlmYWNjMmEzOTliM2Y3M2VlYjgyNDRlZDJmOWE3NWZhZjE1MzhiZWY4YmQ3NjdkNTYwYTU5ZDA2MzYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.UuHQCgWYkh0OQq9qsUWqGsUbhG3i9jcZDAMeHjLt5T4" controls="controls" muted="muted" class="d-block rounded-bottom-2 border-top width-fit" style="max-height:640px; min-height: 200px"></video>
+## 🏛️ Architecture
 
-## Installation
+JobPilot-OpenManus is built on top of the robust OpenManus framework with job-specific enhancements:
 
-We provide two installation methods. Method 2 (using uv) is recommended for faster installation and better dependency management.
-
-### Method 1: Using conda
-
-1. Create a new conda environment:
-
-```bash
-conda create -n open_manus python=3.12
-conda activate open_manus
+```
+JobPilot-OpenManus/
+├── app/
+│   ├── agent/
+│   │   ├── job_discovery.py      # Job search and extraction agent
+│   │   ├── job_matching.py       # AI-powered job matching agent  
+│   │   ├── job_analysis.py       # Job requirement analysis agent
+│   │   └── application.py        # Job application automation agent
+│   ├── tool/
+│   │   ├── job_scraper/          # Job board scraping tools
+│   │   ├── semantic_search/      # AI-powered job matching
+│   │   ├── linkedin_tools/       # LinkedIn integration
+│   │   └── application_tools/    # Application automation
+│   └── data/
+│       ├── jobs.db              # Job listings database
+│       └── user_profile.json   # User preferences and profile
+├── web_server.py                # FastAPI web interface
+└── config/
+    └── jobpilot.toml           # JobPilot-specific configuration
 ```
 
-2. Clone the repository:
+## 🚐 Quick Start
 
+### Prerequisites
+- Python 3.12+
+- Local LLM (Ollama recommended) or OpenAI/Claude API access
+
+### Installation
+
+1. **Clone the repository:**
 ```bash
-git clone https://github.com/FoundationAgents/OpenManus.git
-cd OpenManus
+git clone https://github.com/alexretana/JobPilot-OpenManus.git
+cd JobPilot-OpenManus
 ```
 
-3. Install dependencies:
+2. **Create virtual environment:**
+```bash
+python -m venv venv
+source venv/bin/activate  # On Unix/macOS
+# Or on Windows:
+# venv\Scripts\activate
+```
 
+3. **Install dependencies:**
 ```bash
 pip install -r requirements.txt
-```
-
-### Method 2: Using uv (Recommended)
-
-1. Install uv (A fast Python package installer and resolver):
-
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
-2. Clone the repository:
-
-```bash
-git clone https://github.com/FoundationAgents/OpenManus.git
-cd OpenManus
-```
-
-3. Create a new virtual environment and activate it:
-
-```bash
-uv venv --python 3.12
-source .venv/bin/activate  # On Unix/macOS
-# Or on Windows:
-# .venv\Scripts\activate
-```
-
-4. Install dependencies:
-
-```bash
-uv pip install -r requirements.txt
-```
-
-### Browser Automation Tool (Optional)
-```bash
-playwright install
+playwright install  # For browser automation
 ```
 
 ## Configuration
