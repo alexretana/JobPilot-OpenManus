@@ -20,13 +20,13 @@ JobPilot-OpenManus combines the power of OpenManus's agent framework with specia
 | **🧠 Semantic Search** | ✅ **Complete** | AI-powered matching, embeddings, filtering |
 | **🤖 Basic Agents** | ✅ **Complete** | Job discovery agent with market analysis |
 | **🧪 Testing Suite** | ✅ **Complete** | Comprehensive tests for all core components |
-| **🌐 Web Interface** | ⏳ **Planned** | User-friendly web UI for job hunting |
+| **🌐 Web Interface** | ✅ **Complete** | Modern Solid.js web UI with real-time features |
 | **📊 Real Job Boards** | ⏳ **Planned** | LinkedIn, Indeed, Glassdoor integration |
 | **📝 Application Tools** | ⏳ **Planned** | Automated form filling and submission |
 | **📈 Advanced Analytics** | ⏳ **Planned** | Success tracking, market trends, insights |
 
-**Current Status**: ✅ **Foundation Complete** - All core functionality implemented and tested  
-**Next Phase**: 🔄 **Web Interface & Integration** - See [ROADMAP.md](ROADMAP.md) for details
+**Current Status**: ✅ **Core + Web Interface Complete** - Foundation and modern web UI implemented  
+**Next Phase**: 🔄 **Real Job Board Integration** - See [ROADMAP.md](ROADMAP.md) for details
 
 ## 🎯 Vision
 
@@ -172,6 +172,78 @@ Currently, besides the general OpenManus Agent, we have also integrated the Data
 use_data_analysis_agent = true     # Disabled by default, change to true to activate
 ```
 In addition, you need to install the relevant dependencies to ensure the agent runs properly: [Detailed Installation Guide](app/tool/chart_visualization/README.md##Installation)
+
+## 🌐 Modern Web Interface
+
+JobPilot-OpenManus features a modern, responsive web interface built with Solid.js, TailwindCSS, and DaisyUI for seamless interaction with the job hunting agent.
+
+### Quick Start
+
+**🚀 Easy Development Mode (Recommended)**
+
+**Windows:**
+```cmd
+start.bat
+```
+
+**Linux/macOS:**
+```bash
+./start.sh
+```
+
+The startup scripts will:
+- ✅ Validate all dependencies (Node.js, npm, Python)
+- ✅ Install frontend dependencies if needed
+- ✅ Build the frontend for production if not already built
+- ✅ Start the backend server on port 8080
+- ✅ Start the frontend dev server on port 3000
+- ✅ Open both services in separate shells/windows
+
+**Manual Setup:**
+
+1. **Build the frontend** (first time only):
+   ```bash
+   cd frontend
+   npm install
+   npm run build
+   cd ..
+   ```
+
+2. **Start the web server:**
+   ```bash
+   python web_server.py
+   ```
+
+3. **Open your browser** to `http://localhost:8080`
+
+### Web Interface Features
+
+- **🎨 Modern UI**: Built with Solid.js, TailwindCSS, and DaisyUI
+- **🔄 Real-time Chat**: WebSocket-based communication with the AI agent
+- **🌐 Live Browser Viewport**: Watch the agent browse job sites in real-time  
+- **📊 Activity Dashboard**: Track all agent actions, tool usage, and reasoning
+- **📈 Progress Tracking**: Visual progress indicators for long-running searches
+- **🎯 Quick Actions**: Pre-built queries for common job search tasks
+- **🎭 29+ Themes**: Switch between light, dark, and specialty themes
+- **📱 Responsive Design**: Works perfectly on desktop, tablet, and mobile
+- **🔍 Transparent AI**: Full visibility into the agent's decision-making process
+- **⚡ Fast & Modern**: Vite-powered development with hot reload
+
+### URLs
+
+- **Frontend**: `http://localhost:3000` (development with hot reload)
+- **Backend API**: `http://localhost:8080` (production build served here)
+- **API Health Check**: `http://localhost:8080/api/health`
+
+See [frontend/README.md](frontend/README.md) for detailed frontend documentation.
+
+### Architecture
+
+- **Backend**: FastAPI server with WebSocket support
+- **Frontend**: Solid.js SPA with reactive state management
+- **Styling**: TailwindCSS + DaisyUI component library
+- **Build**: Vite for fast builds and development
+- **Types**: Full TypeScript support throughout
 
 ## How to contribute
 

@@ -7,16 +7,17 @@ A simple FastAPI web interface for the JobPilot job hunting agent system.
 import asyncio
 import json
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import List, Optional
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 import uvicorn
 
 from app.agent.manus import Manus
 from app.logger import logger
+from app.prompt.jobpilot import get_jobpilot_prompt
 
 
 class ChatMessage(BaseModel):
@@ -57,275 +58,163 @@ manager = ConnectionManager()
 # Store chat history
 chat_history: List[ChatMessage] = []
 
+# Mount static files for the Solid.js frontend
+import os
+frontend_dist_path = os.path.join(os.path.dirname(__file__), "frontend", "dist")
+if os.path.exists(frontend_dist_path):
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist_path, "assets")), name="assets")
+    
+    @app.get("/")
+    async def serve_frontend():
+        """Serve the Solid.js frontend index.html"""
+        index_path = os.path.join(frontend_dist_path, "index.html")
+        if os.path.exists(index_path):
+            return FileResponse(index_path)
+        else:
+            return HTMLResponse(
+                content="<h1>Frontend not built</h1><p>Please run 'npm run build' in the frontend directory.</p>",
+                status_code=404
+            )
+else:
+    @app.get("/")
+    async def fallback_frontend():
+        """Fallback when frontend is not built"""
+        return HTMLResponse(
+            content="<h1>Frontend not found</h1><p>Please build the frontend by running 'npm run build' in the frontend directory.</p>",
+            status_code=404
+        )
 
-@app.get("/", response_class=HTMLResponse)
-async def get_homepage():
-    """Return the main web interface."""
-    html_content = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>JobPilot-OpenManus - AI Job Hunting Assistant</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-            body {
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: #333;
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-            }
-            .header {
-                background: rgba(255, 255, 255, 0.95);
-                padding: 1rem 2rem;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            }
-            .header h1 {
-                color: #4a5568;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
-            .header .subtitle {
-                color: #718096;
-                font-size: 0.9rem;
-                margin-top: 0.25rem;
-            }
-            .main-container {
-                flex: 1;
-                display: flex;
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 2rem;
-                gap: 2rem;
-                width: 100%;
-            }
-            .chat-container {
-                flex: 2;
-                background: white;
-                border-radius: 12px;
-                box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-                display: flex;
-                flex-direction: column;
-                min-height: 500px;
-            }
-            .chat-header {
-                background: #4299e1;
-                color: white;
-                padding: 1rem;
-                border-radius: 12px 12px 0 0;
-                font-weight: bold;
-            }
-            .chat-messages {
-                flex: 1;
-                padding: 1rem;
-                overflow-y: auto;
-                max-height: 400px;
-            }
-            .message {
-                margin-bottom: 1rem;
-                padding: 0.75rem 1rem;
-                border-radius: 8px;
-                max-width: 80%;
-            }
-            .user-message {
-                background: #e2e8f0;
-                margin-left: auto;
-                text-align: right;
-            }
-            .assistant-message {
-                background: #f7fafc;
-                border-left: 4px solid #4299e1;
-            }
-            .input-area {
-                padding: 1rem;
-                border-top: 1px solid #e2e8f0;
-                display: flex;
-                gap: 0.5rem;
-            }
-            .input-area input {
-                flex: 1;
-                padding: 0.75rem;
-                border: 1px solid #cbd5e0;
-                border-radius: 6px;
-                font-size: 1rem;
-            }
-            .input-area button {
-                background: #4299e1;
-                color: white;
-                border: none;
-                padding: 0.75rem 1.5rem;
-                border-radius: 6px;
-                cursor: pointer;
-                font-weight: bold;
-            }
-            .input-area button:hover {
-                background: #3182ce;
-            }
-            .sidebar {
-                flex: 1;
-                background: white;
-                border-radius: 12px;
-                box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-                padding: 1.5rem;
-            }
-            .sidebar h3 {
-                color: #4a5568;
-                margin-bottom: 1rem;
-                font-size: 1.1rem;
-            }
-            .quick-actions {
-                display: flex;
-                flex-direction: column;
-                gap: 0.5rem;
-            }
-            .quick-action {
-                background: #f7fafc;
-                border: 1px solid #e2e8f0;
-                padding: 0.75rem;
-                border-radius: 6px;
-                cursor: pointer;
-                transition: all 0.2s;
-                text-align: left;
-                font-size: 0.9rem;
-            }
-            .quick-action:hover {
-                background: #edf2f7;
-                border-color: #cbd5e0;
-            }
-            .status {
-                margin-top: 1rem;
-                padding: 0.75rem;
-                background: #f0fff4;
-                border: 1px solid #9ae6b4;
-                border-radius: 6px;
-                font-size: 0.9rem;
-            }
-            .loading {
-                display: none;
-                color: #718096;
-                font-style: italic;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="header">
-            <h1>🚀 JobPilot-OpenManus</h1>
-            <div class="subtitle">AI-Powered Job Hunting Assistant with Local Ollama Integration</div>
-        </div>
+
+class ProgressStreamingAgent:
+    """Agent wrapper that provides progress streaming to WebSocket clients."""
+    
+    def __init__(self, websocket: WebSocket, agent: Manus):
+        self.websocket = websocket
+        self.agent = agent
+        self.current_step = 0
+        self.total_steps = 20
         
-        <div class="main-container">
-            <div class="chat-container">
-                <div class="chat-header">
-                    💬 Chat with JobPilot Agent
-                </div>
-                <div class="chat-messages" id="messages">
-                    <div class="message assistant-message">
-                        👋 Hello! I'm your JobPilot AI assistant. I can help you find job opportunities, analyze market trends, and optimize your applications. 
-                        <br><br>
-                        Try asking me something like: "Show me Python developer jobs with 5 years experience in data science"
-                    </div>
-                </div>
-                <div class="input-area">
-                    <input type="text" id="messageInput" placeholder="Ask about job opportunities..." />
-                    <button onclick="sendMessage()">Send</button>
-                </div>
-                <div class="loading" id="loading">🤖 JobPilot is thinking...</div>
-            </div>
+    async def send_progress(self, message: str, step: int = None):
+        """Send progress update to client."""
+        if step is not None:
+            self.current_step = step
+        else:
+            self.current_step += 1
             
-            <div class="sidebar">
-                <h3>🎯 Quick Actions</h3>
-                <div class="quick-actions">
-                    <button class="quick-action" onclick="quickQuery('Show me remote Python developer jobs')">
-                        🐍 Find Python Jobs
-                    </button>
-                    <button class="quick-action" onclick="quickQuery('Data science jobs for 5 years experience')">
-                        📊 Data Science Positions  
-                    </button>
-                    <button class="quick-action" onclick="quickQuery('Help me optimize my resume for tech roles')">
-                        📄 Resume Optimization
-                    </button>
-                    <button class="quick-action" onclick="quickQuery('What are the current trends in AI/ML job market?')">
-                        📈 Market Analysis
-                    </button>
-                    <button class="quick-action" onclick="quickQuery('Generate a cover letter template for software engineering')">
-                        ✍️ Cover Letter Help
-                    </button>
-                </div>
+        await self.websocket.send_text(json.dumps({
+            "type": "progress",
+            "content": message,
+            "step": self.current_step,
+            "total": self.total_steps,
+            "timestamp": datetime.now().isoformat()
+        }))
+        
+    async def send_tool_start(self, tool_name: str, args: dict = None):
+        """Send tool start notification."""
+        await self.websocket.send_text(json.dumps({
+            "type": "tool_start",
+            "tool": tool_name,
+            "args": args,
+            "timestamp": datetime.now().isoformat()
+        }))
+        
+    async def send_tool_result(self, tool_name: str, result: str, url: str = None):
+        """Send tool result notification."""
+        await self.websocket.send_text(json.dumps({
+            "type": "tool_result",
+            "tool": tool_name,
+            "content": result[:500] if result else None,  # Limit content size
+            "url": url,
+            "timestamp": datetime.now().isoformat()
+        }))
+        
+    async def send_browser_action(self, action: str, url: str, content: str = None):
+        """Send browser action notification."""
+        await self.websocket.send_text(json.dumps({
+            "type": "browser_action",
+            "action": action,
+            "url": url,
+            "content": content[:200] if content else None,  # Limit content size
+            "timestamp": datetime.now().isoformat()
+        }))
+        
+    async def run_with_progress(self, user_message: str) -> str:
+        """Run agent with progress streaming."""
+        try:
+            # Send initial progress
+            await self.send_progress("🚀 JobPilot agent initializing...")
+            
+            # Inject JobPilot-specific system prompt
+            import os
+            current_dir = os.getcwd()
+            jobpilot_prompt = get_jobpilot_prompt(current_dir)
+            
+            # Override the system prompt for this session
+            original_prompt = getattr(self.agent, '_system_prompt', None)
+            self.agent._system_prompt = jobpilot_prompt
+            
+            await self.send_progress("🎯 Analyzing your job search request...")
+            
+            # Create a custom step counter to track agent progress
+            step_counter = {'value': 2}
+            
+            # Monkey patch the agent's tool execution to send progress
+            original_execute_tool = None
+            if hasattr(self.agent, 'execute_tool'):
+                original_execute_tool = self.agent.execute_tool
                 
-                <div class="status">
-                    <strong>🟢 Status:</strong> Connected to Ollama<br>
-                    <strong>🧠 Model:</strong> gpt-oss:20b<br>
-                    <strong>🔧 Tools:</strong> Job Search, Browser, Analysis
-                </div>
-            </div>
-        </div>
-
-        <script>
-            const ws = new WebSocket('ws://localhost:8080/ws');
-            const messages = document.getElementById('messages');
-            const messageInput = document.getElementById('messageInput');
-            const loading = document.getElementById('loading');
-
-            ws.onmessage = function(event) {
-                const data = JSON.parse(event.data);
-                addMessage(data.content, 'assistant');
-                hideLoading();
-            };
-
-            function addMessage(content, type) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${type}-message`;
-                messageDiv.innerHTML = content.replace(/\\n/g, '<br>');
-                messages.appendChild(messageDiv);
-                messages.scrollTop = messages.scrollHeight;
-            }
-
-            function showLoading() {
-                loading.style.display = 'block';
-            }
-
-            function hideLoading() {
-                loading.style.display = 'none';
-            }
-
-            function sendMessage() {
-                const message = messageInput.value.trim();
-                if (message) {
-                    addMessage(message, 'user');
-                    showLoading();
-                    ws.send(JSON.stringify({type: 'message', content: message}));
-                    messageInput.value = '';
-                }
-            }
-
-            function quickQuery(query) {
-                messageInput.value = query;
-                sendMessage();
-            }
-
-            messageInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    sendMessage();
-                }
-            });
-        </script>
-    </body>
-    </html>
-    """
-    return HTMLResponse(content=html_content)
+                async def progress_execute_tool(tool_call):
+                    tool_name = tool_call.function.name if hasattr(tool_call, 'function') else str(tool_call)
+                    await self.send_progress(f"🔧 Using {tool_name} tool...", step_counter['value'])
+                    await self.send_tool_start(tool_name)
+                    
+                    try:
+                        result = await original_execute_tool(tool_call)
+                        
+                        # Extract URL and content from browser actions
+                        url = None
+                        content = None
+                        if 'browser' in tool_name.lower() and result:
+                            if 'http' in str(result):
+                                import re
+                                url_match = re.search(r'https?://[^\s]+', str(result))
+                                if url_match:
+                                    url = url_match.group()
+                                    await self.send_browser_action('navigate', url, str(result))
+                        
+                        await self.send_tool_result(tool_name, str(result), url)
+                        step_counter['value'] += 1
+                        
+                        return result
+                    except Exception as e:
+                        await self.send_progress(f"⚠️ Tool {tool_name} encountered an issue: {str(e)[:100]}...", step_counter['value'])
+                        step_counter['value'] += 1
+                        raise e
+                
+                self.agent.execute_tool = progress_execute_tool
+            
+            # Run the agent
+            await self.send_progress("🔍 Starting job search process...", step_counter['value'])
+            response = await self.agent.run(user_message)
+            
+            await self.send_progress("✅ Job search completed successfully!", self.total_steps)
+            
+            # Restore original methods
+            if original_execute_tool:
+                self.agent.execute_tool = original_execute_tool
+            if original_prompt:
+                self.agent._system_prompt = original_prompt
+                
+            return response
+            
+        except Exception as e:
+            await self.send_progress(f"❌ Error during job search: {str(e)}", self.total_steps)
+            raise e
 
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-    """WebSocket endpoint for real-time chat communication."""
+    """WebSocket endpoint for real-time chat communication with progress streaming."""
     await manager.connect(websocket)
     try:
         while True:
@@ -338,17 +227,21 @@ async def websocket_endpoint(websocket: WebSocket):
                 # Add user message to history
                 chat_history.append(ChatMessage(type="user", content=user_message))
                 
-                # Process with JobPilot agent
+                # Process with JobPilot agent with progress streaming
                 try:
+                    # Create agent
                     agent = await Manus.create()
                     
-                    # Run the agent with user query
-                    response = await agent.run(user_message)
+                    # Create progress streaming wrapper
+                    progress_agent = ProgressStreamingAgent(websocket, agent)
+                    
+                    # Run with progress updates
+                    response = await progress_agent.run_with_progress(user_message)
                     
                     # Add assistant response to history
                     chat_history.append(ChatMessage(type="assistant", content=response))
                     
-                    # Send response back to client
+                    # Send final response back to client
                     await manager.send_personal_message(
                         json.dumps({
                             "type": "response",
@@ -415,12 +308,38 @@ async def search_jobs(request: JobSearchRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+                
+
 if __name__ == "__main__":
-    logger.info("Starting JobPilot-OpenManus Web Server...")
-    uvicorn.run(
-        "web_server:app",
-        host="0.0.0.0",
-        port=8080,
-        reload=False,
-        log_level="info"
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="JobPilot-OpenManus Web Server")
+    parser.add_argument(
+        "--host", 
+        default="localhost", 
+        help="Host to bind the server to (default: localhost)"
     )
+    parser.add_argument(
+        "--port", 
+        type=int, 
+        default=8080, 
+        help="Port to bind the server to (default: 8080)"
+    )
+    
+    args = parser.parse_args()
+    
+    logger.info("🚀 Starting JobPilot-OpenManus Web Server")
+    logger.info("📦 Serving built frontend from dist/ directory")
+    
+    try:
+        logger.info(f"Starting JobPilot-OpenManus Web Server on {args.host}:{args.port}...")
+        uvicorn.run(
+            "web_server:app",
+            host=args.host,
+            port=args.port,
+            reload=False,
+            log_level="info"
+        )
+        
+    except KeyboardInterrupt:
+        logger.info("Received interrupt signal, shutting down...")

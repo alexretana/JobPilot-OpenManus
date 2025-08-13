@@ -6,7 +6,8 @@ from app.agent.browser import BrowserContextHelper
 from app.agent.toolcall import ToolCallAgent
 from app.config import config
 from app.logger import logger
-from app.prompt.manus import NEXT_STEP_PROMPT, SYSTEM_PROMPT
+from app.prompt.manus import SYSTEM_PROMPT, NEXT_STEP_PROMPT
+from app.prompt.jobpilot import get_jobpilot_prompt
 from app.tool import Terminate, ToolCollection
 from app.tool.ask_human import AskHuman
 from app.tool.browser_use_tool import BrowserUseTool
