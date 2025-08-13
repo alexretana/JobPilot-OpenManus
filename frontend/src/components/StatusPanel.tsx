@@ -97,7 +97,7 @@ const StatusPanel: Component<StatusPanelProps> = (props) => {
       )}
       
       {/* Right Drawer */}
-      <div class={`fixed top-0 right-0 h-full w-80 bg-base-100 shadow-xl z-50 transform transition-transform duration-300 ease-in-out ${
+      <div class={`fixed top-0 right-0 h-full w-80 bg-base-100 shadow-xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
         props.isOpen() ? 'translate-x-0' : 'translate-x-full'
       }`}>
         {/* Header */}
