@@ -1,4 +1,4 @@
-import { Component, createSignal, onMount, onCleanup } from 'solid-js';
+import { Component, createSignal, onMount } from 'solid-js';
 import type { ActivityLogEntry } from '../types';
 
 interface HeaderProps {
@@ -10,36 +10,20 @@ interface HeaderProps {
 
 const Header: Component<HeaderProps> = (props) => {
   const [currentTheme, setCurrentTheme] = createSignal('corporate');
-  const [isThemeDropdownOpen, setIsThemeDropdownOpen] = createSignal(false);
-  let dropdownRef: HTMLDivElement | undefined;
-
   const themes = [
-    'light', 'dark', 'cupcake', 'bumblebee', 'emerald', 'corporate',
-    'synthwave', 'retro', 'cyberpunk', 'valentine', 'halloween', 'garden',
-    'forest', 'aqua', 'lofi', 'pastel', 'fantasy', 'wireframe', 'black',
-    'luxury', 'dracula', 'cmyk', 'autumn', 'business', 'acid', 'lemonade',
-    'night', 'coffee', 'winter'
+    { value: 'dark', label: 'Dark' },
+    { value: 'emerald', label: 'Emerald' },
+    { value: 'corporate', label: 'Corporate' },
+    { value: 'business', label: 'Business' },
+    { value: 'night', label: 'Night' },
+    { value: 'lemonade', label: 'Lemonade' }
   ];
-
-  // Handle click outside to close dropdown
-  const handleClickOutside = (event: MouseEvent) => {
-    if (dropdownRef && !dropdownRef.contains(event.target as Node) && isThemeDropdownOpen()) {
-      setIsThemeDropdownOpen(false);
-    }
-  };
 
   onMount(() => {
     const savedTheme = localStorage.getItem('theme') || 'corporate';
     setCurrentTheme(savedTheme);
     // Set the theme on the document element
     document.documentElement.setAttribute('data-theme', savedTheme);
-    
-    // Add click outside listener
-    document.addEventListener('click', handleClickOutside);
-  });
-
-  onCleanup(() => {
-    document.removeEventListener('click', handleClickOutside);
   });
 
   const changeTheme = (theme: string) => {
@@ -47,16 +31,9 @@ const Header: Component<HeaderProps> = (props) => {
     // Use DaisyUI's method: set data-theme on html element
     document.documentElement.setAttribute('data-theme', theme);
     localStorage.setItem('theme', theme);
-    
-    // Close dropdown after selecting theme
-    setIsThemeDropdownOpen(false);
-    
+
     // Trigger a custom event to notify other components if needed
     window.dispatchEvent(new CustomEvent('themeChanged', { detail: theme }));
-  };
-
-  const toggleThemeDropdown = () => {
-    setIsThemeDropdownOpen(!isThemeDropdownOpen());
   };
 
   return (
@@ -77,13 +54,13 @@ const Header: Component<HeaderProps> = (props) => {
           </div>
         </div>
       </div>
-      
+
       <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
           <li><a class="text-base-content/70">Transparent AI Job Search</a></li>
         </ul>
       </div>
-      
+
       <div class="navbar-end space-x-2">
         {/* Activity Log Notification Button */}
         <div class="indicator">
@@ -92,7 +69,7 @@ const Header: Component<HeaderProps> = (props) => {
               {props.activities().length}
             </span>
           )}
-          <button 
+          <button
             class="btn btn-ghost btn-circle"
             onClick={() => props.onShowActivityLog?.()}
             title="View Activity Log"
@@ -102,9 +79,9 @@ const Header: Component<HeaderProps> = (props) => {
             </svg>
           </button>
         </div>
-        
+
         {/* Status Panel Button */}
-        <button 
+        <button
           class="btn btn-ghost"
           onClick={() => props.onShowStatusPanel?.()}
           title="System Status & Quick Actions"
@@ -116,23 +93,37 @@ const Header: Component<HeaderProps> = (props) => {
             <span class="text-sm font-medium">Status</span>
           </div>
         </button>
-        
-        <div ref={dropdownRef} class={`dropdown dropdown-end ${isThemeDropdownOpen() ? 'dropdown-open' : ''}`}>
-          <div tabindex="0" role="button" class="btn btn-ghost" onClick={toggleThemeDropdown}>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-            </svg>
+
+        {/* Theme Selector using DaisyUI template */}
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn m-1">
             Theme
+            <svg
+              width="12px"
+              height="12px"
+              class="inline-block h-2 w-2 fill-current opacity-60"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 2048 2048"
+            >
+              <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+            </svg>
           </div>
-          <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52 max-h-96 overflow-y-auto">
+          <ul tabindex="0" class="dropdown-content bg-base-300 rounded-box z-[1] w-52 p-2 shadow-2xl">
             {themes.map((theme) => (
               <li>
-                <button 
-                  class={`capitalize ${currentTheme() === theme ? 'active' : ''}`}
-                  onClick={() => changeTheme(theme)}
-                >
-                  {theme}
-                </button>
+                <input
+                  type="radio"
+                  name="theme-dropdown"
+                  class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                  aria-label={theme.label}
+                  value={theme.value}
+                  checked={currentTheme() === theme.value}
+                  onChange={(e) => {
+                    if (e.currentTarget.checked) {
+                      changeTheme(theme.value);
+                    }
+                  }}
+                />
               </li>
             ))}
           </ul>

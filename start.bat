@@ -1,8 +1,22 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Parse command line arguments
+set "MODE=both"
+if "%~1"=="attached-backend" set "MODE=attached-backend"
+if "%~1"=="attached-frontend" set "MODE=attached-frontend"
+if "%~1"=="--help" goto :show_help
+if "%~1"=="-h" goto :show_help
+if not "%~1"=="" if not "%~1"=="attached-backend" if not "%~1"=="attached-frontend" (
+    echo [ERROR] Invalid argument: %~1
+    echo.
+    goto :show_help
+)
+
 echo =============================================
 echo      JobPilot-OpenManus Development Starter
+if "%MODE%"=="attached-backend" echo              (Attached Backend Mode)
+if "%MODE%"=="attached-frontend" echo              (Attached Frontend Mode)
 echo =============================================
 
 :: Check if we're in the right directory
@@ -117,27 +131,95 @@ echo.
 echo Frontend Dev Server: http://localhost:3000 (with hot reload)
 echo Backend API Server:  http://localhost:8080
 echo.
-echo Press Ctrl+C in any window to stop both servers.
-echo.
 
-:: Start backend server in a new command prompt
-echo [INFO] Starting backend server...
-start "JobPilot Backend" cmd /k "python web_server.py && pause"
+if "%MODE%"=="attached-backend" (
+    echo [INFO] Starting frontend in new window, backend will run attached...
+    echo Press Ctrl+C to stop the backend server.
+    echo.
+    
+    :: Start frontend in new window
+    start "JobPilot Frontend" cmd /k "cd frontend && npm run dev && pause"
+    
+    :: Give frontend a moment to start
+    powershell -Command "Start-Sleep -Seconds 2" >nul
+    
+    echo [INFO] Starting backend server in this window...
+    echo You can now access:
+    echo - Frontend: http://localhost:3000
+    echo - Backend API: http://localhost:8080/api/health
+    echo.
+    
+    :: Run backend in current shell
+    python web_server.py
+    
+) else if "%MODE%"=="attached-frontend" (
+    echo [INFO] Starting backend in new window, frontend will run attached...
+    echo Press Ctrl+C to stop the frontend server.
+    echo.
+    
+    :: Start backend in new window
+    start "JobPilot Backend" cmd /k "python web_server.py && pause"
+    
+    :: Give backend a moment to start
+    powershell -Command "Start-Sleep -Seconds 2" >nul
+    
+    echo [INFO] Starting frontend development server in this window...
+    echo You can now access:
+    echo - Frontend: http://localhost:3000
+    echo - Backend API: http://localhost:8080/api/health
+    echo.
+    
+    :: Run frontend in current shell
+    cd frontend
+    npm run dev
+    cd ..
+    
+) else (
+    :: Default mode - both in separate windows
+    echo Press Ctrl+C in any window to stop both servers.
+    echo.
+    
+    :: Start backend server in a new command prompt
+    echo [INFO] Starting backend server...
+    start "JobPilot Backend" cmd /k "python web_server.py && pause"
+    
+    :: Give backend a moment to start
+    powershell -Command "Start-Sleep -Seconds 2" >nul
+    
+    :: Start frontend development server in a new command prompt
+    echo [INFO] Starting frontend development server...
+    start "JobPilot Frontend" cmd /k "cd frontend && npm run dev && pause"
+    
+    echo.
+    echo [SUCCESS] Both servers should be starting in separate windows.
+    echo.
+    echo You can now access:
+    echo - Frontend: http://localhost:3000
+    echo - Backend API: http://localhost:8080/api/health
+    echo.
+    echo This window can be closed. Use the individual server windows to stop services.
+    echo.
+    pause
+)
 
-:: Give backend a moment to start
-powershell -Command "Start-Sleep -Seconds 2" >nul
+exit /b 0
 
-:: Start frontend development server in a new command prompt
-echo [INFO] Starting frontend development server...
-start "JobPilot Frontend" cmd /k "cd frontend && npm run dev && pause"
-
+:show_help
+echo Usage: start.bat [MODE]
 echo.
-echo [SUCCESS] Both servers should be starting in separate windows.
+echo Modes:
+echo   (none)              - Start both servers in separate windows (default)
+echo   attached-backend    - Start frontend in new window, backend attached to current shell
+echo   attached-frontend   - Start backend in new window, frontend attached to current shell
+echo   --help, -h          - Show this help message
 echo.
-echo You can now access:
-echo - Frontend: http://localhost:3000
-echo - Backend API: http://localhost:8080/api/health
+echo Examples:
+echo   start.bat                    # Both servers in separate windows
+echo   start.bat attached-backend   # Frontend in new window, backend in current shell
+echo   start.bat attached-frontend  # Backend in new window, frontend in current shell
 echo.
-echo This window can be closed. Use the individual server windows to stop services.
+echo Attached modes are useful for debugging or when you want to see live output
+echo from one of the servers while the other runs in the background.
 echo.
 pause
+exit /b 0

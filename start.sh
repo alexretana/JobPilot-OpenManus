@@ -10,6 +10,42 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Help function
+show_help() {
+    echo "Usage: ./start.sh [MODE]"
+    echo
+    echo "Modes:"
+    echo "  (none)              - Start both servers in background (default)"
+    echo "  attached-backend    - Start frontend in new terminal, backend attached to current shell"
+    echo "  attached-frontend   - Start backend in new terminal, frontend attached to current shell"
+    echo "  --help, -h          - Show this help message"
+    echo
+    echo "Examples:"
+    echo "  ./start.sh                    # Both servers in background"
+    echo "  ./start.sh attached-backend   # Frontend in new terminal, backend in current shell"
+    echo "  ./start.sh attached-frontend  # Backend in new terminal, frontend in current shell"
+    echo
+    echo "Attached modes are useful for debugging or when you want to see live output"
+    echo "from one of the servers while the other runs in a separate terminal."
+    echo "Note: Attached modes may fall back to background mode if no suitable terminal emulator is found."
+}
+
+# Parse command line arguments
+MODE="both"
+if [[ "$1" == "attached-backend" ]]; then
+    MODE="attached-backend"
+elif [[ "$1" == "attached-frontend" ]]; then
+    MODE="attached-frontend"
+elif [[ "$1" == "--help" ]] || [[ "$1" == "-h" ]]; then
+    show_help
+    exit 0
+elif [[ ! -z "$1" ]]; then
+    echo -e "${RED}[ERROR]${NC} Invalid argument: $1"
+    echo
+    show_help
+    exit 1
+fi
+
 # Logging functions
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
@@ -29,6 +65,11 @@ log_error() {
 
 echo "============================================="
 echo "     JobPilot-OpenManus Development Starter"
+if [[ "$MODE" == "attached-backend" ]]; then
+    echo "              (Attached Backend Mode)"
+elif [[ "$MODE" == "attached-frontend" ]]; then
+    echo "              (Attached Frontend Mode)"
+fi
 echo "============================================="
 
 # Check if we're in the right directory
@@ -137,8 +178,6 @@ echo
 echo "Frontend Dev Server: http://localhost:3000 (with hot reload)"
 echo "Backend API Server:  http://localhost:8080"
 echo
-echo "Press Ctrl+C to stop both servers."
-echo
 
 # Function to cleanup background processes
 cleanup() {
@@ -187,29 +226,103 @@ if ! check_port 3000; then
     log_warn "Port 3000 is already in use. Frontend may not start properly."
 fi
 
-# Start backend server in background
-log_info "Starting backend server..."
-$PYTHON_CMD web_server.py &
-BACKEND_PID=$!
-
-# Give backend a moment to start
-sleep 3
-
-# Start frontend development server in background
-log_info "Starting frontend development server..."
-cd frontend
-npm run dev &
-FRONTEND_PID=$!
-cd ..
-
-echo
-log_success "Both servers are starting!"
-echo
-echo "You can now access:"
-echo "- Frontend: http://localhost:3000"
-echo "- Backend API: http://localhost:8080/api/health"
-echo
-echo "Press Ctrl+C to stop both servers."
-
-# Wait for background processes
-wait
+if [[ "$MODE" == "attached-backend" ]]; then
+    log_info "Starting frontend in new terminal, backend will run attached..."
+    echo "Press Ctrl+C to stop the backend server."
+    echo
+    
+    # Start frontend in new terminal (different methods for different systems)
+    if command -v gnome-terminal &> /dev/null; then
+        gnome-terminal --title="JobPilot Frontend" -- bash -c "cd frontend && npm run dev; read -p 'Press Enter to close...'"
+    elif command -v xterm &> /dev/null; then
+        xterm -title "JobPilot Frontend" -e bash -c "cd frontend && npm run dev; read -p 'Press Enter to close...'" &
+    elif command -v konsole &> /dev/null; then
+        konsole --title "JobPilot Frontend" -e bash -c "cd frontend && npm run dev; read -p 'Press Enter to close...'" &
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        osascript -e 'tell app "Terminal" to do script "cd '"$(pwd)"'/frontend && npm run dev"'
+    else
+        log_warn "Could not detect terminal emulator. Starting frontend in background..."
+        cd frontend
+        npm run dev &
+        FRONTEND_PID=$!
+        cd ..
+    fi
+    
+    # Give frontend a moment to start
+    sleep 3
+    
+    log_info "Starting backend server in this terminal..."
+    echo "You can now access:"
+    echo "- Frontend: http://localhost:3000"
+    echo "- Backend API: http://localhost:8080/api/health"
+    echo
+    
+    # Run backend in current terminal
+    $PYTHON_CMD web_server.py
+    
+elif [[ "$MODE" == "attached-frontend" ]]; then
+    log_info "Starting backend in new terminal, frontend will run attached..."
+    echo "Press Ctrl+C to stop the frontend server."
+    echo
+    
+    # Start backend in new terminal (different methods for different systems)
+    if command -v gnome-terminal &> /dev/null; then
+        gnome-terminal --title="JobPilot Backend" -- bash -c "$PYTHON_CMD web_server.py; read -p 'Press Enter to close...'"
+    elif command -v xterm &> /dev/null; then
+        xterm -title "JobPilot Backend" -e bash -c "$PYTHON_CMD web_server.py; read -p 'Press Enter to close...'" &
+    elif command -v konsole &> /dev/null; then
+        konsole --title "JobPilot Backend" -e bash -c "$PYTHON_CMD web_server.py; read -p 'Press Enter to close...'" &
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        osascript -e 'tell app "Terminal" to do script "cd '"$(pwd)"' && '$PYTHON_CMD' web_server.py"'
+    else
+        log_warn "Could not detect terminal emulator. Starting backend in background..."
+        $PYTHON_CMD web_server.py &
+        BACKEND_PID=$!
+    fi
+    
+    # Give backend a moment to start
+    sleep 3
+    
+    log_info "Starting frontend development server in this terminal..."
+    echo "You can now access:"
+    echo "- Frontend: http://localhost:3000"
+    echo "- Backend API: http://localhost:8080/api/health"
+    echo
+    
+    # Run frontend in current terminal
+    cd frontend
+    npm run dev
+    cd ..
+    
+else
+    # Default mode - both in background
+    echo "Press Ctrl+C to stop both servers."
+    echo
+    
+    # Start backend server in background
+    log_info "Starting backend server..."
+    $PYTHON_CMD web_server.py &
+    BACKEND_PID=$!
+    
+    # Give backend a moment to start
+    sleep 3
+    
+    # Start frontend development server in background
+    log_info "Starting frontend development server..."
+    cd frontend
+    npm run dev &
+    FRONTEND_PID=$!
+    cd ..
+    
+    echo
+    log_success "Both servers are starting!"
+    echo
+    echo "You can now access:"
+    echo "- Frontend: http://localhost:3000"
+    echo "- Backend API: http://localhost:8080/api/health"
+    echo
+    echo "Press Ctrl+C to stop both servers."
+    
+    # Wait for background processes
+    wait
+fi
