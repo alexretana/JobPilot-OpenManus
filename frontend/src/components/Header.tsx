@@ -113,7 +113,7 @@ const Header: Component<HeaderProps> = (props) => {
                 <input
                   type="radio"
                   name="theme-dropdown"
-                  class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
+                  class="theme-controller btn btn-sm btn-block btn-ghost justify-start"
                   aria-label={theme.label}
                   value={theme.value}
                   checked={currentTheme() === theme.value}
