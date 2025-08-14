@@ -175,24 +175,24 @@ const App: Component = () => {
       />
 
       <main class="mx-auto p-4 h-[calc(100vh-80px)]">
-        {/* Tab Navigation */}
-        <div class="tabs tabs-boxed mb-4 bg-base-100">
-          <a 
+        {/* Compact Tab Navigation */}
+        <div class="tabs tabs-border tabs-lg justify-start mb-2">
+          <button 
             class={`tab ${activeTab() === 'chat' ? 'tab-active' : ''}`}
             onClick={() => setActiveTab('chat')}
           >
             💬 AI Chat
-          </a>
-          <a 
+          </button>
+          <button 
             class={`tab ${activeTab() === 'jobs' ? 'tab-active' : ''}`}
             onClick={() => setActiveTab('jobs')}
           >
             💼 Jobs
-          </a>
+          </button>
         </div>
 
         {/* Tab Content */}
-        <div class="h-[calc(100%-60px)]">
+        <div class="h-[calc(100%-45px)]">
           <Show when={activeTab() === 'chat'}>
             <div class="flex flex-col lg:flex-row gap-4 h-full max-w-none">
               {/* Chat Column */}
