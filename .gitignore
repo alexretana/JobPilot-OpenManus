@@ -11,6 +11,23 @@ logs/
 # Workspace
 workspace/
 
+# API Research - exclude response data and sensitive info
+api_research/responses/
+api_research/analysis/*.json
+*.api_key
+.env.local
+.env.development
+.env.production
+
+# ETL Pipeline data directories (when implemented)
+data/raw_collections/
+data/processed_data/
+data/failed_processing/
+
+# Test files with API keys or sensitive data
+**/test_*_with_keys.py
+**/run_*_test.py
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
