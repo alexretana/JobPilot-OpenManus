@@ -8,6 +8,7 @@ import ActivityModal from './components/ActivityModal';
 import StatusPanel from './components/StatusPanel';
 import { Timeline } from './components/Timeline';
 import ApplicationsManager from './components/ApplicationsManager';
+import LeadsManager from './components/LeadsManager';
 import { webSocketService } from './services/websocket';
 import type { ChatMessage, ActivityLogEntry, ProgressState, BrowserState, WebSocketMessage } from './types';
 
@@ -25,7 +26,7 @@ const App: Component = () => {
   const [showActivityModal, setShowActivityModal] = createSignal(false);
   const [showStatusPanel, setShowStatusPanel] = createSignal(false);
   const [systemHealthy, setSystemHealthy] = createSignal(true);
-  const [activeTab, setActiveTab] = createSignal<'chat' | 'jobs' | 'timeline' | 'applications'>('chat');
+  const [activeTab, setActiveTab] = createSignal<'chat' | 'jobs' | 'timeline' | 'applications' | 'leads'>('chat');
   const [selectedJobId, setSelectedJobId] = createSignal<string | null>(null);
   const [showJobModal, setShowJobModal] = createSignal(false);
 
@@ -227,6 +228,12 @@ const App: Component = () => {
         <Show when={activeTab() === 'applications'}>
           <div class="bg-base-100 rounded-lg p-2 h-full overflow-y-auto">
             <ApplicationsManager />
+          </div>
+        </Show>
+
+        <Show when={activeTab() === 'leads'}>
+          <div class="bg-base-100 rounded-lg p-2 h-full overflow-y-auto">
+            <LeadsManager />
           </div>
         </Show>
       </main>
