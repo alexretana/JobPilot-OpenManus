@@ -11,6 +11,8 @@ import sys
 from datetime import datetime
 from uuid import uuid4
 
+import pytest
+
 # Add the app directory to Python path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'app'))
 
@@ -157,6 +159,7 @@ def test_database_schema():
         return False
 
 
+@pytest.mark.asyncio
 async def test_vector_store():
     """Test the vector store implementation."""
     print("\n🔍 Testing Vector Store...")
@@ -245,6 +248,7 @@ async def test_vector_store():
         return False
 
 
+@pytest.mark.asyncio
 async def test_integration():
     """Test integration between database and vector store."""
     print("\n🔗 Testing Database-VectorStore Integration...")

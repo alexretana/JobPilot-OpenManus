@@ -8,6 +8,8 @@ import asyncio
 import sys
 import os
 
+import pytest
+
 # Add the current directory to Python path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -15,6 +17,7 @@ from app.agent.manus import Manus
 from app.prompt.jobpilot import get_jobpilot_prompt
 from app.logger import logger
 
+@pytest.mark.asyncio
 async def test_jobpilot_integration():
     """Test basic JobPilot integration."""
     print("🧪 Testing JobPilot-OpenManus Integration...")

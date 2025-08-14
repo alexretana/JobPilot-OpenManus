@@ -9,9 +9,11 @@ import json
 from datetime import datetime
 from typing import Dict, Any
 
+import pytest
 from app.tool.job_boards import get_scraper, list_scrapers, JobSearchQuery
 
 
+@pytest.mark.asyncio
 async def test_scraper_health_checks():
     """Test health checks for all available scrapers"""
     print("🔍 Testing scraper health checks...")
@@ -53,6 +55,7 @@ async def test_scraper_health_checks():
     return results
 
 
+@pytest.mark.asyncio
 async def test_scraper_basic_functionality():
     """Test basic scraping functionality with a simple query"""
     print("\n🔍 Testing basic scraping functionality...")
@@ -114,6 +117,7 @@ async def test_scraper_basic_functionality():
     return results
 
 
+@pytest.mark.asyncio
 async def test_scraper_statistics():
     """Test scraper statistics and monitoring"""
     print("\n📊 Testing scraper statistics...")
