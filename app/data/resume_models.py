@@ -10,7 +10,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
 
-from app.data.models import Base
+from .models import Base, UserProfileDB, JobListingDB
 
 # =============================================================================
 # ENUMS AND TYPES
@@ -275,7 +275,7 @@ class ResumeDB(Base):
     user = relationship("UserProfileDB", back_populates="resumes")
     template = relationship("ResumeTemplateDB")
     job = relationship("JobListingDB")
-    versions = relationship("ResumeDB", remote_side=[id])
+    generations = relationship("ResumeGenerationDB", back_populates="resume")
 
 class ResumeTemplateDB(Base):
     """Resume template database model"""
@@ -397,3 +397,225 @@ class ResumeRepository:
     async def calculate_ats_score(self, resume: Resume, job_description: Optional[str] = None) -> ATSScore:
         """Calculate ATS compatibility score"""
         pass
+
+
+# =============================================================================
+# RESUME GENERATION AND FILE OUTPUT
+# =============================================================================
+
+class ResumeFormat(str, Enum):
+    """Resume output formats"""
+    PDF = "pdf"
+    DOCX = "docx"
+    HTML = "html"
+    JSON = "json"
+    MARKDOWN = "markdown"
+    TXT = "txt"
+
+
+class ResumeGenerationDB(Base):
+    """Resume generation tracking database model"""
+    __tablename__ = "resume_generations"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    resume_id = Column(String, ForeignKey("resumes.id"), nullable=False)
+    
+    # Generation details
+    format = Column(String, nullable=False)  # PDF, DOCX, HTML, etc.
+    template_name = Column(String, nullable=False)
+    file_path = Column(String)
+    file_size = Column(Integer)
+    generation_params = Column(JSON, default=dict)
+    
+    # Generation status
+    status = Column(String, default="pending")  # pending, completed, failed
+    error_message = Column(Text)
+    
+    # Timestamps
+    generated_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    resume = relationship("ResumeDB", back_populates="generations")
+
+
+class ResumeOptimizationDB(Base):
+    """Resume optimization tracking for specific jobs"""
+    __tablename__ = "resume_optimizations"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    resume_id = Column(String, ForeignKey("resumes.id"), nullable=False)
+    job_id = Column(String, ForeignKey("job_listings.id"), nullable=False)
+    
+    # Optimization results
+    match_score = Column(Float, nullable=False)
+    keyword_matches = Column(JSON, default=list)
+    missing_keywords = Column(JSON, default=list)
+    skill_matches = Column(JSON, default=list)
+    missing_skills = Column(JSON, default=list)
+    
+    # Recommendations
+    recommendations = Column(JSON, default=list)
+    sections_to_emphasize = Column(JSON, default=list)
+    content_suggestions = Column(JSON, default=list)
+    
+    # Analysis metadata
+    analyzed_at = Column(DateTime, default=datetime.utcnow)
+    analysis_version = Column(String, default="v1.0")
+    
+    # Relationships
+    resume = relationship("ResumeDB")
+    job = relationship("JobListingDB")
+
+
+# =============================================================================
+# UTILITY FUNCTIONS FOR RESUME OPERATIONS
+# =============================================================================
+
+def create_resume_from_profile(user_profile_data: Dict[str, Any]) -> Resume:
+    """Create a basic resume from user profile data"""
+    contact_info = ContactInfo(
+        full_name=f"{user_profile_data.get('first_name', '')} {user_profile_data.get('last_name', '')}".strip(),
+        email=user_profile_data.get('email', ''),
+        phone=user_profile_data.get('phone'),
+        linkedin=user_profile_data.get('linkedin_url'),
+        github=user_profile_data.get('github_url'),
+        website=user_profile_data.get('website_url')
+    )
+    
+    # Convert profile skills to resume skills
+    skills = []
+    if user_profile_data.get('skills'):
+        for skill_name in user_profile_data['skills']:
+            skills.append(Skill(
+                name=skill_name,
+                level=SkillLevel.INTERMEDIATE,
+                category="Technical Skills"
+            ))
+    
+    resume = Resume(
+        user_id=user_profile_data['id'],
+        title=f"{user_profile_data.get('current_title', 'Professional')} Resume",
+        contact_info=contact_info,
+        summary=user_profile_data.get('bio'),
+        skills=skills
+    )
+    
+    return resume
+
+
+def calculate_resume_completeness(resume: Resume) -> float:
+    """Calculate resume completeness score (0.0 to 100.0)"""
+    score = 0
+    total_sections = 8
+    
+    # Essential sections
+    if resume.contact_info.full_name and resume.contact_info.email:
+        score += 1
+    if resume.summary and len(resume.summary.strip()) > 30:
+        score += 1
+    if len(resume.work_experience) > 0:
+        score += 1
+    if len(resume.education) > 0:
+        score += 1
+    if len(resume.skills) >= 3:
+        score += 1
+    if len(resume.projects) > 0 or len(resume.certifications) > 0:
+        score += 1
+    if resume.contact_info.linkedin or resume.contact_info.github:
+        score += 1
+    if any(exp.achievements for exp in resume.work_experience):
+        score += 1
+    
+    return (score / total_sections) * 100
+
+
+def extract_resume_keywords(resume: Resume) -> List[str]:
+    """Extract all keywords from resume content"""
+    keywords = set()
+    
+    # From skills
+    for skill in resume.skills:
+        keywords.add(skill.name.lower())
+        if skill.category:
+            keywords.add(skill.category.lower())
+    
+    # From work experience
+    for exp in resume.work_experience:
+        keywords.update(skill.lower() for skill in exp.skills_used)
+        keywords.add(exp.position.lower())
+        keywords.add(exp.company.lower())
+    
+    # From projects
+    for project in resume.projects:
+        keywords.update(tech.lower() for tech in project.technologies)
+    
+    # From education
+    for edu in resume.education:
+        if edu.field_of_study:
+            keywords.add(edu.field_of_study.lower())
+        keywords.add(edu.degree.lower())
+    
+    # From certifications
+    for cert in resume.certifications:
+        keywords.add(cert.name.lower())
+        keywords.add(cert.issuer.lower())
+    
+    return list(keywords)
+
+
+def generate_ats_score(resume: Resume, job_description: Optional[str] = None) -> ATSScore:
+    """Generate ATS compatibility score for resume"""
+    # Basic scoring algorithm
+    format_score = 85.0  # Assume good format
+    
+    # Section scoring
+    has_contact = bool(resume.contact_info.full_name and resume.contact_info.email)
+    has_experience = len(resume.work_experience) > 0
+    has_skills = len(resume.skills) > 0
+    has_education = len(resume.education) > 0
+    
+    section_score = (
+        (25 if has_contact else 0) +
+        (35 if has_experience else 0) +
+        (25 if has_skills else 0) +
+        (15 if has_education else 0)
+    )
+    
+    # Length scoring (assume good length)
+    length_score = 90.0
+    
+    # Keyword scoring
+    resume_keywords = set(extract_resume_keywords(resume))
+    if job_description:
+        # Simple keyword matching - in production this would be more sophisticated
+        job_keywords = set(job_description.lower().split())
+        common_keywords = resume_keywords.intersection(job_keywords)
+        keyword_score = min(len(common_keywords) * 5, 100.0)
+        missing_keywords = list(job_keywords - resume_keywords)[:10]  # Top 10 missing
+    else:
+        keyword_score = 75.0  # Default score without job description
+        missing_keywords = []
+    
+    overall_score = (format_score + section_score + length_score + keyword_score) / 4
+    
+    suggestions = []
+    if not has_contact:
+        suggestions.append("Add complete contact information")
+    if not has_experience:
+        suggestions.append("Add work experience section")
+    if not has_skills:
+        suggestions.append("Add skills section")
+    if len(resume.skills) < 5:
+        suggestions.append("Add more relevant skills")
+    if not any(exp.achievements for exp in resume.work_experience):
+        suggestions.append("Add specific achievements to work experience")
+    
+    return ATSScore(
+        overall_score=overall_score,
+        keyword_score=keyword_score,
+        formatting_score=format_score,
+        section_score=section_score,
+        length_score=length_score,
+        suggestions=suggestions,
+        missing_keywords=missing_keywords
+    )

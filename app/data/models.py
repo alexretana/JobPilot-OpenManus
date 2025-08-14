@@ -691,6 +691,8 @@ class UserProfileDB(Base):
     
     # Relationships
     applications = relationship("JobApplicationDB", back_populates="user_profile")
+    resumes = relationship("ResumeDB", back_populates="user")
+    skill_bank = relationship("SkillBankDB", back_populates="user", uselist=False)
 
 
 class JobApplicationDB(Base):
