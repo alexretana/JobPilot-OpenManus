@@ -36,6 +36,20 @@ test_jsearch_api.py
 setup_etl_test.py
 test_etl_*.py
 
+# Resume Generation Output
+generated_resumes/
+*.pdf
+*.resume.json
+*.resume.yaml
+*.resume.yml
+*.resume.txt
+test_results_*.json
+test_*.pdf
+test_*.json
+test_*.yaml
+test_*.txt
+*_preview_*.png
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/

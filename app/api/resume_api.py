@@ -16,6 +16,10 @@ from app.data.resume_models import (
     ATSScore, ResumeFormat
 )
 from app.repositories.resume_repository import ResumeRepository
+from app.services.resume_orchestrator_service import (
+    ResumeOrchestratorService, ResumeGenerationRequest, ResumeGenerationResult,
+    create_resume_orchestrator
+)
 from app.logger import logger
 
 # Create router
@@ -64,6 +68,29 @@ class TailorResumeRequest(BaseModel):
     base_resume_id: str
     job_id: str
     title: Optional[str] = None
+
+
+class AIGenerateResumeRequest(BaseModel):
+    """Request model for AI-powered resume generation."""
+    generation_type: str = Field(..., description="Type: 'create', 'optimize', or 'enhance'")
+    base_resume_id: Optional[str] = Field(None, description="Required for optimize/enhance")
+    job_id: Optional[str] = Field(None, description="Job ID for optimization")
+    job_description: Optional[str] = Field(None, description="Job description text")
+    target_role: Optional[str] = Field(None, description="Target job role")
+    target_industry: Optional[str] = Field(None, description="Target industry")
+    optimization_level: str = Field("moderate", description="light, moderate, or aggressive")
+    export_formats: List[str] = Field(["pdf"], description="Export formats: pdf, json, yaml, txt")
+    pdf_template: str = Field("moderncv", description="PDF template name")
+    theme_options: Optional[Dict[str, Any]] = Field(None, description="Custom theme options")
+    custom_instructions: Optional[str] = Field(None, description="Custom generation instructions")
+
+
+class ExportResumeRequest(BaseModel):
+    """Request model for exporting resume."""
+    export_format: str = Field(..., description="Format: pdf, json, yaml, txt")
+    template_name: str = Field("moderncv", description="Template for PDF export")
+    filename: Optional[str] = Field(None, description="Custom filename")
+    theme_options: Optional[Dict[str, Any]] = Field(None, description="Theme customization")
 
 
 class ResumeResponse(BaseModel):
@@ -583,3 +610,302 @@ async def duplicate_resume(
     except Exception as e:
         logger.error(f"Error duplicating resume: {e}")
         raise HTTPException(status_code=500, detail=f"Error duplicating resume: {str(e)}")
+
+
+# =====================================
+# AI-Powered Resume Generation
+# =====================================
+
+@router.post("/ai/generate")
+async def generate_resume_with_ai(
+    request: AIGenerateResumeRequest,
+    user_id: str = Query(..., description="User ID for authorization"),
+    db: Session = Depends(get_db),
+    llm_provider: str = Query("mock", description="LLM provider: openai, anthropic, mock")
+):
+    """Generate a complete resume using AI with content optimization and export."""
+    try:
+        # Create orchestrator service
+        repo = ResumeRepository(db)
+        orchestrator = create_resume_orchestrator(
+            resume_repository=repo,
+            llm_provider=llm_provider
+        )
+        
+        # Create generation request
+        generation_request = ResumeGenerationRequest(
+            user_id=user_id,
+            generation_type=request.generation_type,
+            base_resume_id=request.base_resume_id,
+            job_id=request.job_id,
+            job_description=request.job_description,
+            target_role=request.target_role,
+            target_industry=request.target_industry,
+            optimization_level=request.optimization_level,
+            export_formats=request.export_formats,
+            pdf_template=request.pdf_template,
+            theme_options=request.theme_options,
+            custom_instructions=request.custom_instructions
+        )
+        
+        # Generate resume
+        result = await orchestrator.generate_complete_resume(generation_request)
+        
+        if result.success:
+            response = {
+                "success": True,
+                "message": "Resume generated successfully",
+                "resume_id": result.resume_id,
+                "processing_time": result.processing_time,
+                "generation_metadata": result.generation_metadata,
+                "generated_files": result.generated_files,
+                "optimization_analysis": result.optimization_analysis
+            }
+            
+            if result.warnings:
+                response["warnings"] = result.warnings
+            
+            logger.info(f"AI resume generation completed for user {user_id}")
+            return response
+        else:
+            logger.error(f"AI resume generation failed: {result.errors}")
+            raise HTTPException(
+                status_code=500,
+                detail={
+                    "message": "Resume generation failed",
+                    "errors": result.errors,
+                    "processing_time": result.processing_time
+                }
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in AI resume generation: {e}")
+        raise HTTPException(status_code=500, detail=f"AI generation error: {str(e)}")
+
+
+@router.post("/ai/batch-generate")
+async def batch_generate_resumes(
+    requests: List[AIGenerateResumeRequest],
+    user_id: str = Query(..., description="User ID for authorization"),
+    max_concurrent: int = Query(3, ge=1, le=5, description="Max concurrent generations"),
+    db: Session = Depends(get_db),
+    llm_provider: str = Query("mock", description="LLM provider: openai, anthropic, mock")
+):
+    """Generate multiple resumes concurrently."""
+    try:
+        if len(requests) > 10:
+            raise HTTPException(status_code=400, detail="Maximum 10 resumes per batch")
+        
+        # Create orchestrator service
+        repo = ResumeRepository(db)
+        orchestrator = create_resume_orchestrator(
+            resume_repository=repo,
+            llm_provider=llm_provider
+        )
+        
+        # Convert to generation requests
+        generation_requests = []
+        for req in requests:
+            generation_requests.append(ResumeGenerationRequest(
+                user_id=user_id,
+                generation_type=req.generation_type,
+                base_resume_id=req.base_resume_id,
+                job_id=req.job_id,
+                job_description=req.job_description,
+                target_role=req.target_role,
+                target_industry=req.target_industry,
+                optimization_level=req.optimization_level,
+                export_formats=req.export_formats,
+                pdf_template=req.pdf_template,
+                theme_options=req.theme_options,
+                custom_instructions=req.custom_instructions
+            ))
+        
+        # Generate resumes in batch
+        results = await orchestrator.batch_generate_resumes(
+            generation_requests,
+            max_concurrent=max_concurrent
+        )
+        
+        # Prepare response
+        successful_count = sum(1 for r in results if r.success)
+        failed_count = len(results) - successful_count
+        
+        response_data = {
+            "batch_results": [
+                {
+                    "success": result.success,
+                    "resume_id": result.resume_id,
+                    "processing_time": result.processing_time,
+                    "errors": result.errors,
+                    "warnings": result.warnings
+                }
+                for result in results
+            ],
+            "summary": {
+                "total_requested": len(requests),
+                "successful": successful_count,
+                "failed": failed_count,
+                "total_processing_time": sum(r.processing_time for r in results)
+            }
+        }
+        
+        logger.info(f"Batch generation completed: {successful_count}/{len(requests)} successful")
+        return response_data
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error in batch resume generation: {e}")
+        raise HTTPException(status_code=500, detail=f"Batch generation error: {str(e)}")
+
+
+@router.get("/ai/templates")
+async def get_generation_templates(
+    db: Session = Depends(get_db),
+    llm_provider: str = Query("mock", description="LLM provider for capabilities")
+):
+    """Get available templates and options for AI resume generation."""
+    try:
+        # Create orchestrator service
+        repo = ResumeRepository(db)
+        orchestrator = create_resume_orchestrator(
+            resume_repository=repo,
+            llm_provider=llm_provider
+        )
+        
+        templates = await orchestrator.get_generation_templates()
+        
+        return {
+            "message": "Generation templates retrieved successfully",
+            "templates": templates
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting generation templates: {e}")
+        raise HTTPException(status_code=500, detail=f"Error getting templates: {str(e)}")
+
+
+# =====================================
+# Resume Export Endpoints
+# =====================================
+
+@router.post("/{resume_id}/export")
+async def export_resume(
+    resume_id: str = Path(..., description="Resume ID"),
+    request: ExportResumeRequest = Body(...),
+    user_id: str = Query(..., description="User ID for authorization"),
+    db: Session = Depends(get_db)
+):
+    """Export an existing resume in various formats."""
+    try:
+        # Get resume
+        repo = ResumeRepository(db)
+        resume = await repo.get_resume(resume_id, user_id)
+        
+        if not resume:
+            raise HTTPException(status_code=404, detail="Resume not found")
+        
+        # Create export service
+        from app.services.pdf_generation_service import create_export_service
+        export_service = create_export_service()
+        
+        # Export resume
+        export_result = await export_service.export_resume(
+            resume=resume,
+            export_format=request.export_format,
+            template_name=request.template_name,
+            options={
+                "filename": request.filename,
+                "theme_options": request.theme_options
+            }
+        )
+        
+        if export_result.get("success"):
+            logger.info(f"Exported resume {resume_id} as {request.export_format}")
+            return {
+                "message": f"Resume exported as {request.export_format} successfully",
+                "export_result": export_result
+            }
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Export failed: {export_result.get('error', 'Unknown error')}"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error exporting resume: {e}")
+        raise HTTPException(status_code=500, detail=f"Export error: {str(e)}")
+
+
+@router.get("/export/templates")
+async def get_export_templates():
+    """Get available export templates and formats."""
+    try:
+        from app.services.pdf_generation_service import create_pdf_service
+        pdf_service = create_pdf_service()
+        
+        templates = pdf_service.get_available_templates()
+        
+        return {
+            "export_formats": ["pdf", "json", "yaml", "txt"],
+            "pdf_templates": templates,
+            "supported_themes": [
+                {"name": "blue", "description": "Professional blue theme"},
+                {"name": "green", "description": "Modern green theme"},
+                {"name": "red", "description": "Bold red theme"},
+                {"name": "black", "description": "Classic black and white"}
+            ]
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting export templates: {e}")
+        raise HTTPException(status_code=500, detail=f"Error getting export templates: {str(e)}")
+
+
+@router.post("/{resume_id}/preview")
+async def generate_resume_preview(
+    resume_id: str = Path(..., description="Resume ID"),
+    user_id: str = Query(..., description="User ID for authorization"),
+    template_name: str = Query("moderncv", description="Template for preview"),
+    db: Session = Depends(get_db)
+):
+    """Generate a preview image of the resume."""
+    try:
+        # Get resume
+        repo = ResumeRepository(db)
+        resume = await repo.get_resume(resume_id, user_id)
+        
+        if not resume:
+            raise HTTPException(status_code=404, detail="Resume not found")
+        
+        # Create PDF service for preview
+        from app.services.pdf_generation_service import create_pdf_service
+        pdf_service = create_pdf_service()
+        
+        # Generate preview
+        preview_result = await pdf_service.generate_preview_image(
+            resume=resume,
+            template_name=template_name
+        )
+        
+        if preview_result.get("success"):
+            return {
+                "message": "Preview generated successfully",
+                "preview": preview_result
+            }
+        else:
+            raise HTTPException(
+                status_code=500,
+                detail=f"Preview generation failed: {preview_result.get('error', 'Unknown error')}"
+            )
+            
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating preview: {e}")
+        raise HTTPException(status_code=500, detail=f"Preview error: {str(e)}")
