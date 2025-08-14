@@ -5,6 +5,7 @@
 
 import { Component, createSignal, createEffect, Show, For } from 'solid-js';
 import { jobApi, type JobDetails } from '../services/jobApi';
+import { ApplicationTimeline } from './ApplicationTimeline';
 
 interface JobDetailsModalProps {
   jobId: string | null;
@@ -18,6 +19,7 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
   const [error, setError] = createSignal<string | null>(null);
   const [isSaved, setIsSaved] = createSignal(false);
   const [saving, setSaving] = createSignal(false);
+  const [activeTab, setActiveTab] = createSignal<'details' | 'timeline'>('details');
 
   // Load job details when jobId changes
   createEffect(() => {
@@ -92,6 +94,7 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
     setTimeout(() => {
       setJob(null);
       setError(null);
+      setActiveTab('details'); // Reset to details tab
     }, 300); // Wait for close animation
   };
 
@@ -150,8 +153,36 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
             </button>
           </div>
 
+          {/* Tab Navigation */}
+          <Show when={!loading() && !error() && job()}>
+            <div class="px-4 pt-2">
+              <div class="tabs tabs-boxed justify-start">
+                <button
+                  class={`tab tab-md gap-2 ${activeTab() === 'details' ? 'tab-active' : ''}`}
+                  onClick={() => setActiveTab('details')}
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Job Details
+                </button>
+                <button
+                  class={`tab tab-md gap-2 ${activeTab() === 'timeline' ? 'tab-active' : ''}`}
+                  onClick={() => setActiveTab('timeline')}
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Timeline
+                </button>
+              </div>
+            </div>
+          </Show>
+
           {/* Modal Content */}
-          <div class="p-4 overflow-y-auto max-h-[calc(90vh-120px)]">
+          <div class="p-4 overflow-y-auto max-h-[calc(90vh-180px)]">
             <Show when={loading()}>
               <div class="flex flex-col items-center justify-center py-12">
                 <div class="loading loading-spinner loading-lg text-primary"></div>
@@ -173,7 +204,9 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
             </Show>
 
             <Show when={!loading() && !error() && job()}>
-              <div class="space-y-6">
+              {/* Details Tab Content */}
+              <Show when={activeTab() === 'details'}>
+                <div class="space-y-6">
                 {/* Job Header Info */}
                 <div class="flex flex-wrap gap-4 items-start">
                   <div class="flex-1 min-w-0">
@@ -318,6 +351,18 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
                   </div>
                 </div>
               </div>
+              </Show>
+
+              {/* Timeline Tab Content */}
+              <Show when={activeTab() === 'timeline'}>
+                <ApplicationTimeline
+                  applicationId={job()?.id || 'unknown'}
+                  jobTitle={job()?.title}
+                  companyName={job()?.company}
+                  className="min-h-[400px]"
+                  compact={false}
+                />
+              </Show>
             </Show>
           </div>
 

@@ -2,6 +2,7 @@ import { createSignal, Show, For } from 'solid-js';
 import type { TimelineEvent } from '../types';
 import { TimelineEventType } from '../types';
 import { timelineApi } from '../services/timelineApi';
+import { EditEventModal } from './EditEventModal';
 
 interface TimelineEventCardProps {
   event: TimelineEvent;
@@ -11,6 +12,7 @@ interface TimelineEventCardProps {
 
 export function TimelineEventCard(props: TimelineEventCardProps) {
   const [showDetails, setShowDetails] = createSignal(false);
+  const [showEditModal, setShowEditModal] = createSignal(false);
   const [deleting, setDeleting] = createSignal(false);
 
   // Format date for display
@@ -165,21 +167,39 @@ export function TimelineEventCard(props: TimelineEventCardProps) {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
               </svg>
             </div>
-            <ul tabindex={0} class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-32">
+            <ul tabindex={0} class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-36">
               <li>
                 <button 
                   class="text-xs"
                   onClick={() => setShowDetails(!showDetails())}
                 >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
                   {showDetails() ? 'Hide' : 'Show'} Details
                 </button>
               </li>
+              <li>
+                <button 
+                  class="text-xs"
+                  onClick={() => setShowEditModal(true)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit Event
+                </button>
+              </li>
+              <div class="divider my-1"></div>
               <li>
                 <button 
                   class="text-xs text-error"
                   onClick={handleDelete}
                   disabled={deleting()}
                 >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
                   {deleting() ? 'Deleting...' : 'Delete'}
                 </button>
               </li>
@@ -229,6 +249,18 @@ export function TimelineEventCard(props: TimelineEventCardProps) {
           </div>
         </Show>
       </div>
+
+      {/* Edit Event Modal */}
+      <Show when={showEditModal()}>
+        <EditEventModal
+          event={props.event}
+          onClose={() => setShowEditModal(false)}
+          onEventUpdated={() => {
+            setShowEditModal(false);
+            props.onUpdate();
+          }}
+        />
+      </Show>
     </div>
   );
 }
