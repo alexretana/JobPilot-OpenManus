@@ -554,21 +554,175 @@ class SavedJobRepository:
             return None
 
 
+class ApplicationRepository:
+    """Repository for job application operations."""
+    
+    def __init__(self, db_manager: DatabaseManager):
+        """Initialize application repository."""
+        self.db_manager = db_manager
+    
+    def create_application(self, app_data: JobApplication) -> JobApplication:
+        """Create a new job application."""
+        try:
+            with self.db_manager.get_session() as session:
+                app_db = pydantic_to_sqlalchemy(app_data, JobApplicationDB)
+                session.add(app_db)
+                session.flush()  # Get the ID
+                
+                result = sqlalchemy_to_pydantic(app_db, JobApplication)
+                logger.info(f"Created application: {result.id} for job {result.job_id}")
+                return result
+                
+        except Exception as e:
+            logger.error(f"Error creating application: {e}")
+            raise
+    
+    def get_application(self, application_id: str) -> Optional[JobApplication]:
+        """Get application by ID."""
+        try:
+            with self.db_manager.get_session() as session:
+                app_db = session.query(JobApplicationDB).filter(
+                    JobApplicationDB.id == application_id
+                ).first()
+                if app_db:
+                    return sqlalchemy_to_pydantic(app_db, JobApplication)
+                return None
+        except Exception as e:
+            logger.error(f"Error getting application {application_id}: {e}")
+            return None
+    
+    def get_application_by_job_and_user(self, job_id: str, user_profile_id: str) -> Optional[JobApplication]:
+        """Get application by job and user combination."""
+        try:
+            with self.db_manager.get_session() as session:
+                app_db = session.query(JobApplicationDB).filter(
+                    and_(
+                        JobApplicationDB.job_id == job_id,
+                        JobApplicationDB.user_profile_id == user_profile_id
+                    )
+                ).first()
+                if app_db:
+                    return sqlalchemy_to_pydantic(app_db, JobApplication)
+                return None
+        except Exception as e:
+            logger.error(f"Error getting application for job {job_id} and user {user_profile_id}: {e}")
+            return None
+    
+    def get_applications(
+        self,
+        user_profile_id: str,
+        status: Optional[ApplicationStatus] = None,
+        limit: int = 50,
+        offset: int = 0
+    ) -> Tuple[List[JobApplication], int]:
+        """Get user's applications with filtering."""
+        try:
+            with self.db_manager.get_session() as session:
+                query_obj = session.query(JobApplicationDB).filter(
+                    JobApplicationDB.user_profile_id == user_profile_id
+                )
+                
+                # Filter by status
+                if status:
+                    query_obj = query_obj.filter(JobApplicationDB.status == status)
+                
+                # Get total count
+                total = query_obj.count()
+                
+                # Apply pagination and ordering
+                apps_db = query_obj.order_by(
+                    desc(JobApplicationDB.created_at)
+                ).offset(offset).limit(limit).all()
+                
+                applications = [
+                    sqlalchemy_to_pydantic(app_db, JobApplication) 
+                    for app_db in apps_db
+                ]
+                
+                logger.info(f"Retrieved {len(applications)} applications for user {user_profile_id}")
+                return applications, total
+                
+        except Exception as e:
+            logger.error(f"Error getting applications for user {user_profile_id}: {e}")
+            return [], 0
+    
+    def update_application(self, application_id: str, update_data: Dict[str, Any]) -> Optional[JobApplication]:
+        """Update application."""
+        try:
+            with self.db_manager.get_session() as session:
+                app_db = session.query(JobApplicationDB).filter(
+                    JobApplicationDB.id == application_id
+                ).first()
+                if not app_db:
+                    return None
+                
+                # Update fields
+                for field, value in update_data.items():
+                    if hasattr(app_db, field):
+                        setattr(app_db, field, value)
+                
+                app_db.updated_at = datetime.utcnow()
+                session.flush()
+                
+                result = sqlalchemy_to_pydantic(app_db, JobApplication)
+                logger.info(f"Updated application: {application_id}")
+                return result
+                
+        except Exception as e:
+            logger.error(f"Error updating application {application_id}: {e}")
+            raise
+    
+    def delete_application(self, application_id: str) -> bool:
+        """Delete application."""
+        try:
+            with self.db_manager.get_session() as session:
+                app_db = session.query(JobApplicationDB).filter(
+                    JobApplicationDB.id == application_id
+                ).first()
+                if app_db:
+                    session.delete(app_db)
+                    logger.info(f"Deleted application: {application_id}")
+                    return True
+                return False
+        except Exception as e:
+            logger.error(f"Error deleting application {application_id}: {e}")
+            return False
+    
+    def get_applications_by_job(self, job_id: str) -> List[JobApplication]:
+        """Get all applications for a specific job."""
+        try:
+            with self.db_manager.get_session() as session:
+                apps_db = session.query(JobApplicationDB).filter(
+                    JobApplicationDB.job_id == job_id
+                ).order_by(desc(JobApplicationDB.created_at)).all()
+                
+                return [
+                    sqlalchemy_to_pydantic(app_db, JobApplication) 
+                    for app_db in apps_db
+                ]
+                
+        except Exception as e:
+            logger.error(f"Error getting applications for job {job_id}: {e}")
+            return []
+
+
 # Global instances (initialized when needed)
 db_manager = None
 job_repo = None
 user_repo = None
 saved_job_repo = None
+application_repo = None
 
 
 def initialize_database(database_url: str = None):
     """Initialize global database instances."""
-    global db_manager, job_repo, user_repo, saved_job_repo
+    global db_manager, job_repo, user_repo, saved_job_repo, application_repo
     
     db_manager = DatabaseManager(database_url)
     job_repo = JobRepository(db_manager)
     user_repo = UserRepository(db_manager)
     saved_job_repo = SavedJobRepository(db_manager)
+    application_repo = ApplicationRepository(db_manager)
     
     logger.info("Database repositories initialized")
 
@@ -603,3 +757,11 @@ def get_saved_job_repository() -> SavedJobRepository:
     if saved_job_repo is None:
         initialize_database()
     return saved_job_repo
+
+
+def get_application_repository() -> ApplicationRepository:
+    """Get or create application repository."""
+    global application_repo
+    if application_repo is None:
+        initialize_database()
+    return application_repo

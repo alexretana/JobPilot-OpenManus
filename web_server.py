@@ -20,6 +20,8 @@ from app.agent.manus import Manus
 from app.logger import logger
 from app.prompt.jobpilot import get_jobpilot_prompt
 from app.api.timeline import router as timeline_router
+from app.api.applications_simple import router as applications_router
+from app.api.leads_simple import router as leads_router
 
 
 class ChatMessage(BaseModel):
@@ -65,6 +67,8 @@ manager = ConnectionManager()
 
 # Include API routers
 app.include_router(timeline_router)
+app.include_router(applications_router)
+app.include_router(leads_router)
 
 # Store chat history
 chat_history: List[ChatMessage] = []

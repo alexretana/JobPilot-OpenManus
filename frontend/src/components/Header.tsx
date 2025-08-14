@@ -6,8 +6,8 @@ interface HeaderProps {
   onShowActivityLog?: () => void;
   onShowStatusPanel?: () => void;
   systemHealthy?: () => boolean;
-  activeTab?: () => 'chat' | 'jobs' | 'timeline';
-  onTabChange?: (tab: 'chat' | 'jobs' | 'timeline') => void;
+  activeTab?: () => 'chat' | 'jobs' | 'timeline' | 'applications';
+  onTabChange?: (tab: 'chat' | 'jobs' | 'timeline' | 'applications') => void;
 }
 
 const Header: Component<HeaderProps> = (props) => {
@@ -75,6 +75,12 @@ const Header: Component<HeaderProps> = (props) => {
             onClick={() => props.onTabChange?.('timeline')}
           >
             📅 Timeline
+          </button>
+          <button 
+            class={`tab ${props.activeTab?.() === 'applications' ? 'tab-active' : ''}`}
+            onClick={() => props.onTabChange?.('applications')}
+          >
+            📝 Applications
           </button>
         </div>
       </div>
