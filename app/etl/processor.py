@@ -146,7 +146,7 @@ class JobDataProcessor:
                     api_provider=collection_db.api_provider,
                     query_params=collection_db.query_params,
                     raw_response=collection_db.raw_response,
-                    metadata=collection_db.metadata or {},
+                    metadata=collection_db.response_metadata or {},  # Handle renamed field
                     processing_status=collection_db.processing_status,
                     error_info=collection_db.error_info,
                     created_at=collection_db.created_at

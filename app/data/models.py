@@ -495,7 +495,7 @@ class ETLOperationLog(BaseModel):
     output_data: Optional[Dict[str, Any]] = None  # Operation results
     error_message: Optional[str] = None
     error_details: Optional[Dict[str, Any]] = None
-    metadata: Optional[Dict[str, Any]] = None
+    operation_metadata: Optional[Dict[str, Any]] = None  # Renamed from metadata
     created_at: datetime = Field(default_factory=datetime.utcnow)
     
     class Config:
@@ -812,7 +812,7 @@ class RawJobCollectionDB(Base):
     api_provider = Column(String, nullable=False)  # "jsearch", "indeed", etc.
     query_params = Column(JSON, nullable=False)  # Search parameters used
     raw_response = Column(JSON, nullable=False)  # Complete API response
-    metadata = Column(JSON)  # Response metadata
+    response_metadata = Column(JSON)  # Response metadata (renamed from metadata)
     processing_status = Column(SQLEnum(ETLProcessingStatus), default=ETLProcessingStatus.PENDING)
     error_info = Column(JSON)  # Error details if failed
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -875,7 +875,7 @@ class ETLOperationLogDB(Base):
     output_data = Column(JSON)  # Operation results
     error_message = Column(Text)  # Human-readable error message
     error_details = Column(JSON)  # Structured error details
-    metadata = Column(JSON)  # Additional operation metadata
+    operation_metadata = Column(JSON)  # Additional operation metadata (renamed from metadata)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
@@ -909,6 +909,18 @@ def pydantic_to_sqlalchemy(pydantic_obj: BaseModel, sqlalchemy_class):
     for key, value in data.items():
         if isinstance(value, UUID):
             data[key] = str(value)
+    
+    # Handle field name mappings for renamed fields
+    if sqlalchemy_class.__name__ == 'RawJobCollectionDB':
+        if 'metadata' in data:
+            data['response_metadata'] = data.pop('metadata')
+    elif sqlalchemy_class.__name__ == 'ETLOperationLogDB':
+        if 'metadata' in data:
+            data['operation_metadata'] = data.pop('metadata')
+        elif 'operation_metadata' in data:
+            # Handle both naming conventions
+            pass
+    
     return sqlalchemy_class(**data)
 
 
@@ -917,18 +929,26 @@ def sqlalchemy_to_pydantic(sqlalchemy_obj, pydantic_class):
     data = {}
     for column in sqlalchemy_obj.__table__.columns:
         value = getattr(sqlalchemy_obj, column.name)
+        column_name = column.name
+        
+        # Handle field name mappings for renamed fields
+        if sqlalchemy_obj.__class__.__name__ == 'RawJobCollectionDB' and column_name == 'response_metadata':
+            column_name = 'metadata'
+        elif sqlalchemy_obj.__class__.__name__ == 'ETLOperationLogDB' and column_name == 'operation_metadata':
+            column_name = 'metadata'
+        
         # Handle None values for list fields
-        if value is None and column.name in ['skills', 'preferred_locations', 'preferred_job_types', 'preferred_remote_types', 'skills_required', 'skills_preferred', 'benefits', 'values', 'tags', 'tech_stack', 'matching_fields']:
+        if value is None and column_name in ['skills', 'preferred_locations', 'preferred_job_types', 'preferred_remote_types', 'skills_required', 'skills_preferred', 'benefits', 'values', 'tags', 'tech_stack', 'matching_fields']:
             value = []
         # Handle None values for event_data dict field
-        elif value is None and column.name == 'event_data':
+        elif value is None and column_name == 'event_data':
             value = {}
         # Handle None values for metadata dict fields
-        elif value is None and column.name in ['scraping_rules', 'rate_limit_config', 'source_metadata', 'benefits_parsed']:
+        elif value is None and column_name in ['scraping_rules', 'rate_limit_config', 'source_metadata', 'benefits_parsed', 'metadata', 'operation_metadata', 'response_metadata']:
             value = {}
         # Skip None values for required fields - let Pydantic handle defaults
-        elif value is None and column.name in ['id', 'created_at', 'updated_at']:
+        elif value is None and column_name in ['id', 'created_at', 'updated_at']:
             continue
         
-        data[column.name] = value
+        data[column_name] = value
     return pydantic_class(**data)

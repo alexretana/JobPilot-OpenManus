@@ -342,7 +342,7 @@ class JSearchDataCollector:
                         api_provider=c.api_provider,
                         query_params=c.query_params,
                         raw_response=c.raw_response,
-                        metadata=c.metadata or {},
+                        metadata=c.response_metadata or {},  # Handle renamed field
                         processing_status=c.processing_status,
                         error_info=c.error_info,
                         created_at=c.created_at
