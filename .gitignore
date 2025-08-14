@@ -2,8 +2,11 @@
 # Logs
 logs/
 
-# Data
-data/
+# Data (ignore data files but not source code)
+/data/
+*.db
+*.sqlite
+*.sqlite3
 
 # Workspace
 workspace/

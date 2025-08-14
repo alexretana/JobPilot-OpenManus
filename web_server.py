@@ -13,6 +13,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from typing import Optional, List
 import uvicorn
 
 from app.agent.manus import Manus
@@ -31,6 +32,12 @@ class JobSearchRequest(BaseModel):
     experience_years: Optional[int] = None
     location: Optional[str] = None
     remote_only: bool = True
+
+
+class SaveJobRequest(BaseModel):
+    job_id: str
+    notes: Optional[str] = None
+    tags: List[str] = []
 
 
 class ConnectionManager:
@@ -281,6 +288,13 @@ async def get_chat_history():
     return {"messages": chat_history}
 
 
+@app.get("/api/test/saved")
+async def test_saved_endpoint():
+    """Test endpoint to verify basic routing works."""
+    logger.info("Test saved endpoint called!")
+    return {"message": "Test endpoint works!", "timestamp": datetime.now().isoformat()}
+
+
 @app.get("/api/jobs/recent")
 async def get_recent_jobs(limit: int = 20):
     """Get recently posted jobs."""
@@ -444,6 +458,193 @@ async def search_jobs_agent(request: JobSearchRequest):
         
     except Exception as e:
         logger.error(f"Job search error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# =====================================
+# Saved Jobs API Endpoints
+# =====================================
+
+# For now, we'll use a default user ID. In a real app, this would come from authentication
+from uuid import uuid4
+DEFAULT_USER_ID = "00000000-0000-4000-8000-000000000001"  # Fixed UUID for default user
+
+@app.post("/api/jobs/{job_id}/save")
+async def save_job(job_id: str, request: SaveJobRequest):
+    """Save a job for the user."""
+    try:
+        from app.data.database import get_saved_job_repository, get_user_repository
+        from app.data.models import UserProfile
+        
+        # Get repositories
+        saved_job_repo = get_saved_job_repository()
+        user_repo = get_user_repository()
+        
+        # Ensure default user exists
+        user = user_repo.get_user(DEFAULT_USER_ID)
+        if not user:
+            # Create default user
+            from uuid import UUID
+            default_user = UserProfile(
+                id=UUID(DEFAULT_USER_ID),
+                first_name="Demo",
+                last_name="User",
+                email="demo@jobpilot.com"
+            )
+            user = user_repo.create_user(default_user)
+        
+        # Save the job
+        saved_job = saved_job_repo.save_job(
+            job_id=request.job_id,
+            user_profile_id=DEFAULT_USER_ID,
+            notes=request.notes,
+            tags=request.tags
+        )
+        
+        return {
+            "message": "Job saved successfully",
+            "saved_job_id": str(saved_job.id),
+            "job_id": request.job_id,
+            "saved_date": saved_job.saved_date.isoformat(),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error saving job {job_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/api/jobs/{job_id}/save")
+async def unsave_job(job_id: str):
+    """Remove a job from saved jobs."""
+    try:
+        from app.data.database import get_saved_job_repository
+        
+        saved_job_repo = get_saved_job_repository()
+        success = saved_job_repo.unsave_job(job_id, DEFAULT_USER_ID)
+        
+        if success:
+            return {
+                "message": "Job unsaved successfully",
+                "job_id": job_id,
+                "timestamp": datetime.now().isoformat()
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Saved job not found")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error unsaving job {job_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/saved-jobs")
+async def get_saved_jobs(limit: int = 20):
+    """Get all saved jobs for the user."""
+    logger.info(f"GET /api/saved-jobs called with limit={limit}")
+    try:
+        from app.data.database import get_saved_job_repository
+        logger.info("Imported get_saved_job_repository")
+        
+        saved_job_repo = get_saved_job_repository()
+        logger.info("Got saved job repository")
+        saved_jobs = saved_job_repo.get_saved_jobs(DEFAULT_USER_ID, limit=min(limit, 50))
+        logger.info(f"Retrieved {len(saved_jobs)} saved jobs")
+        
+        # Format the response
+        formatted_jobs = []
+        for saved_job_data in saved_jobs:
+            saved_job = saved_job_data['saved_job']
+            job = saved_job_data['job']
+            
+            formatted_job = {
+                # Job details
+                "id": job['id'],
+                "title": job['title'],
+                "company": job['company'],
+                "location": job['location'],
+                "job_type": job['job_type'],
+                "remote_type": job['remote_type'],
+                "salary_min": job['salary_min'],
+                "salary_max": job['salary_max'],
+                "salary_currency": job['salary_currency'],
+                "skills_required": job['skills_required'][:5] if job['skills_required'] else [],
+                "posted_date": job['posted_date'],
+                "description": job['description'][:200] + "..." if job['description'] and len(job['description']) > 200 else job['description'],
+                "job_url": job['job_url'],
+                
+                # Saved job metadata
+                "saved_date": saved_job['saved_date'],
+                "notes": saved_job['notes'],
+                "tags": saved_job['tags'],
+                "saved_job_id": saved_job['id']
+            }
+            formatted_jobs.append(formatted_job)
+        
+        return {
+            "jobs": formatted_jobs,
+            "total": len(formatted_jobs),
+            "user_id": DEFAULT_USER_ID,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching saved jobs: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/jobs/{job_id}/saved")
+async def check_job_saved(job_id: str):
+    """Check if a job is saved by the user."""
+    try:
+        from app.data.database import get_saved_job_repository
+        
+        saved_job_repo = get_saved_job_repository()
+        is_saved = saved_job_repo.is_job_saved(job_id, DEFAULT_USER_ID)
+        
+        return {
+            "job_id": job_id,
+            "is_saved": is_saved,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error checking if job {job_id} is saved: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.put("/api/jobs/{job_id}/save")
+async def update_saved_job(job_id: str, request: SaveJobRequest):
+    """Update notes and tags for a saved job."""
+    try:
+        from app.data.database import get_saved_job_repository
+        
+        saved_job_repo = get_saved_job_repository()
+        updated_saved_job = saved_job_repo.update_saved_job(
+            job_id=job_id,
+            user_profile_id=DEFAULT_USER_ID,
+            notes=request.notes,
+            tags=request.tags
+        )
+        
+        if updated_saved_job:
+            return {
+                "message": "Saved job updated successfully",
+                "saved_job_id": str(updated_saved_job.id),
+                "job_id": job_id,
+                "notes": updated_saved_job.notes,
+                "tags": updated_saved_job.tags,
+                "updated_at": updated_saved_job.updated_at.isoformat(),
+                "timestamp": datetime.now().isoformat()
+            }
+        else:
+            raise HTTPException(status_code=404, detail="Saved job not found")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error updating saved job {job_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

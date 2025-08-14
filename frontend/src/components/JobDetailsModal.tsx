@@ -16,6 +16,8 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
   const [job, setJob] = createSignal<JobDetails | null>(null);
   const [loading, setLoading] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
+  const [isSaved, setIsSaved] = createSignal(false);
+  const [saving, setSaving] = createSignal(false);
 
   // Load job details when jobId changes
   createEffect(() => {
@@ -28,14 +30,59 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
     try {
       setLoading(true);
       setError(null);
-      const jobDetails = await jobApi.getJobDetails(jobId);
+      const [jobDetails, savedStatus] = await Promise.all([
+        jobApi.getJobDetails(jobId),
+        checkIfJobSaved(jobId)
+      ]);
       setJob(jobDetails);
+      setIsSaved(savedStatus);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load job details';
       setError(errorMessage);
       console.error('Error loading job details:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkIfJobSaved = async (jobId: string): Promise<boolean> => {
+    try {
+      return await jobApi.isJobSaved(jobId);
+    } catch (err) {
+      console.error('Error checking if job is saved:', err);
+      return false;
+    }
+  };
+
+  const handleSaveJob = async () => {
+    const currentJob = job();
+    if (!currentJob) return;
+
+    try {
+      setSaving(true);
+      
+      if (isSaved()) {
+        // Unsave the job
+        await jobApi.unsaveJob(currentJob.id);
+        setIsSaved(false);
+        console.log('Job unsaved successfully');
+      } else {
+        // Save the job
+        await jobApi.saveJob({
+          job_id: currentJob.id,
+          notes: undefined,
+          tags: []
+        });
+        setIsSaved(true);
+        console.log('Job saved successfully');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save job';
+      console.error('Error saving job:', err);
+      // You could show a toast notification here
+      alert(errorMessage);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -280,8 +327,17 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
               <button class="btn btn-ghost" onClick={handleClose}>
                 Close
               </button>
-              <button class="btn btn-success">
-                💾 Save Job
+              <button 
+                class={`btn ${isSaved() ? 'btn-error' : 'btn-success'}`}
+                onClick={handleSaveJob}
+                disabled={saving()}
+              >
+                <Show when={saving()}>
+                  <span class="loading loading-spinner loading-xs"></span>
+                </Show>
+                <Show when={!saving()}>
+                  {isSaved() ? '❌ Unsave Job' : '💾 Save Job'}
+                </Show>
               </button>
               <Show when={job()?.job_url}>
                 <a 

@@ -45,6 +45,42 @@ export interface JobSearchFilters {
   limit?: number;
 }
 
+export interface SavedJob {
+  // Job details (flattened from backend response)
+  id: string;
+  title: string;
+  company: string;
+  location: string;
+  job_type: string | null;
+  remote_type: string | null;
+  salary_min: number | null;
+  salary_max: number | null;
+  salary_currency: string | null;
+  skills_required: string[];
+  posted_date: string | null;
+  description: string | null;
+  job_url: string | null;
+  
+  // Saved job metadata
+  saved_date: string;
+  notes: string | null;
+  tags: string[];
+  saved_job_id: string;
+}
+
+export interface SaveJobRequest {
+  job_id: string;
+  notes?: string;
+  tags?: string[];
+}
+
+export interface SavedJobsResponse {
+  jobs: SavedJob[];
+  total: number;
+  user_id: string;
+  timestamp: string;
+}
+
 class JobApiService {
   private baseUrl = window.location.origin;
 
@@ -191,6 +227,108 @@ class JobApiService {
     };
     
     return icons[remoteType || ''] || '📍';
+  }
+
+  // =====================================
+  // Saved Jobs API Methods
+  // =====================================
+
+  /**
+   * Save a job
+   */
+  async saveJob(request: SaveJobRequest): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/api/jobs/${request.job_id}/save`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to save job: ${response.statusText}`);
+    }
+  }
+
+  /**
+   * Unsave a job
+   */
+  async unsaveJob(jobId: string): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/api/jobs/${jobId}/save`, {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to unsave job: ${response.statusText}`);
+    }
+  }
+
+  /**
+   * Check if a job is saved
+   */
+  async isJobSaved(jobId: string): Promise<boolean> {
+    const response = await fetch(`${this.baseUrl}/api/jobs/${jobId}/saved`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to check if job is saved: ${response.statusText}`);
+    }
+    
+    const result = await response.json();
+    return result.is_saved;
+  }
+
+  /**
+   * Get all saved jobs
+   */
+  async getSavedJobs(limit: number = 20): Promise<SavedJob[]> {
+    const response = await fetch(`${this.baseUrl}/api/saved-jobs?limit=${limit}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch saved jobs: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data.jobs; // Return just the jobs array, not the full response
+  }
+
+  /**
+   * Update saved job notes and tags
+   */
+  async updateSavedJob(jobId: string, request: SaveJobRequest): Promise<void> {
+    const response = await fetch(`${this.baseUrl}/api/jobs/${jobId}/save`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(request),
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to update saved job: ${response.statusText}`);
+    }
+  }
+
+  /**
+   * Format saved date for display
+   */
+  formatSavedDate(savedDate: string): string {
+    const date = new Date(savedDate);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return 'Saved today';
+    } else if (diffDays === 1) {
+      return 'Saved yesterday';
+    } else if (diffDays < 7) {
+      return `Saved ${diffDays} days ago`;
+    } else if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7);
+      return weeks === 1 ? 'Saved 1 week ago' : `Saved ${weeks} weeks ago`;
+    } else {
+      return `Saved on ${date.toLocaleDateString()}`;
+    }
   }
 }
 

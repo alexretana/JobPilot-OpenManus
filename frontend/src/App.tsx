@@ -1,7 +1,7 @@
 import { Component, createSignal, onMount, onCleanup, Show } from 'solid-js';
 import Header from './components/Header';
 import Chat from './components/Chat';
-import { JobList } from './components/JobList';
+import { JobsContainer } from './components/JobsContainer';
 import { JobDetailsModal } from './components/JobDetailsModal';
 import BrowserViewport from './components/BrowserViewport';
 import ActivityModal from './components/ActivityModal';
@@ -206,7 +206,7 @@ const App: Component = () => {
 
         <Show when={activeTab() === 'jobs'}>
           <div class="bg-base-100 rounded-lg p-2 h-full">
-            <JobList 
+            <JobsContainer 
               onJobSelect={handleJobSelect}
               onJobSave={handleJobSave}
             />
