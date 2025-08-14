@@ -1,0 +1,35 @@
+[run]
+source = app
+omit = 
+    app/sandbox/*
+    app/tool/sandbox/*
+    tests/*
+    venv/*
+    .venv/*
+    setup.py
+    */migrations/*
+    */venv/*
+    */env/*
+    */.venv/*
+    
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    @abstractmethod
+    @abc.abstractmethod
+    
+show_missing = True
+skip_covered = False
+precision = 2
+
+[html]
+directory = htmlcov
+skip_covered = False
+show_contexts = True
+
+[xml]
+output = coverage.xml

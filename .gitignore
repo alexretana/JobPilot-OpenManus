@@ -18,15 +18,22 @@ api_research/analysis/*.json
 .env.local
 .env.development
 .env.production
+.env.test
 
-# ETL Pipeline data directories (when implemented)
+# ETL Pipeline data directories and files
 data/raw_collections/
 data/processed_data/
 data/failed_processing/
+app/etl/data/
+etl_data/
+*.etl.log
 
 # Test files with API keys or sensitive data
 **/test_*_with_keys.py
 **/run_*_test.py
+test_jsearch_api.py
+setup_etl_test.py
+test_etl_*.py
 
 ### Python ###
 # Byte-compiled / optimized / DLL files
@@ -218,5 +225,68 @@ cython_debug/
 # OSX
 .DS_Store
 
+# Testing artifacts and reports
+test-results/
+test-reports/
+playwright-report/
+allure-results/
+*.junit.xml
+*.xml
+test_*.html
+pytest_html_report.html
+*.test.log
+*.coverage.xml
+.coverage.xml
+cover.xml
+
+# Playwright
+playwright/.cache/
+playwright/test-results/
+playwright/playwright-report/
+
 # node
-node_modules
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System and temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# Development tools
+*.orig
+*.bak
+*.backup
+.vscode/
+.vs/
+
+# Docker (if used in future)
+Dockerfile.dev
+docker-compose.override.yml
+.dockerignore
+
+# Additional security patterns
+*.pem
+*.key
+*.crt
+*.cert
+*.p12
+*.pfx
+secrets.json
+config/secrets/

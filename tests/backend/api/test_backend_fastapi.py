@@ -460,15 +460,17 @@ class TestErrorHandling:
         assert response.status_code in [200, 400, 422]
 
 
-# ==================== Performance Tests ====================
+
+
+# ==================== Performance Tests with Markers ====================
 
 class TestPerformance:
-    """Test API performance characteristics."""
+    """Performance tests for the API."""
     
+    @pytest.mark.performance
     def test_health_endpoint_performance(self, client: TestClient):
-        """Test health endpoint response time."""
+        """Test health endpoint performance."""
         import time
-        
         start_time = time.time()
         response = client.get("/api/health")
         end_time = time.time()
@@ -477,28 +479,21 @@ class TestPerformance:
         response_time = end_time - start_time
         assert response_time < 1.0  # Should respond within 1 second
     
+    @pytest.mark.performance
     def test_bulk_job_creation_performance(self, client: TestClient, multiple_job_data, clean_database):
-        """Test performance of creating multiple jobs."""
+        """Test bulk job creation performance."""
         import time
-        
         start_time = time.time()
         
-        created_jobs = []
         for job_data in multiple_job_data:
             response = client.post("/api/leads", json=job_data)
-            if response.status_code == 200:
-                created_jobs.append(response.json())
+            assert response.status_code == 200
         
         end_time = time.time()
-        
-        total_time = end_time - start_time
-        avg_time_per_job = total_time / len(multiple_job_data)
-        
-        # Performance assertions
-        assert len(created_jobs) == len(multiple_job_data)
-        assert avg_time_per_job < 2.0  # Average should be under 2 seconds per job
-        assert total_time < 10.0  # Total time should be under 10 seconds
+        response_time = end_time - start_time
+        assert response_time < 10.0  # Should complete within 10 seconds for bulk operations
     
+    @pytest.mark.performance
     def test_job_listing_performance(self, client: TestClient, multiple_job_data, clean_database):
         """Test job listing endpoint performance."""
         # Create test jobs first
@@ -515,11 +510,12 @@ class TestPerformance:
         assert response_time < 5.0  # Should respond within 5 seconds
 
 
-# ==================== Integration Tests ====================
+# ==================== Integration Tests with Markers ====================
 
 class TestIntegration:
     """Test integration between different API components."""
     
+    @pytest.mark.integration
     def test_complete_job_lifecycle(self, client: TestClient, sample_job_data, clean_database):
         """Test complete job lifecycle: create -> read -> update -> delete."""
         # 1. Create job
@@ -555,6 +551,7 @@ class TestIntegration:
         final_response = client.get(f"/api/leads/{job_id}")
         assert final_response.status_code == 404
     
+    @pytest.mark.integration
     def test_search_integration(self, client: TestClient, multiple_job_data, clean_database):
         """Test search integration with created jobs."""
         # Create jobs with specific patterns
@@ -580,32 +577,3 @@ class TestIntegration:
             if results:  # If we have results, verify they match filter
                 key, value = next(iter(search_params.items()))
                 assert any(job.get(key) == value for job in results)
-
-
-# ==================== Pytest Configuration ====================
-
-def pytest_configure(config):
-    """Configure pytest with custom markers."""
-    config.addinivalue_line("markers", "slow: marks tests as slow")
-    config.addinivalue_line("markers", "integration: marks tests as integration tests")
-    config.addinivalue_line("markers", "performance: marks tests as performance tests")
-
-
-# Mark performance tests
-TestPerformance.test_health_endpoint_performance = pytest.mark.performance(
-    TestPerformance.test_health_endpoint_performance
-)
-TestPerformance.test_bulk_job_creation_performance = pytest.mark.performance(
-    TestPerformance.test_bulk_job_creation_performance  
-)
-TestPerformance.test_job_listing_performance = pytest.mark.performance(
-    TestPerformance.test_job_listing_performance
-)
-
-# Mark integration tests  
-TestIntegration.test_complete_job_lifecycle = pytest.mark.integration(
-    TestIntegration.test_complete_job_lifecycle
-)
-TestIntegration.test_search_integration = pytest.mark.integration(
-    TestIntegration.test_search_integration
-)

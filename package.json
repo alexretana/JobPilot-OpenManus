@@ -1,0 +1,60 @@
+{
+  "name": "jobpilot-openmanus",
+  "version": "1.0.0",
+  "description": "AI-Powered Job Hunting Copilot - An intelligent agent framework that automates job discovery, analysis, and application processes using OpenManus architecture.",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "test": "python run_tests.py --all",
+    "test:backend": "python run_tests.py --backend",
+    "test:e2e": "playwright test",
+    "test:e2e:python": "python run_tests.py --e2e",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:debug": "playwright test --debug",
+    "test:integration": "python run_tests.py --integration", 
+    "test:performance": "python run_tests.py --performance",
+    "test:unit": "python run_tests.py --unit",
+    "test:coverage": "python run_tests.py --backend --cov",
+    "test:watch": "python run_tests.py --backend -k \"\" --tb=short -q",
+    "test:ci": "python run_tests.py --all --cov --html htmlcov/index.html && playwright test",
+    "dev": "concurrently \"python web_server.py\" \"cd frontend && npm run dev\"",
+    "dev:backend": "python web_server.py",
+    "dev:frontend": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "python web_server.py",
+    "setup": "pip install -r requirements.txt && npm install && playwright install && cd frontend && npm install",
+    "lint": "pre-commit run --all-files",
+    "clean": "rimraf htmlcov/ .coverage .pytest_cache/ test-results.xml test-reports/ frontend/dist/ frontend/node_modules/.cache/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alexretana/JobPilot-OpenManus.git"
+  },
+  "keywords": [
+    "ai",
+    "job-hunting",
+    "automation",
+    "openmanus",
+    "fastapi",
+    "solid-js",
+    "playwright",
+    "testing"
+  ],
+  "author": "Alex Retana",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alexretana/JobPilot-OpenManus/issues"
+  },
+  "homepage": "https://github.com/alexretana/JobPilot-OpenManus#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "concurrently": "^8.2.2",
+    "rimraf": "^5.0.5"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "python": ">=3.12.0"
+  }
+}

@@ -40,6 +40,27 @@ def run_pytest_command(args_list):
         return 1
 
 
+def run_playwright_command(args_list):
+    """Run Playwright tests with given arguments."""
+    # Check if we should use npx or npm
+    playwright_cmd = ["npx", "playwright", "test"] + args_list
+    print(f"🎭 Running: {' '.join(playwright_cmd)}")
+    print("-" * 60)
+    
+    try:
+        result = subprocess.run(playwright_cmd, cwd=Path.cwd())
+        return result.returncode
+    except KeyboardInterrupt:
+        print("\n⚠️ Tests interrupted by user")
+        return 130
+    except FileNotFoundError:
+        print("❌ Playwright not found. Run 'npm install' and 'npx playwright install'")
+        return 1
+    except Exception as e:
+        print(f"❌ Failed to run Playwright tests: {e}")
+        return 1
+
+
 def main():
     """Main test runner."""
     parser = argparse.ArgumentParser(
@@ -48,7 +69,8 @@ def main():
         epilog="""
 Test Suite Options:
   --backend         Fast backend API tests (FastAPI TestClient)  
-  --e2e            Comprehensive E2E tests (Playwright + servers)
+  --e2e            Comprehensive E2E tests (Playwright)
+  --e2e-python     Python-based E2E tests (deprecated)
   --integration    Integration tests only
   --performance    Performance tests only
   --unit           Unit tests only
@@ -56,7 +78,8 @@ Test Suite Options:
   
 Examples:
   python run_tests.py --backend              # Fast backend tests
-  python run_tests.py --e2e                  # Full E2E suite  
+  python run_tests.py --e2e                  # Full E2E suite with Playwright
+  python run_tests.py --e2e --headed         # E2E tests with visible browser
   python run_tests.py --backend --performance # Backend + perf tests
   python run_tests.py --all                  # All tests except E2E
   python run_tests.py -k test_health         # Tests matching pattern
@@ -66,7 +89,8 @@ Examples:
     
     # Test suite selection
     parser.add_argument("--backend", action="store_true", help="Run fast backend API tests")
-    parser.add_argument("--e2e", action="store_true", help="Run comprehensive E2E tests")
+    parser.add_argument("--e2e", action="store_true", help="Run comprehensive E2E tests with Playwright")
+    parser.add_argument("--e2e-python", action="store_true", help="Run Python-based E2E tests (deprecated)")
     parser.add_argument("--integration", action="store_true", help="Run integration tests only")
     parser.add_argument("--performance", action="store_true", help="Run performance tests only")
     parser.add_argument("--unit", action="store_true", help="Run unit tests only")
@@ -91,6 +115,9 @@ Examples:
     parser.add_argument("--rapidapi-key", help="RapidAPI key for ETL testing")
     parser.add_argument("--include-frontend", action="store_true", help="Start frontend server for E2E")
     parser.add_argument("--manual-server", action="store_true", help="Use manually started server for E2E")
+    parser.add_argument("--headed", action="store_true", help="Run E2E tests with visible browser")
+    parser.add_argument("--debug", action="store_true", help="Run E2E tests in debug mode")
+    parser.add_argument("--project", help="Run specific Playwright project (chromium, firefox, webkit, etc.)")
     
     args = parser.parse_args()
     
@@ -135,24 +162,73 @@ Examples:
     
     # Determine which tests to run
     if args.e2e:
-        print("🎭 Running Comprehensive E2E Tests (Playwright + Server Management)")
+        print("🎭 Running Comprehensive E2E Tests (Playwright)")
         
-        # For E2E tests, we need to run the special E2E suite
-        if args.manual_server:
-            pytest_args.append("tests/test_e2e_comprehensive.py::run_e2e_tests_manual_server")
+        # Build Playwright command arguments
+        playwright_args = []
+        
+        # Add test filters
+        if args.keyword:
+            playwright_args.extend(["--grep", args.keyword])
+        
+        # Add project filter
+        if args.project:
+            playwright_args.extend(["--project", args.project])
+        
+        # Add headed mode
+        if args.headed:
+            playwright_args.append("--headed")
+        
+        # Add debug mode
+        if args.debug:
+            playwright_args.append("--debug")
+        
+        # Set environment variables
+        env = os.environ.copy()
+        if args.rapidapi_key:
+            env['RAPIDAPI_KEY'] = args.rapidapi_key
+        if args.include_frontend:
+            env['INCLUDE_FRONTEND'] = 'true'
+        
+        # Set the environment for subprocess
+        old_environ = os.environ.copy()
+        os.environ.update(env)
+        
+        try:
+            exit_code = run_playwright_command(playwright_args)
+        finally:
+            # Restore original environment
+            os.environ.clear()
+            os.environ.update(old_environ)
+        
+        # Print summary and exit early since we handled Playwright separately
+        print()
+        print("=" * 80)
+        if exit_code == 0:
+            print("🎉 All E2E tests passed!")
+        elif exit_code == 130:
+            print("⚠️ E2E tests were interrupted")
         else:
-            # Set up environment variables
-            env = os.environ.copy()
-            if args.rapidapi_key:
-                env['RAPIDAPI_KEY'] = args.rapidapi_key
-            if args.include_frontend:
-                env['INCLUDE_FRONTEND'] = 'true'
-            
-            pytest_args.append("tests/test_e2e_comprehensive.py")
+            print(f"❌ E2E tests failed (exit code: {exit_code})")
+            print("\nQuick troubleshooting:")
+            print("  • Ensure servers are running or use webServer config")
+            print("  • Check that npm dependencies are installed")
+            print("  • Verify Playwright browsers are installed")
+        print("=" * 80)
+        return exit_code
+        
+    elif args.e2e_python:
+        print("🎭 Running Python-based E2E Tests (Deprecated - use --e2e instead)")
+        
+        # Legacy E2E test support
+        if args.manual_server:
+            pytest_args.append("tests/e2e/tests/test_e2e_comprehensive.py::run_e2e_tests_manual_server")
+        else:
+            pytest_args.append("tests/e2e/")
         
     elif args.backend:
         print("🚀 Running Fast Backend API Tests (FastAPI TestClient)")
-        pytest_args.append("tests/test_backend_fastapi.py")
+        pytest_args.append("tests/backend/")
         
         if args.performance:
             pytest_args.extend(["-m", "performance or not performance"])
@@ -163,10 +239,8 @@ Examples:
         print("📋 Running All Tests (Backend + Core Components)")
         # Run all tests except E2E
         pytest_args.extend([
-            "tests/test_backend_fastapi.py",
-            "tests/test_core_components.py",
-            "tests/test_job_scrapers.py",
-            "tests/test_backend_api.py"
+            "tests/backend/",
+            "tests/utils/"
         ])
         
     elif args.integration:
@@ -185,7 +259,7 @@ Examples:
         # Default: run backend tests
         print("🚀 Running Default Backend API Tests")
         print("   (Use --help to see all options)")
-        pytest_args.append("tests/test_backend_fastapi.py")
+        pytest_args.append("tests/backend/")
     
     print()
     
