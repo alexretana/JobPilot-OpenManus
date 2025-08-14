@@ -82,9 +82,104 @@ class TimelineEventType(str, Enum):
     CUSTOM_EVENT = "custom_event"
 
 
+class VerificationStatus(str, Enum):
+    """Job verification status."""
+    UNVERIFIED = "unverified"
+    ACTIVE = "active"
+    EXPIRED = "expired"
+    INVALID = "invalid"
+    REMOVED = "removed"
+
+
+class CompanySizeCategory(str, Enum):
+    """Company size categories."""
+    STARTUP = "startup"  # 1-50 employees
+    SMALL = "small"      # 51-200 employees
+    MEDIUM = "medium"    # 201-1000 employees
+    LARGE = "large"      # 1001-5000 employees
+    ENTERPRISE = "enterprise"  # 5000+ employees
+
+
+class SeniorityLevel(str, Enum):
+    """Job seniority levels."""
+    INDIVIDUAL_CONTRIBUTOR = "individual_contributor"
+    TEAM_LEAD = "team_lead"
+    MANAGER = "manager"
+    DIRECTOR = "director"
+    VP = "vp"
+    C_LEVEL = "c_level"
+
+
 # =====================================
 # Pydantic Models for API/Data Transfer
 # =====================================
+
+# =====================================
+# NEW: Phase 2 Models for Real Job Board Integration
+# =====================================
+
+class JobSource(BaseModel):
+    """Track job board sources and their metadata."""
+    id: UUID = Field(default_factory=uuid4)
+    name: str  # "linkedin", "indeed", "glassdoor"
+    display_name: str  # "LinkedIn Jobs", "Indeed", "Glassdoor"
+    base_url: str
+    api_available: bool = False
+    scraping_rules: Optional[Dict[str, Any]] = None
+    rate_limit_config: Optional[Dict[str, Any]] = None
+    last_scraped: Optional[datetime] = None
+    is_active: bool = True
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    class Config:
+        from_attributes = True
+
+
+class JobSourceListing(BaseModel):
+    """Link jobs to their sources with source-specific metadata."""
+    id: UUID = Field(default_factory=uuid4)
+    job_id: UUID
+    source_id: UUID
+    source_job_id: str  # Original ID from source platform
+    source_url: str
+    source_metadata: Optional[Dict[str, Any]] = None  # Platform-specific fields
+    scraped_at: datetime = Field(default_factory=datetime.utcnow)
+    last_updated: datetime = Field(default_factory=datetime.utcnow)
+    
+    class Config:
+        from_attributes = True
+
+
+class JobEmbedding(BaseModel):
+    """Store vector embeddings for semantic search."""
+    id: UUID = Field(default_factory=uuid4)
+    job_id: UUID
+    embedding_model: str  # e.g., "sentence-transformers/all-MiniLM-L6-v2"
+    content_hash: str  # Hash of the content that was embedded
+    embedding_vector: List[float]  # The actual embedding
+    embedding_dimension: int
+    content_type: str = "job_description"  # job_description, requirements, etc.
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    class Config:
+        from_attributes = True
+
+
+class JobDeduplication(BaseModel):
+    """Track duplicate jobs across platforms."""
+    id: UUID = Field(default_factory=uuid4)
+    canonical_job_id: UUID  # The "main" job record
+    duplicate_job_id: UUID  # The duplicate job record
+    confidence_score: float  # 0.0 to 1.0 confidence it's a duplicate
+    matching_fields: List[str]  # Which fields matched (title, company, etc.)
+    merge_strategy: str = "keep_canonical"  # merge_both, keep_canonical, manual_review
+    reviewed: bool = False
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    class Config:
+        from_attributes = True
+
 
 class JobListingBase(BaseModel):
     """Base job listing data structure."""
@@ -125,7 +220,23 @@ class JobListingBase(BaseModel):
     application_deadline: Optional[datetime] = None
     source: Optional[str] = None  # Where the job was scraped from
     
-    @validator('skills_required', 'skills_preferred', 'benefits', pre=True)
+    # NEW: Multi-source tracking
+    canonical_id: Optional[UUID] = None  # If this is a duplicate, points to canonical
+    source_count: int = 1  # How many sources have this job
+    data_quality_score: Optional[float] = None  # 0.0-1.0 quality assessment
+    
+    # NEW: Enhanced metadata
+    scraped_at: Optional[datetime] = None
+    last_verified: Optional[datetime] = None
+    verification_status: VerificationStatus = VerificationStatus.UNVERIFIED
+    
+    # NEW: Enriched data
+    company_size_category: Optional[CompanySizeCategory] = None
+    seniority_level: Optional[SeniorityLevel] = None
+    tech_stack: Optional[List[str]] = []
+    benefits_parsed: Optional[Dict[str, Any]] = None  # structured benefits data
+    
+    @validator('skills_required', 'skills_preferred', 'benefits', 'tech_stack', pre=True)
     def ensure_list(cls, v):
         if v is None:
             return []
@@ -305,6 +416,83 @@ class TimelineEvent(BaseModel):
 Base = declarative_base()
 
 
+# =====================================
+# NEW: Phase 2 SQLAlchemy Models
+# =====================================
+
+class JobSourceDB(Base):
+    """SQLAlchemy model for job sources."""
+    __tablename__ = "job_sources"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
+    name = Column(String, nullable=False, unique=True)
+    display_name = Column(String, nullable=False)
+    base_url = Column(String, nullable=False)
+    api_available = Column(Boolean, default=False)
+    scraping_rules = Column(JSON)
+    rate_limit_config = Column(JSON)
+    last_scraped = Column(DateTime)
+    is_active = Column(Boolean, default=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    source_listings = relationship("JobSourceListingDB", back_populates="source")
+
+
+class JobSourceListingDB(Base):
+    """SQLAlchemy model for job source listings."""
+    __tablename__ = "job_source_listings"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
+    job_id = Column(String, ForeignKey("job_listings.id"), nullable=False)
+    source_id = Column(String, ForeignKey("job_sources.id"), nullable=False)
+    source_job_id = Column(String, nullable=False)  # Original ID from source platform
+    source_url = Column(String, nullable=False)
+    source_metadata = Column(JSON)  # Platform-specific fields
+    scraped_at = Column(DateTime, default=datetime.utcnow)
+    last_updated = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    job = relationship("JobListingDB", back_populates="source_listings")
+    source = relationship("JobSourceDB", back_populates="source_listings")
+
+
+class JobEmbeddingDB(Base):
+    """SQLAlchemy model for job embeddings."""
+    __tablename__ = "job_embeddings"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
+    job_id = Column(String, ForeignKey("job_listings.id"), nullable=False)
+    embedding_model = Column(String, nullable=False)
+    content_hash = Column(String, nullable=False)
+    embedding_vector = Column(JSON, nullable=False)  # Store as JSON array
+    embedding_dimension = Column(Integer, nullable=False)
+    content_type = Column(String, default="job_description")
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    job = relationship("JobListingDB", back_populates="embeddings")
+
+
+class JobDeduplicationDB(Base):
+    """SQLAlchemy model for job deduplication."""
+    __tablename__ = "job_duplications"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
+    canonical_job_id = Column(String, ForeignKey("job_listings.id"), nullable=False)
+    duplicate_job_id = Column(String, ForeignKey("job_listings.id"), nullable=False)
+    confidence_score = Column(Float, nullable=False)
+    matching_fields = Column(JSON, nullable=False)  # Store as JSON array
+    merge_strategy = Column(String, default="keep_canonical")
+    reviewed = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    canonical_job = relationship("JobListingDB", foreign_keys=[canonical_job_id])
+    duplicate_job = relationship("JobListingDB", foreign_keys=[duplicate_job_id])
+
+
 class JobListingDB(Base):
     """SQLAlchemy model for job listings."""
     __tablename__ = "job_listings"
@@ -351,11 +539,31 @@ class JobListingDB(Base):
     # Metadata
     source = Column(String)
     status = Column(SQLEnum(JobStatus), default=JobStatus.ACTIVE)
+    
+    # NEW: Multi-source tracking
+    canonical_id = Column(String, ForeignKey("job_listings.id"), nullable=True)
+    source_count = Column(Integer, default=1)
+    data_quality_score = Column(Float)
+    
+    # NEW: Enhanced metadata
+    scraped_at = Column(DateTime)
+    last_verified = Column(DateTime)
+    verification_status = Column(SQLEnum(VerificationStatus), default=VerificationStatus.UNVERIFIED)
+    
+    # NEW: Enriched data
+    company_size_category = Column(SQLEnum(CompanySizeCategory))
+    seniority_level = Column(SQLEnum(SeniorityLevel))
+    tech_stack = Column(JSON)
+    benefits_parsed = Column(JSON)
+    
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # Relationships
     applications = relationship("JobApplicationDB", back_populates="job")
+    source_listings = relationship("JobSourceListingDB", back_populates="job")
+    embeddings = relationship("JobEmbeddingDB", back_populates="job")
+    canonical_job = relationship("JobListingDB", remote_side=[id])
 
 
 class UserProfileDB(Base):
@@ -537,10 +745,17 @@ def sqlalchemy_to_pydantic(sqlalchemy_obj, pydantic_class):
     for column in sqlalchemy_obj.__table__.columns:
         value = getattr(sqlalchemy_obj, column.name)
         # Handle None values for list fields
-        if value is None and column.name in ['skills', 'preferred_locations', 'preferred_job_types', 'preferred_remote_types', 'skills_required', 'skills_preferred', 'benefits', 'values', 'tags']:
+        if value is None and column.name in ['skills', 'preferred_locations', 'preferred_job_types', 'preferred_remote_types', 'skills_required', 'skills_preferred', 'benefits', 'values', 'tags', 'tech_stack', 'matching_fields']:
             value = []
         # Handle None values for event_data dict field
         elif value is None and column.name == 'event_data':
             value = {}
+        # Handle None values for metadata dict fields
+        elif value is None and column.name in ['scraping_rules', 'rate_limit_config', 'source_metadata', 'benefits_parsed']:
+            value = {}
+        # Skip None values for required fields - let Pydantic handle defaults
+        elif value is None and column.name in ['id', 'created_at', 'updated_at']:
+            continue
+        
         data[column.name] = value
     return pydantic_class(**data)
