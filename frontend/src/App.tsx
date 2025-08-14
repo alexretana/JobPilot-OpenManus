@@ -1,6 +1,7 @@
-import { Component, createSignal, onMount, onCleanup } from 'solid-js';
+import { Component, createSignal, onMount, onCleanup, Show } from 'solid-js';
 import Header from './components/Header';
 import Chat from './components/Chat';
+import { JobList } from './components/JobList';
 import BrowserViewport from './components/BrowserViewport';
 import ActivityModal from './components/ActivityModal';
 import StatusPanel from './components/StatusPanel';
@@ -21,6 +22,8 @@ const App: Component = () => {
   const [showActivityModal, setShowActivityModal] = createSignal(false);
   const [showStatusPanel, setShowStatusPanel] = createSignal(false);
   const [systemHealthy, setSystemHealthy] = createSignal(true);
+  const [activeTab, setActiveTab] = createSignal<'chat' | 'jobs'>('chat');
+  const [, setSelectedJobId] = createSignal<string | null>(null);
 
   let messageIdCounter = 0;
   let activityIdCounter = 0;
@@ -134,6 +137,19 @@ const App: Component = () => {
     }
   };
 
+  const handleJobSelect = (jobId: string) => {
+    setSelectedJobId(jobId);
+    // TODO: Open job details modal or navigate to job details
+    console.log('Selected job:', jobId);
+    addActivity('info', `📋 Viewing job details: ${jobId}`);
+  };
+
+  const handleJobSave = (jobId: string) => {
+    // TODO: Implement job saving functionality
+    console.log('Saved job:', jobId);
+    addActivity('info', `💾 Saved job: ${jobId}`);
+  };
+
   // Initialize WebSocket connection and handle cleanup
   onMount(() => {
     webSocketService.connect();
@@ -159,23 +175,53 @@ const App: Component = () => {
       />
 
       <main class="mx-auto p-4 h-[calc(100vh-80px)]">
-        <div class="flex flex-col lg:flex-row gap-4 h-full max-w-none">
-          {/* Left Column - Chat */}
-          <div class="flex-1 flex flex-col min-h-0 max-w-[2560px]">
-            <div class="flex-1 min-h-0">
-              <Chat
-                messages={messages}
-                onMessageSend={handleMessageSend}
-                isProcessing={isProcessing}
-                progress={progress}
+        {/* Tab Navigation */}
+        <div class="tabs tabs-boxed mb-4 bg-base-100">
+          <a 
+            class={`tab ${activeTab() === 'chat' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('chat')}
+          >
+            💬 AI Chat
+          </a>
+          <a 
+            class={`tab ${activeTab() === 'jobs' ? 'tab-active' : ''}`}
+            onClick={() => setActiveTab('jobs')}
+          >
+            💼 Jobs
+          </a>
+        </div>
+
+        {/* Tab Content */}
+        <div class="h-[calc(100%-60px)]">
+          <Show when={activeTab() === 'chat'}>
+            <div class="flex flex-col lg:flex-row gap-4 h-full max-w-none">
+              {/* Chat Column */}
+              <div class="flex-1 flex flex-col min-h-0 max-w-[2560px]">
+                <div class="flex-1 min-h-0">
+                  <Chat
+                    messages={messages}
+                    onMessageSend={handleMessageSend}
+                    isProcessing={isProcessing}
+                    progress={progress}
+                  />
+                </div>
+              </div>
+
+              {/* Browser Viewport Column */}
+              <div class="flex-1 min-h-0 max-w-[2560px]">
+                <BrowserViewport browserState={browserState} />
+              </div>
+            </div>
+          </Show>
+
+          <Show when={activeTab() === 'jobs'}>
+            <div class="h-full bg-base-100 rounded-lg p-4">
+              <JobList 
+                onJobSelect={handleJobSelect}
+                onJobSave={handleJobSave}
               />
             </div>
-          </div>
-
-          {/* Right Column - Browser Viewport */}
-          <div class="flex-1 min-h-0 max-w-[2560px]">
-            <BrowserViewport browserState={browserState} />
-          </div>
+          </Show>
         </div>
       </main>
 

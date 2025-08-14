@@ -1,4 +1,4 @@
-import { Component, createSignal, onMount, onCleanup, createEffect } from 'solid-js';
+import { Component, createSignal, onMount, onCleanup } from 'solid-js';
 import { apiService } from '../services/api';
 import { webSocketService } from '../services/websocket';
 import type { HealthCheckResponse } from '../types';

@@ -281,9 +281,148 @@ async def get_chat_history():
     return {"messages": chat_history}
 
 
+@app.get("/api/jobs/recent")
+async def get_recent_jobs(limit: int = 20):
+    """Get recently posted jobs."""
+    try:
+        from app.data.database import get_job_repository
+        job_repo = get_job_repository()
+        jobs = job_repo.get_recent_jobs(limit=min(limit, 50))
+        
+        return {
+            "jobs": [
+                {
+                    "id": str(job.id),
+                    "title": job.title,
+                    "company": job.company,
+                    "location": job.location,
+                    "job_type": job.job_type.value if job.job_type else None,
+                    "remote_type": job.remote_type.value if job.remote_type else None,
+                    "salary_min": job.salary_min,
+                    "salary_max": job.salary_max,
+                    "salary_currency": job.salary_currency,
+                    "skills_required": job.skills_required[:5] if job.skills_required else [],
+                    "posted_date": job.posted_date.isoformat() if job.posted_date else None,
+                    "description": job.description[:200] + "..." if job.description and len(job.description) > 200 else job.description,
+                    "job_url": job.job_url
+                }
+                for job in jobs
+            ],
+            "total": len(jobs),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error fetching recent jobs: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/jobs/{job_id}")
+async def get_job_details(job_id: str):
+    """Get detailed information for a specific job."""
+    try:
+        from app.data.database import get_job_repository
+        job_repo = get_job_repository()
+        job = job_repo.get_job(job_id)
+        
+        if not job:
+            raise HTTPException(status_code=404, detail="Job not found")
+        
+        return {
+            "id": str(job.id),
+            "title": job.title,
+            "company": job.company,
+            "location": job.location,
+            "job_type": job.job_type.value if job.job_type else None,
+            "remote_type": job.remote_type.value if job.remote_type else None,
+            "experience_level": job.experience_level.value if job.experience_level else None,
+            "salary_min": job.salary_min,
+            "salary_max": job.salary_max,
+            "salary_currency": job.salary_currency,
+            "description": job.description,
+            "requirements": job.requirements,
+            "responsibilities": job.responsibilities,
+            "skills_required": job.skills_required,
+            "skills_preferred": job.skills_preferred,
+            "benefits": job.benefits,
+            "company_size": job.company_size,
+            "industry": job.industry,
+            "posted_date": job.posted_date.isoformat() if job.posted_date else None,
+            "job_url": job.job_url,
+            "source": job.source,
+            "created_at": job.created_at.isoformat() if job.created_at else None,
+            "updated_at": job.updated_at.isoformat() if job.updated_at else None
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error fetching job {job_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.post("/api/jobs/search")
-async def search_jobs(request: JobSearchRequest):
-    """Search for jobs using the JobPilot agent."""
+async def search_jobs_simple(query: str = "", job_types: str = "", locations: str = "", limit: int = 20):
+    """Search jobs using filters (simple version for direct API calls)."""
+    try:
+        from app.data.database import get_job_repository
+        from app.data.models import JobType
+        job_repo = get_job_repository()
+        
+        # Parse job types
+        parsed_job_types = None
+        if job_types:
+            parsed_job_types = []
+            for jt in job_types.split(","):
+                try:
+                    parsed_job_types.append(JobType(jt.strip()))
+                except ValueError:
+                    pass  # Skip invalid job types
+        
+        # Parse locations
+        location_list = [loc.strip() for loc in locations.split(",") if loc.strip()] if locations else None
+        
+        jobs, total = job_repo.search_jobs(
+            query=query or None,
+            job_types=parsed_job_types,
+            locations=location_list,
+            limit=min(limit, 50)
+        )
+        
+        return {
+            "jobs": [
+                {
+                    "id": str(job.id),
+                    "title": job.title,
+                    "company": job.company,
+                    "location": job.location,
+                    "job_type": job.job_type.value if job.job_type else None,
+                    "remote_type": job.remote_type.value if job.remote_type else None,
+                    "salary_min": job.salary_min,
+                    "salary_max": job.salary_max,
+                    "skills_required": job.skills_required[:5] if job.skills_required else [],
+                    "posted_date": job.posted_date.isoformat() if job.posted_date else None,
+                    "description": job.description[:200] + "..." if job.description and len(job.description) > 200 else job.description,
+                }
+                for job in jobs
+            ],
+            "total": total,
+            "query": query,
+            "filters": {
+                "job_types": job_types,
+                "locations": locations
+            },
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error searching jobs: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/jobs/search/agent")
+async def search_jobs_agent(request: JobSearchRequest):
+    """Search for jobs using the JobPilot agent (original functionality)."""
     try:
         agent = await Manus.create()
         

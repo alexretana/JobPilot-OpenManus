@@ -33,18 +33,6 @@ const ActivityModal: Component<ActivityModalProps> = (props) => {
     }
   };
 
-  const getTypeColor = (type: string) => {
-    switch (type) {
-      case 'tool':
-        return 'bg-blue-50 border-blue-200 text-blue-800';
-      case 'error':
-        return 'bg-red-50 border-red-200 text-red-800';
-      case 'browser':
-        return 'bg-green-50 border-green-200 text-green-800';
-      default:
-        return 'bg-gray-50 border-gray-200 text-gray-800';
-    }
-  };
 
   const formatTime = (date: Date) => {
     return date.toLocaleTimeString('en-US', {

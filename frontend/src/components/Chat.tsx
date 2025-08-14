@@ -36,12 +36,6 @@ const Chat: Component<ChatProps> = (props) => {
     }
   };
 
-  const quickQuery = (query: string) => {
-    if (!props.isProcessing()) {
-      setInputMessage(query);
-      setTimeout(() => sendMessage(), 100);
-    }
-  };
 
   const formatMessage = (content: string) => {
     // Format markdown-like content
