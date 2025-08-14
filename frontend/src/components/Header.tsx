@@ -6,6 +6,8 @@ interface HeaderProps {
   onShowActivityLog?: () => void;
   onShowStatusPanel?: () => void;
   systemHealthy?: () => boolean;
+  activeTab?: () => 'chat' | 'jobs';
+  onTabChange?: (tab: 'chat' | 'jobs') => void;
 }
 
 const Header: Component<HeaderProps> = (props) => {
@@ -55,9 +57,20 @@ const Header: Component<HeaderProps> = (props) => {
       </div>
 
       <div class="navbar-center hidden lg:flex">
-        <ul class="menu menu-horizontal px-1">
-          <li><a class="text-base-content/70">Transparent AI Job Search</a></li>
-        </ul>
+        <div class="tabs tabs-border tabs-lg">
+          <button 
+            class={`tab ${props.activeTab?.() === 'chat' ? 'tab-active' : ''}`}
+            onClick={() => props.onTabChange?.('chat')}
+          >
+            💬 AI Chat
+          </button>
+          <button 
+            class={`tab ${props.activeTab?.() === 'jobs' ? 'tab-active' : ''}`}
+            onClick={() => props.onTabChange?.('jobs')}
+          >
+            💼 Jobs
+          </button>
+        </div>
       </div>
 
       <div class="navbar-end space-x-2">

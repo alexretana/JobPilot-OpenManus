@@ -2,6 +2,7 @@ import { Component, createSignal, onMount, onCleanup, Show } from 'solid-js';
 import Header from './components/Header';
 import Chat from './components/Chat';
 import { JobList } from './components/JobList';
+import { JobDetailsModal } from './components/JobDetailsModal';
 import BrowserViewport from './components/BrowserViewport';
 import ActivityModal from './components/ActivityModal';
 import StatusPanel from './components/StatusPanel';
@@ -23,7 +24,8 @@ const App: Component = () => {
   const [showStatusPanel, setShowStatusPanel] = createSignal(false);
   const [systemHealthy, setSystemHealthy] = createSignal(true);
   const [activeTab, setActiveTab] = createSignal<'chat' | 'jobs'>('chat');
-  const [, setSelectedJobId] = createSignal<string | null>(null);
+  const [selectedJobId, setSelectedJobId] = createSignal<string | null>(null);
+  const [showJobModal, setShowJobModal] = createSignal(false);
 
   let messageIdCounter = 0;
   let activityIdCounter = 0;
@@ -139,9 +141,13 @@ const App: Component = () => {
 
   const handleJobSelect = (jobId: string) => {
     setSelectedJobId(jobId);
-    // TODO: Open job details modal or navigate to job details
-    console.log('Selected job:', jobId);
-    addActivity('info', `📋 Viewing job details: ${jobId}`);
+    setShowJobModal(true);
+    addActivity('info', `📋 Opening job details: ${jobId}`);
+  };
+
+  const handleJobModalClose = () => {
+    setShowJobModal(false);
+    setSelectedJobId(null);
   };
 
   const handleJobSave = (jobId: string) => {
@@ -172,58 +178,48 @@ const App: Component = () => {
         onShowActivityLog={() => setShowActivityModal(true)}
         onShowStatusPanel={() => setShowStatusPanel(true)}
         systemHealthy={() => systemHealthy() && webSocketService.getIsConnected()()}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
       />
 
-      <main class="mx-auto p-2 min-h-[calc(100vh-80px)]">
-        {/* Compact Tab Navigation */}
-        <div class="tabs tabs-border tabs-lg justify-start mb-2">
-          <button 
-            class={`tab ${activeTab() === 'chat' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('chat')}
-          >
-            💬 AI Chat
-          </button>
-          <button 
-            class={`tab ${activeTab() === 'jobs' ? 'tab-active' : ''}`}
-            onClick={() => setActiveTab('jobs')}
-          >
-            💼 Jobs
-          </button>
-        </div>
-
-        {/* Tab Content */}
-        <div>
-          <Show when={activeTab() === 'chat'}>
-            <div class="flex flex-col lg:flex-row gap-2 h-[calc(100vh-140px)] max-w-none">
-              {/* Chat Column */}
-              <div class="flex-1 flex flex-col min-h-0 max-w-[2560px]">
-                <div class="flex-1 min-h-0">
-                  <Chat
-                    messages={messages}
-                    onMessageSend={handleMessageSend}
-                    isProcessing={isProcessing}
-                    progress={progress}
-                  />
-                </div>
-              </div>
-
-              {/* Browser Viewport Column */}
-              <div class="flex-1 min-h-0 max-w-[2560px]">
-                <BrowserViewport browserState={browserState} />
+      <main class="mx-auto p-2 h-[calc(100vh-64px)]">
+        <Show when={activeTab() === 'chat'}>
+          <div class="flex flex-col lg:flex-row gap-2 h-full max-w-none">
+            {/* Chat Column */}
+            <div class="flex-1 flex flex-col min-h-0 max-w-[2560px]">
+              <div class="flex-1 min-h-0">
+                <Chat
+                  messages={messages}
+                  onMessageSend={handleMessageSend}
+                  isProcessing={isProcessing}
+                  progress={progress}
+                />
               </div>
             </div>
-          </Show>
 
-          <Show when={activeTab() === 'jobs'}>
-            <div class="bg-base-100 rounded-lg p-2">
-              <JobList 
-                onJobSelect={handleJobSelect}
-                onJobSave={handleJobSave}
-              />
+            {/* Browser Viewport Column */}
+            <div class="flex-1 min-h-0 max-w-[2560px]">
+              <BrowserViewport browserState={browserState} />
             </div>
-          </Show>
-        </div>
+          </div>
+        </Show>
+
+        <Show when={activeTab() === 'jobs'}>
+          <div class="bg-base-100 rounded-lg p-2 h-full">
+            <JobList 
+              onJobSelect={handleJobSelect}
+              onJobSave={handleJobSave}
+            />
+          </div>
+        </Show>
       </main>
+
+      {/* Job Details Modal */}
+      <JobDetailsModal
+        jobId={selectedJobId()}
+        isOpen={showJobModal()}
+        onClose={handleJobModalClose}
+      />
 
       {/* Activity Modal */}
       <ActivityModal
