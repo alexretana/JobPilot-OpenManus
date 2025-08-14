@@ -19,6 +19,7 @@ import uvicorn
 from app.agent.manus import Manus
 from app.logger import logger
 from app.prompt.jobpilot import get_jobpilot_prompt
+from app.api.timeline import router as timeline_router
 
 
 class ChatMessage(BaseModel):
@@ -61,6 +62,9 @@ class ConnectionManager:
 
 app = FastAPI(title="JobPilot-OpenManus", description="AI-Powered Job Hunting Assistant")
 manager = ConnectionManager()
+
+# Include API routers
+app.include_router(timeline_router)
 
 # Store chat history
 chat_history: List[ChatMessage] = []
@@ -473,12 +477,14 @@ DEFAULT_USER_ID = "00000000-0000-4000-8000-000000000001"  # Fixed UUID for defau
 async def save_job(job_id: str, request: SaveJobRequest):
     """Save a job for the user."""
     try:
-        from app.data.database import get_saved_job_repository, get_user_repository
+        from app.data.database import get_saved_job_repository, get_user_repository, get_job_repository
         from app.data.models import UserProfile
+        from app.services.timeline_service import TimelineService
         
         # Get repositories
         saved_job_repo = get_saved_job_repository()
         user_repo = get_user_repository()
+        job_repo = get_job_repository()
         
         # Ensure default user exists
         user = user_repo.get_user(DEFAULT_USER_ID)
@@ -500,6 +506,25 @@ async def save_job(job_id: str, request: SaveJobRequest):
             notes=request.notes,
             tags=request.tags
         )
+        
+        # Log timeline event for job saved
+        try:
+            job = job_repo.get_job(request.job_id)
+            if job:
+                from app.data.database import get_database_manager
+                db_manager = get_database_manager()
+                with db_manager.get_session() as db_session:
+                    timeline_service = TimelineService(db_session)
+                    timeline_service.log_job_saved(
+                        user_profile_id=DEFAULT_USER_ID,
+                        job_id=request.job_id,
+                        job_title=job.title,
+                        company_name=job.company,
+                        notes=request.notes,
+                        tags=request.tags
+                    )
+        except Exception as e:
+            logger.warning(f"Failed to log timeline event for saved job: {e}")
         
         return {
             "message": "Job saved successfully",

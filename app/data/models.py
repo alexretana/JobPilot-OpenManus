@@ -68,6 +68,20 @@ class SavedJobStatus(str, Enum):
     ARCHIVED = "archived"
 
 
+class TimelineEventType(str, Enum):
+    """Types of timeline events for job applications."""
+    JOB_POSTED = "job_posted"
+    JOB_SAVED = "job_saved"
+    APPLICATION_SUBMITTED = "application_submitted"
+    INTERVIEW_SCHEDULED = "interview_scheduled"
+    INTERVIEW_COMPLETED = "interview_completed"
+    FOLLOW_UP_SENT = "follow_up_sent"
+    RESPONSE_RECEIVED = "response_received"
+    STATUS_CHANGED = "status_changed"
+    NOTE_ADDED = "note_added"
+    CUSTOM_EVENT = "custom_event"
+
+
 # =====================================
 # Pydantic Models for API/Data Transfer
 # =====================================
@@ -257,6 +271,33 @@ class JobMatch(BaseModel):
         from_attributes = True
 
 
+class TimelineEvent(BaseModel):
+    """Timeline event for job application tracking."""
+    id: str = Field(default_factory=lambda: str(uuid4()))
+    job_id: Optional[str] = None  # Can be None for general events
+    application_id: Optional[str] = None  # Link to specific application
+    user_profile_id: str
+    
+    # Event details
+    event_type: TimelineEventType
+    title: str
+    description: Optional[str] = None
+    
+    # Event data (flexible JSON for event-specific data)
+    event_data: Dict[str, Any] = Field(default_factory=dict)
+    
+    # Event scheduling/timing
+    event_date: datetime = Field(default_factory=datetime.utcnow)
+    is_milestone: bool = False  # Mark important events
+    
+    # Metadata
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    
+    class Config:
+        from_attributes = True
+
+
 # =====================================
 # SQLAlchemy Database Models
 # =====================================
@@ -426,6 +467,37 @@ class CompanyInfoDB(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class TimelineEventDB(Base):
+    """SQLAlchemy model for timeline events."""
+    __tablename__ = "timeline_events"
+    
+    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
+    job_id = Column(String, ForeignKey("job_listings.id"), nullable=True)  # Can be None for general events
+    application_id = Column(String, ForeignKey("applications.id"), nullable=True)  # Link to specific application
+    user_profile_id = Column(String, ForeignKey("user_profiles.id"), nullable=False)
+    
+    # Event details
+    event_type = Column(SQLEnum(TimelineEventType), nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(Text)
+    
+    # Event data (flexible JSON for event-specific data)
+    event_data = Column(JSON)
+    
+    # Event scheduling/timing
+    event_date = Column(DateTime, default=datetime.utcnow)
+    is_milestone = Column(Boolean, default=False)
+    
+    # Metadata
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    job = relationship("JobListingDB")
+    application = relationship("JobApplicationDB")
+    user_profile = relationship("UserProfileDB")
+
+
 # =====================================
 # Utility Functions
 # =====================================
@@ -467,5 +539,8 @@ def sqlalchemy_to_pydantic(sqlalchemy_obj, pydantic_class):
         # Handle None values for list fields
         if value is None and column.name in ['skills', 'preferred_locations', 'preferred_job_types', 'preferred_remote_types', 'skills_required', 'skills_preferred', 'benefits', 'values', 'tags']:
             value = []
+        # Handle None values for event_data dict field
+        elif value is None and column.name == 'event_data':
+            value = {}
         data[column.name] = value
     return pydantic_class(**data)
