@@ -174,7 +174,7 @@ const App: Component = () => {
         systemHealthy={() => systemHealthy() && webSocketService.getIsConnected()()}
       />
 
-      <main class="mx-auto p-4 h-[calc(100vh-80px)]">
+      <main class="mx-auto p-2 min-h-[calc(100vh-80px)]">
         {/* Compact Tab Navigation */}
         <div class="tabs tabs-border tabs-lg justify-start mb-2">
           <button 
@@ -192,9 +192,9 @@ const App: Component = () => {
         </div>
 
         {/* Tab Content */}
-        <div class="h-[calc(100%-45px)]">
+        <div>
           <Show when={activeTab() === 'chat'}>
-            <div class="flex flex-col lg:flex-row gap-4 h-full max-w-none">
+            <div class="flex flex-col lg:flex-row gap-2 h-[calc(100vh-140px)] max-w-none">
               {/* Chat Column */}
               <div class="flex-1 flex flex-col min-h-0 max-w-[2560px]">
                 <div class="flex-1 min-h-0">
@@ -215,7 +215,7 @@ const App: Component = () => {
           </Show>
 
           <Show when={activeTab() === 'jobs'}>
-            <div class="h-full bg-base-100 rounded-lg p-4">
+            <div class="bg-base-100 rounded-lg p-2">
               <JobList 
                 onJobSelect={handleJobSelect}
                 onJobSave={handleJobSave}

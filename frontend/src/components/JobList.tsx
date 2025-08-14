@@ -64,8 +64,8 @@ export const JobList: Component<JobListProps> = (props) => {
   return (
     <div class="w-full">
       {/* Header */}
-      <div class="flex items-center justify-between mb-4">
-        <div class="flex items-center gap-3">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
           <h2 class="text-xl font-bold text-base-content">
             <Show when={props.filters?.query} fallback="Recent Jobs">
               Search Results
@@ -110,7 +110,7 @@ export const JobList: Component<JobListProps> = (props) => {
 
       {/* Error State */}
       <Show when={error()}>
-        <div class="alert alert-error mb-4">
+        <div class="alert alert-error mb-2">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -124,10 +124,10 @@ export const JobList: Component<JobListProps> = (props) => {
 
       {/* Empty State */}
       <Show when={!loading() && !error() && jobs().length === 0}>
-        <div class="flex flex-col items-center justify-center py-12">
-          <div class="text-6xl mb-4">🔍</div>
+        <div class="flex flex-col items-center justify-center py-8">
+          <div class="text-6xl mb-2">🔍</div>
           <h3 class="text-lg font-medium text-base-content mb-2">No jobs found</h3>
-          <p class="text-base-content/60 text-center max-w-md mb-4">
+          <p class="text-base-content/60 text-center max-w-md mb-2">
             <Show when={props.filters?.query} fallback="Try adjusting your search criteria or check back later for new opportunities.">
               No jobs match your search criteria. Try broadening your search or using different keywords.
             </Show>
@@ -140,7 +140,7 @@ export const JobList: Component<JobListProps> = (props) => {
 
       {/* Job Cards Grid */}
       <Show when={!loading() && !error() && jobs().length > 0}>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           <For each={jobs()}>
             {(job) => (
               <JobCard
@@ -154,7 +154,7 @@ export const JobList: Component<JobListProps> = (props) => {
 
         {/* Load More Button (placeholder for future pagination) */}
         <Show when={jobs().length >= (props.filters?.limit || 20)}>
-          <div class="flex justify-center mt-8">
+          <div class="flex justify-center mt-4">
             <button class="btn btn-outline" disabled>
               Load More Jobs
               <span class="text-xs opacity-60">(Coming Soon)</span>
