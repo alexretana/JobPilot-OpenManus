@@ -101,7 +101,7 @@ const StatusPanel: Component<StatusPanelProps> = (props) => {
         props.isOpen() ? 'translate-x-0' : 'translate-x-full'
       }`}>
         {/* Header */}
-        <div class="flex items-center justify-between p-4 border-b border-base-200">
+        <div class="flex items-center justify-between p-2 border-b border-base-200">
           <div class="flex items-center space-x-2">
             <span class="text-xl">⚡</span>
             <h2 class="text-lg font-bold">System Status</h2>
@@ -117,7 +117,7 @@ const StatusPanel: Component<StatusPanelProps> = (props) => {
         </div>
         
         {/* Scrollable Content */}
-        <div class="flex-1 overflow-y-auto p-4 space-y-6">
+        <div class="flex-1 overflow-y-auto p-2 space-y-2">
           {/* System Status */}
           <div>
             <h3 class="text-sm font-medium mb-3 flex items-center">
@@ -161,7 +161,7 @@ const StatusPanel: Component<StatusPanelProps> = (props) => {
               <span class="mr-2">🔧</span>
               System Details
             </h3>
-            <div class="card bg-base-200 p-3">
+            <div class="card bg-base-200 p-2">
               <div class="text-sm space-y-2">
                 <div class="flex justify-between">
                   <span>🟢 Status:</span>

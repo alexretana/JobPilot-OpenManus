@@ -29,7 +29,7 @@ const BrowserViewport: Component<BrowserViewportProps> = (props) => {
 
   return (
     <div class="card bg-base-100 shadow-xl h-full flex flex-col">
-      <div class="card-header bg-neutral text-neutral-content p-4 rounded-t-xl">
+      <div class="card-header bg-neutral text-neutral-content p-2 rounded-t-xl">
         <div class="flex justify-between items-center w-full">
           <div class="flex items-center space-x-2">
             <span class="text-xl">🌐</span>
@@ -41,7 +41,7 @@ const BrowserViewport: Component<BrowserViewportProps> = (props) => {
         </div>
       </div>
       
-      <div class="p-4 border-b border-base-200">
+      <div class="p-2 border-b border-base-200">
         <div class="mockup-browser bg-base-300 border">
           <div class="mockup-browser-toolbar">
             <div class="input border border-base-300 bg-base-100">
@@ -51,14 +51,14 @@ const BrowserViewport: Component<BrowserViewportProps> = (props) => {
         </div>
       </div>
       
-      <div class="flex-1 p-4 min-h-0">
+      <div class="flex-1 p-2 min-h-0">
         <div class={`h-full rounded-lg ${
           props.browserState().status === 'Active' || props.browserState().status === 'Browsing' 
             ? 'bg-base-100 border-2 border-dashed border-base-300' 
             : 'bg-base-200 flex items-center justify-center'
         }`}>
           {props.browserState().status === 'Active' || props.browserState().status === 'Browsing' ? (
-            <div class="p-4 h-full overflow-auto scrollbar-thin">
+            <div class="p-2 h-full overflow-auto scrollbar-thin">
               <pre class="text-xs whitespace-pre-wrap font-mono break-words">
                 {formatContent(props.browserState().content)}
               </pre>
@@ -78,7 +78,7 @@ const BrowserViewport: Component<BrowserViewportProps> = (props) => {
       </div>
       
       {props.browserState().status === 'Browsing' && (
-        <div class="p-4 border-t border-base-200">
+        <div class="p-2 border-t border-base-200">
           <div class="flex items-center space-x-2 text-sm">
             <span class="loading loading-dots loading-sm"></span>
             <span>JobPilot is actively browsing and analyzing this page...</span>

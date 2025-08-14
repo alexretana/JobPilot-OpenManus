@@ -67,7 +67,7 @@ const ActivityModal: Component<ActivityModalProps> = (props) => {
     >
       <div class="modal-box w-11/12 max-w-4xl h-[80vh] flex flex-col">
         {/* Header */}
-        <div class="flex justify-between items-center pb-4 border-b border-base-300">
+        <div class="flex justify-between items-center pb-2 border-b border-base-300">
           <div class="flex items-center space-x-2">
             <span class="text-2xl">🔍</span>
             <h2 class="text-xl font-bold">Activity Log</h2>
@@ -111,7 +111,7 @@ const ActivityModal: Component<ActivityModalProps> = (props) => {
         {/* Activities List */}
         <div class="flex-1 overflow-y-auto scrollbar-thin pr-2">
           {props.activities().length === 0 ? (
-            <div class="text-center text-base-content/60 py-8">
+            <div class="text-center text-base-content/60 py-2">
               <div class="mb-4">
                 <svg class="w-16 h-16 mx-auto opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />

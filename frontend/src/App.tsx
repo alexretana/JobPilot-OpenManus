@@ -138,7 +138,7 @@ const App: Component = () => {
   onMount(() => {
     webSocketService.connect();
     const removeHandler = webSocketService.addMessageHandler(handleWebSocketMessage);
-    
+
     // Add initial activity log entry
     addActivity('info', 'System initialized and ready');
     addActivity('info', '💬 Web interface loaded and connected');
@@ -151,19 +151,19 @@ const App: Component = () => {
 
   return (
     <div class="min-h-screen bg-base-200">
-      <Header 
+      <Header
         activities={activities}
         onShowActivityLog={() => setShowActivityModal(true)}
         onShowStatusPanel={() => setShowStatusPanel(true)}
         systemHealthy={() => systemHealthy() && webSocketService.getIsConnected()()}
       />
-      
-      <main class="container mx-auto p-4 h-[calc(100vh-80px)]">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
+
+      <main class="mx-auto p-4 h-[calc(100vh-80px)]">
+        <div class="flex flex-col lg:flex-row gap-4 h-full max-w-none">
           {/* Left Column - Chat */}
-          <div class="lg:col-span-1 flex flex-col min-h-0">
+          <div class="flex-1 flex flex-col min-h-0 max-w-[2560px]">
             <div class="flex-1 min-h-0">
-              <Chat 
+              <Chat
                 messages={messages}
                 onMessageSend={handleMessageSend}
                 isProcessing={isProcessing}
@@ -171,29 +171,29 @@ const App: Component = () => {
               />
             </div>
           </div>
-          
+
           {/* Right Column - Browser Viewport */}
-          <div class="lg:col-span-1 min-h-0">
+          <div class="flex-1 min-h-0 max-w-[2560px]">
             <BrowserViewport browserState={browserState} />
           </div>
         </div>
       </main>
-      
+
       {/* Activity Modal */}
-      <ActivityModal 
+      <ActivityModal
         activities={activities}
         isOpen={showActivityModal}
         onClose={() => setShowActivityModal(false)}
       />
-      
+
       {/* Status Panel Drawer */}
-      <StatusPanel 
+      <StatusPanel
         onQuickAction={handleQuickAction}
         isProcessing={isProcessing}
         isOpen={showStatusPanel}
         onClose={() => setShowStatusPanel(false)}
       />
-      
+
       {/* Mobile responsive adjustments */}
       <div class="lg:hidden">
         {/* On mobile, stack vertically with better spacing */}

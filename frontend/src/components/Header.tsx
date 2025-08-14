@@ -10,7 +10,7 @@ interface HeaderProps {
 
 const Header: Component<HeaderProps> = (props) => {
   const [currentTheme, setCurrentTheme] = createSignal('corporate');
-  
+
   const themes = [
     { value: 'dark', label: 'Dark' },
     { value: 'emerald', label: 'Emerald' },
@@ -36,7 +36,7 @@ const Header: Component<HeaderProps> = (props) => {
   };
 
   return (
-    <header class="navbar bg-base-100 shadow-lg sticky top-0 z-50">
+    <header class="navbar bg-base-100 shadow-lg sticky top-0 h-[5vh] z-50">
       <div class="navbar-start">
         <div class="dropdown">
           <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
@@ -46,7 +46,7 @@ const Header: Component<HeaderProps> = (props) => {
           </div>
         </div>
         <div class="flex items-center space-x-2">
-          <span class="text-2xl">🚀</span>
+          <img src="/JobPilotIcon-Alpha.png" alt="JobPilot Logo" class="w-8 h-8" />
           <div>
             <div class="text-xl font-bold text-primary">JobPilot-OpenManus</div>
             <div class="text-sm opacity-70">AI-Powered Job Hunting Assistant</div>

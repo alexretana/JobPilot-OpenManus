@@ -1,4 +1,4 @@
-# 🚀 JobPilot-OpenManus
+# ![JobPilot Icon](assets/JobPilotIcon-Alpha.png) JobPilot-OpenManus
 
 **AI-Powered Job Hunting Copilot** - An intelligent agent framework that automates job discovery, analysis, and application processes using OpenManus architecture.
 

@@ -5,7 +5,7 @@
 /* Custom styles for JobPilot */
 @layer components {
   .chat-message {
-    @apply p-4 rounded-lg mb-4 max-w-[80%];
+    @apply p-2 rounded-lg mb-2 max-w-[80%];
   }
   
   .user-message {

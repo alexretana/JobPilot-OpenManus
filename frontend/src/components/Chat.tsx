@@ -52,7 +52,7 @@ const Chat: Component<ChatProps> = (props) => {
     // Format job listings
     formatted = formatted.replace(
       /(\d+\.)\s+(.*?)\s+-\s+(.*?)\s+-\s+(.*?)\n/g,
-      '<div class="bg-base-200 p-3 my-2 rounded-lg border-l-4 border-l-success">' +
+      '<div class="bg-base-200 p-2 my-2 rounded-lg border-l-4 border-l-success">' +
       '<strong>$2</strong><br>' +
       '<span class="text-base-content/70">$3</span><br>' +
       '<a href="$4" target="_blank" class="link link-primary">View Job</a>' +
@@ -70,7 +70,7 @@ const Chat: Component<ChatProps> = (props) => {
 
   return (
     <div class="card bg-base-100 shadow-xl h-full flex flex-col">
-      <div class="card-header bg-primary text-primary-content p-4 rounded-t-xl">
+      <div class="card-header bg-primary text-primary-content p-2 rounded-t-xl">
         <div class="flex justify-between items-center">
           <div class="flex items-center space-x-2">
             <span class="text-xl">💬</span>
@@ -99,7 +99,7 @@ const Chat: Component<ChatProps> = (props) => {
 
       <div
         ref={messagesContainer}
-        class="flex-1 p-4 overflow-y-auto scrollbar-thin space-y-4 min-h-0"
+        class="flex-1 p-2 overflow-y-auto scrollbar-thin space-y-2 min-h-0"
       >
         {props.messages().length === 0 && (
           <div class="assistant-message chat-message">
@@ -142,7 +142,7 @@ const Chat: Component<ChatProps> = (props) => {
         </For>
       </div>
 
-      <div class="card-footer p-4 border-t border-base-200 space-y-3">
+      <div class="card-footer p-2 border-t border-base-200 space-y-2">
         <textarea
           ref={messageInput}
           class="textarea textarea-bordered w-full resize-none"
