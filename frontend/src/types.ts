@@ -54,3 +54,60 @@ export interface BrowserState {
   url: string;
   content: string;
 }
+
+// Timeline API Types
+export enum TimelineEventType {
+  JOB_SAVED = 'JOB_SAVED',
+  APPLICATION_SUBMITTED = 'APPLICATION_SUBMITTED',
+  INTERVIEW_SCHEDULED = 'INTERVIEW_SCHEDULED',
+  INTERVIEW_COMPLETED = 'INTERVIEW_COMPLETED',
+  STATUS_CHANGED = 'STATUS_CHANGED',
+  OFFER_RECEIVED = 'OFFER_RECEIVED',
+  OFFER_ACCEPTED = 'OFFER_ACCEPTED',
+  OFFER_DECLINED = 'OFFER_DECLINED',
+  CUSTOM_EVENT = 'CUSTOM_EVENT'
+}
+
+export interface TimelineEvent {
+  id: string;
+  job_id?: string;
+  application_id?: string;
+  user_profile_id: string;
+  event_type: TimelineEventType;
+  title: string;
+  description?: string;
+  event_data: Record<string, any>;
+  event_date: string;
+  is_milestone: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CreateTimelineEventRequest {
+  event_type: TimelineEventType;
+  title: string;
+  description?: string;
+  job_id?: string;
+  application_id?: string;
+  event_data?: Record<string, any>;
+  event_date?: string;
+  is_milestone: boolean;
+}
+
+export interface CreateCustomEventRequest {
+  title: string;
+  description?: string;
+  job_id?: string;
+  application_id?: string;
+  event_data?: Record<string, any>;
+  event_date?: string;
+  is_milestone: boolean;
+}
+
+export interface UpdateTimelineEventRequest {
+  title?: string;
+  description?: string;
+  event_data?: Record<string, any>;
+  event_date?: string;
+  is_milestone?: boolean;
+}

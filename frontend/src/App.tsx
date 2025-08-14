@@ -6,6 +6,7 @@ import { JobDetailsModal } from './components/JobDetailsModal';
 import BrowserViewport from './components/BrowserViewport';
 import ActivityModal from './components/ActivityModal';
 import StatusPanel from './components/StatusPanel';
+import { Timeline } from './components/Timeline';
 import { webSocketService } from './services/websocket';
 import type { ChatMessage, ActivityLogEntry, ProgressState, BrowserState, WebSocketMessage } from './types';
 
@@ -23,7 +24,7 @@ const App: Component = () => {
   const [showActivityModal, setShowActivityModal] = createSignal(false);
   const [showStatusPanel, setShowStatusPanel] = createSignal(false);
   const [systemHealthy, setSystemHealthy] = createSignal(true);
-  const [activeTab, setActiveTab] = createSignal<'chat' | 'jobs'>('chat');
+  const [activeTab, setActiveTab] = createSignal<'chat' | 'jobs' | 'timeline'>('chat');
   const [selectedJobId, setSelectedJobId] = createSignal<string | null>(null);
   const [showJobModal, setShowJobModal] = createSignal(false);
 
@@ -209,6 +210,15 @@ const App: Component = () => {
             <JobsContainer 
               onJobSelect={handleJobSelect}
               onJobSave={handleJobSave}
+            />
+          </div>
+        </Show>
+
+        <Show when={activeTab() === 'timeline'}>
+          <div class="bg-base-100 rounded-lg p-4 h-full overflow-y-auto">
+            <Timeline 
+              userProfileId="demo-user-123" // TODO: Replace with actual user ID from auth
+              className="h-full"
             />
           </div>
         </Show>
