@@ -16,7 +16,7 @@ JobPilot-OpenManus combines the power of OpenManus's agent framework with specia
 |-----------|---------|-------------|
 | **🏗️ Core Foundation** | ✅ **Complete** | Data models, database layer, type safety |
 | **💾 Data Management** | ✅ **Complete** | Job listings, user profiles, applications, companies |
-| **🔍 Job Discovery** | ✅ **Complete** | Demo scraper, job extraction, market analysis |
+| **🔍 Job Discovery** | ✅ **Complete** | RapidAPI JSearch integration, job extraction, market analysis |
 | **🧠 Semantic Search** | ✅ **Complete** | AI-powered matching, embeddings, filtering |
 | **🤖 Basic Agents** | ✅ **Complete** | Job discovery agent with market analysis |
 | **🧪 Testing Suite** | ✅ **Complete** | Comprehensive tests for all core components |
@@ -25,7 +25,8 @@ JobPilot-OpenManus combines the power of OpenManus's agent framework with specia
 | **📅 Timeline System** | ✅ **Complete** | Job search activity tracking, milestones, events |
 | **📊 Job Analytics** | ✅ **Complete** | Statistics, insights, progress tracking |
 | **🔧 Full API Suite** | ✅ **Complete** | REST + WebSocket APIs, health monitoring |
-| **📊 Real Job Boards** | ⏳ **Planned** | LinkedIn, Indeed, Glassdoor integration |
+| **🔄 ETL Pipeline** | ✅ **Complete** | JSearch API integration, data processing, automated loading |
+| **📊 Additional Job Boards** | ⏳ **Planned** | LinkedIn, Indeed, Glassdoor direct integration |
 | **📝 Application Tools** | ⏳ **Planned** | Automated form filling and submission |
 | **📈 Advanced Analytics** | ⏳ **Planned** | Predictive modeling, market trends |
 
@@ -46,11 +47,13 @@ JobPilot revolutionizes job hunting by automating tedious tasks while enhancing 
 - **Robust Database**: SQLAlchemy ORM with SQLite/PostgreSQL support
 
 ### 🔍 **AI-Powered Job Discovery**
-- **Demo Job Generator**: Creates realistic job listings for testing (20+ tech companies, multiple roles)
+- **Real Job Integration**: RapidAPI JSearch integration for live job market data
+- **ETL Pipeline**: Complete Extract-Transform-Load system for automated data processing
 - **Semantic Search**: AI understands job requirements beyond keywords using sentence transformers
 - **Advanced Filtering**: Multi-factor scoring based on skills, experience, salary, location, remote work
 - **Job Market Analysis**: Trend analysis, salary insights, top skills and companies
 - **Company Search**: Find all jobs at specific companies
+- **Demo Mode**: Fallback demo job generation for testing and development
 
 ### 🤖 **Intelligent Agent System**
 - **JobDiscoveryAgent**: Specialized agent for job hunting workflows
@@ -157,6 +160,15 @@ model = "gpt-4o"
 base_url = "https://api.openai.com/v1"
 api_key = "sk-..."  # Replace with your actual API key
 ```
+
+3. **Set up JSearch API (Optional)**: For real job data integration, add your RapidAPI key as an environment variable:
+
+```bash
+# Add to your environment (e.g., .env file)
+RAPIDAPI_KEY=your_rapidapi_key_here
+```
+
+> **Note**: Without the RapidAPI key, the system will use demo job data for testing. Get your key from [RapidAPI JSearch](https://rapidapi.com/letscrape-6bz/api/jsearch/).
 
 ## Quick Start
 
