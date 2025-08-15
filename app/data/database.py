@@ -378,6 +378,70 @@ class UserRepository:
         except Exception as e:
             logger.error(f"Error getting user by email {email}: {e}")
             return None
+    
+    def update_user(self, user_id: str, user_data: Dict[str, Any]) -> Optional[UserProfile]:
+        """Update user profile."""
+        try:
+            with self.db_manager.get_session() as session:
+                user_db = session.query(UserProfileDB).filter(UserProfileDB.id == user_id).first()
+                if not user_db:
+                    return None
+                
+                # Update fields
+                for field, value in user_data.items():
+                    if hasattr(user_db, field):
+                        setattr(user_db, field, value)
+                
+                user_db.updated_at = datetime.utcnow()
+                session.flush()
+                
+                result = sqlalchemy_to_pydantic(user_db, UserProfile)
+                logger.info(f"Updated user profile: {user_id}")
+                return result
+                
+        except Exception as e:
+            logger.error(f"Error updating user {user_id}: {e}")
+            raise
+    
+    def delete_user(self, user_id: str) -> bool:
+        """Delete user profile."""
+        try:
+            with self.db_manager.get_session() as session:
+                user_db = session.query(UserProfileDB).filter(UserProfileDB.id == user_id).first()
+                if user_db:
+                    session.delete(user_db)
+                    logger.info(f"Deleted user profile: {user_id}")
+                    return True
+                return False
+        except Exception as e:
+            logger.error(f"Error deleting user {user_id}: {e}")
+            return False
+    
+    def list_users(self, limit: int = 50, offset: int = 0) -> Tuple[List[UserProfile], int]:
+        """List all user profiles with pagination."""
+        try:
+            with self.db_manager.get_session() as session:
+                query_obj = session.query(UserProfileDB)
+                
+                # Get total count
+                total_count = query_obj.count()
+                
+                # Apply pagination and ordering
+                users_db = (query_obj
+                           .order_by(desc(UserProfileDB.created_at))
+                           .offset(offset)
+                           .limit(limit)
+                           .all())
+                
+                # Convert to Pydantic models
+                users = [sqlalchemy_to_pydantic(user_db, UserProfile) for user_db in users_db]
+                
+                logger.info(f"Listed {len(users)} users out of {total_count} total")
+                return users, total_count
+                
+        except Exception as e:
+            logger.error(f"Error listing users: {e}")
+            return [], 0
 
 
 class SavedJobRepository:
