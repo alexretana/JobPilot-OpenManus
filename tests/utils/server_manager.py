@@ -305,7 +305,6 @@ async def with_test_servers(
 
 if __name__ == "__main__":
     """Test the server manager directly."""
-    import asyncio
 
     async def test_server_lifecycle():
         env = TestEnvironment()

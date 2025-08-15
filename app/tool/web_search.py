@@ -315,7 +315,7 @@ class WebSearch(BaseTool):
                     position=i + 1,
                     url=item.url,
                     title=item.title
-                    or f"Result {i+1}",  # Ensure we always have a title
+                    or f"Result {i + 1}",  # Ensure we always have a title
                     description=item.description or "",
                     source=engine_name,
                 )

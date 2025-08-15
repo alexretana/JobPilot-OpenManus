@@ -305,9 +305,8 @@ async def test_integration():
         )
 
         # Store job in database
-        with db_manager.get_session() as session:
-            db_manager.create_job(test_job)
-            print("   ✅ Job stored in database")
+        db_manager.create_job(test_job)
+        print("   ✅ Job stored in database")
 
         # Create embedding (this should also store in database)
         await vector_store.store_job_embedding(test_job)

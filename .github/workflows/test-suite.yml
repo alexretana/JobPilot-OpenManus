@@ -381,7 +381,7 @@ jobs:
       run: isort --profile black --check-only --diff .
 
     - name: Lint with flake8
-      run: flake8 app tests --max-line-length=100
+      run: flake8 app tests
 
     - name: Type check with mypy
       run: mypy app --ignore-missing-imports

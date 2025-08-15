@@ -15,7 +15,14 @@ from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from app.data.database import DatabaseManager
-from app.data.models import JobEmbedding, JobListing, JobMatch
+from app.data.models import (
+    JobEmbedding,
+    JobEmbeddingDB,
+    JobListing,
+    JobMatch,
+    pydantic_to_sqlalchemy,
+    sqlalchemy_to_pydantic,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -163,8 +170,6 @@ class VectorStore:
             # Store in SQL database if available
             if self.db_manager:
                 with self.db_manager.get_session() as session:
-                    from app.data.models import JobEmbeddingDB, pydantic_to_sqlalchemy
-
                     embedding_db = pydantic_to_sqlalchemy(job_embedding, JobEmbeddingDB)
                     session.add(embedding_db)
                     session.commit()

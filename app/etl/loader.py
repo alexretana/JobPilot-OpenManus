@@ -17,22 +17,14 @@ from ..data.models import (  # SQLAlchemy models; Pydantic models; Enums; Utilit
     ETLOperationLogDB,
     ETLOperationType,
     ETLProcessingStatus,
-    JobDeduplication,
     JobDeduplicationDB,
-    JobEmbedding,
     JobEmbeddingDB,
     JobListing,
     JobListingDB,
-    JobSource,
-    JobSourceDB,
-    JobSourceListing,
-    JobSourceListingDB,
     JobStatus,
     ProcessedJobData,
     ProcessedJobDataDB,
-    VerificationStatus,
     pydantic_to_sqlalchemy,
-    sqlalchemy_to_pydantic,
 )
 from ..database.manager import DatabaseManager
 
@@ -522,7 +514,7 @@ class JobDataLoader:
                     session.query(JobDeduplicationDB)
                     .filter(
                         and_(
-                            JobDeduplicationDB.reviewed == False,
+                            JobDeduplicationDB.reviewed is False,
                             JobDeduplicationDB.created_at < cleanup_date,
                             JobDeduplicationDB.confidence_score
                             < 0.7,  # Only low confidence ones

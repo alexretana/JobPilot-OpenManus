@@ -51,7 +51,7 @@ def test_new_pydantic_models():
             source_metadata={"sponsored": False, "premium": True},
         )
         print(f"   ✅ JobSourceListing: {job_source_listing.source_job_id}")
-        assert job_source_listing.source_metadata["premium"] == True
+        assert job_source_listing.source_metadata["premium"] is True
 
         # Test JobEmbedding
         job_embedding = JobEmbedding(
@@ -206,7 +206,7 @@ def test_sqlalchemy_models():
         try:
             os.unlink(tmp_db.name)
             print("   🧹 Temporary database cleaned up")
-        except:
+        except (OSError, PermissionError):
             print("   ⚠️ Could not clean up temporary database (file may be in use)")
 
         print("   🎉 Database schema validation completed!")

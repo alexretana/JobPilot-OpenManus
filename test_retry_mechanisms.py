@@ -115,14 +115,10 @@ def test_is_retryable_error():
 
 def test_retry_with_jitter():
     """Test that jitter is applied to delays."""
-    import time
-
     call_count = 0
     delays = []
 
     # Patch time.sleep to capture delays
-    original_sleep = time.sleep
-
     def mock_sleep(duration):
         delays.append(duration)
 

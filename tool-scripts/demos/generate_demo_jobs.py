@@ -71,7 +71,7 @@ async def generate_demo_jobs():
         # Show sample of created jobs
         logger.info("📋 Sample jobs created:")
         for i, job in enumerate(recent_jobs[:5]):
-            logger.info(f"  {i+1}. {job.title} at {job.company} - {job.location}")
+            logger.info(f"  {i + 1}. {job.title} at {job.company} - {job.location}")
 
     return actual_jobs
 

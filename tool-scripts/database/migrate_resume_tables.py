@@ -277,7 +277,7 @@ def create_sample_data(engine):
         # Get default template
         default_template = (
             session.query(ResumeTemplateDB)
-            .filter(ResumeTemplateDB.is_default == True)
+            .filter(ResumeTemplateDB.is_default is True)
             .first()
         )
 

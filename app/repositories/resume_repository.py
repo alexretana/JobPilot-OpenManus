@@ -410,8 +410,8 @@ class ResumeRepository:
                 self.session.query(ResumeTemplateDB)
                 .filter(
                     or_(
-                        ResumeTemplateDB.is_system == True,
-                        ResumeTemplateDB.is_default == True,
+                        ResumeTemplateDB.is_system is True,
+                        ResumeTemplateDB.is_default is True,
                     )
                 )
                 .all()

@@ -177,9 +177,9 @@ def main():
     results = {}
 
     for test_name, test_func in tests:
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
         print(f"Running: {test_name}")
-        print(f"{'='*60}")
+        print(f"{'=' * 60}")
 
         try:
             results[test_name] = test_func()
@@ -190,9 +190,9 @@ def main():
         print()
 
     # Summary
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
     print("🏁 TEST SUMMARY")
-    print(f"{'='*60}")
+    print(f"{'=' * 60}")
 
     passed = sum(1 for result in results.values() if result)
     total = len(results)
