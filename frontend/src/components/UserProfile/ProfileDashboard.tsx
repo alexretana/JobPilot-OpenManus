@@ -16,13 +16,19 @@ const ProfileDashboard: Component<ProfileDashboardProps> = props => {
   >('personal');
   const [completenessData, setCompletenessData] = createStore<ProfileCompleteness | null>(null);
 
-  // For now, we'll use a demo user ID until authentication is implemented
-  const currentUserId = () => props.userId || 'demo-user-123';
-
-  // Fetch user profile
-  const [profile, { refetch: refetchProfile }] = createResource(currentUserId, async userId => {
+  // Fetch user profile - use specific user ID or default profile for single-user mode
+  const [profile, { refetch: refetchProfile }] = createResource(async () => {
     try {
-      const userProfile = await userProfileApi.getProfile(userId);
+      let userProfile: UserProfile;
+
+      if (props.userId) {
+        // Use specific user ID if provided
+        userProfile = await userProfileApi.getProfile(props.userId);
+      } else {
+        // Use default profile for single-user mode
+        userProfile = await userProfileApi.getDefaultProfile();
+      }
+
       // Calculate completeness when profile loads
       const completeness = userProfileApi.calculateCompleteness(userProfile);
       setCompletenessData(completeness);

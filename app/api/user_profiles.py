@@ -167,6 +167,37 @@ async def get_user_profile(user_id: str):
         user_repo = get_user_repository()
         user = user_repo.get_user(user_id)
 
+        # Handle demo user case - check if demo user exists by email first
+        if not user and user_id == "demo-user-123":
+            logger.info(
+                f"Demo user {user_id} not found, checking for existing demo user by email"
+            )
+            # First try to find existing demo user by email
+            try:
+                user = user_repo.get_user_by_email("demo@jobpilot.dev")
+                logger.info(f"Found existing demo user with ID: {user.id}")
+            except Exception:
+                # Demo user doesn't exist, create it
+                logger.info("No existing demo user found, creating default profile")
+                demo_profile = UserProfile(
+                    first_name="Demo",
+                    last_name="User",
+                    email="demo@jobpilot.dev",
+                    phone="(555) 123-4567",
+                    current_title="Software Engineer",
+                    experience_years=5,
+                    skills=["Python", "JavaScript", "React", "FastAPI", "SQL"],
+                    education="Bachelor's in Computer Science",
+                    bio="Experienced software engineer passionate about building innovative solutions.",
+                    preferred_locations=["San Francisco, CA", "Remote"],
+                    preferred_job_types=[JobType.FULL_TIME, JobType.CONTRACT],
+                    preferred_remote_types=[RemoteType.REMOTE, RemoteType.HYBRID],
+                    desired_salary_min=80000.0,
+                    desired_salary_max=120000.0,
+                )
+                user = user_repo.create_user(demo_profile)
+                logger.info(f"Created new demo user profile with ID: {user.id}")
+
         if not user:
             raise HTTPException(status_code=404, detail="User profile not found")
 
@@ -257,6 +288,64 @@ async def delete_user_profile(user_id: str):
         raise
     except Exception as e:
         logger.error(f"Error deleting user profile {user_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/default", response_model=UserProfileResponse)
+async def get_default_user_profile():
+    """Get the default user profile (for single-user mode)."""
+    try:
+        user_repo = get_user_repository()
+
+        # Try to find a user by the demo email first
+        user = user_repo.get_user_by_email("demo@jobpilot.dev")
+
+        if not user:
+            logger.info("Default user not found, creating default profile")
+            # Create default demo user profile
+            demo_profile = UserProfile(
+                first_name="Demo",
+                last_name="User",
+                email="demo@jobpilot.dev",
+                phone="(555) 123-4567",
+                current_title="Software Engineer",
+                experience_years=5,
+                skills=["Python", "JavaScript", "React", "FastAPI", "SQL"],
+                education="Bachelor's in Computer Science",
+                bio="Experienced software engineer passionate about building innovative solutions.",
+                preferred_locations=["San Francisco, CA", "Remote"],
+                preferred_job_types=[JobType.FULL_TIME, JobType.CONTRACT],
+                preferred_remote_types=[RemoteType.REMOTE, RemoteType.HYBRID],
+                desired_salary_min=80000.0,
+                desired_salary_max=120000.0,
+            )
+            user = user_repo.create_user(demo_profile)
+            logger.info(f"Created default user profile with ID: {user.id}")
+
+        return UserProfileResponse(
+            id=str(user.id),
+            first_name=user.first_name,
+            last_name=user.last_name,
+            email=user.email,
+            phone=user.phone,
+            current_title=user.current_title,
+            experience_years=user.experience_years,
+            skills=user.skills,
+            education=user.education,
+            bio=user.bio,
+            preferred_locations=user.preferred_locations,
+            preferred_job_types=user.preferred_job_types,
+            preferred_remote_types=user.preferred_remote_types,
+            desired_salary_min=user.desired_salary_min,
+            desired_salary_max=user.desired_salary_max,
+            created_at=user.created_at,
+            updated_at=user.updated_at,
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting default user profile: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

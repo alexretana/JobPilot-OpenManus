@@ -119,6 +119,22 @@ class UserProfileApiService {
   }
 
   /**
+   * Get default user profile (for single-user mode)
+   */
+  async getDefaultProfile(): Promise<UserProfile> {
+    const response = await fetch(`${this.baseUrl}/api/users/default`);
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Default user profile not found');
+      }
+      throw new Error(`Failed to fetch default profile: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
+
+  /**
    * Alias for getProfile - for backward compatibility
    */
   async getProfileById(userId: string): Promise<UserProfile> {
