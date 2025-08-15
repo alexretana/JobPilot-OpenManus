@@ -19,17 +19,17 @@ router = APIRouter(prefix="/api/users", tags=["User Profiles"])
 class UserProfileCreate(BaseModel):
     """Request model for creating a user profile."""
     first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    email: Optional[EmailStr] = None
+    last_name: str  # Required field
+    email: EmailStr  # Required field
     phone: Optional[str] = None
     current_title: Optional[str] = None
     experience_years: Optional[int] = None
-    skills: List[str] = []
+    skills: List[str]  # Required field (must be non-empty list)
     education: Optional[str] = None
     bio: Optional[str] = None
     preferred_locations: List[str] = []
-    preferred_job_types: List[JobType] = []
-    preferred_remote_types: List[RemoteType] = []
+    preferred_job_types: List[JobType]  # Required field (must be non-empty list)
+    preferred_remote_types: List[RemoteType]  # Required field (must be non-empty list)
     desired_salary_min: Optional[float] = None
     desired_salary_max: Optional[float] = None
 
