@@ -80,7 +80,7 @@ async def create_user_profile(user_data: UserProfileCreate):
         user_repo = get_user_repository()
         
         # Convert to UserProfile model
-        user_profile = UserProfile(**user_data.dict())
+        user_profile = UserProfile(**user_data.model_dump())
         
         # Create the user
         created_user = user_repo.create_user(user_profile)
@@ -193,7 +193,7 @@ async def update_user_profile(user_id: str, user_data: UserProfileUpdate):
         user_repo = get_user_repository()
         
         # Convert to dict and remove None values
-        update_dict = {k: v for k, v in user_data.dict().items() if v is not None}
+        update_dict = {k: v for k, v in user_data.model_dump().items() if v is not None}
         
         if not update_dict:
             raise HTTPException(status_code=400, detail="No fields to update")
