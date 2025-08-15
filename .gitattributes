@@ -20,8 +20,14 @@
 # Ensure source code and script files use LF line endings
 *.py text eol=lf
 *.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.jsx text eol=lf
 *.html text eol=lf
 *.css text eol=lf
+*.scss text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
 # Specify custom diff driver for specific file types
 *.md diff=markdown
 *.json diff=json

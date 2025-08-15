@@ -9,24 +9,37 @@ import StatusPanel from './components/StatusPanel';
 import { Timeline } from './components/Timeline';
 import ApplicationsManager from './components/ApplicationsManager';
 import LeadsManager from './components/LeadsManager';
+import { ProfileDashboard } from './components/UserProfile';
 import { webSocketService } from './services/websocket';
-import type { ChatMessage, ActivityLogEntry, ProgressState, BrowserState, WebSocketMessage } from './types';
+import type {
+  ChatMessage,
+  ActivityLogEntry,
+  ProgressState,
+  BrowserState,
+  WebSocketMessage,
+} from './types';
 
 const App: Component = () => {
   // State management
   const [messages, setMessages] = createSignal<ChatMessage[]>([]);
   const [activities, setActivities] = createSignal<ActivityLogEntry[]>([]);
   const [isProcessing, setIsProcessing] = createSignal(false);
-  const [progress, setProgress] = createSignal<ProgressState>({ current: 0, total: 20, isActive: false });
+  const [progress, setProgress] = createSignal<ProgressState>({
+    current: 0,
+    total: 20,
+    isActive: false,
+  });
   const [browserState, setBrowserState] = createSignal<BrowserState>({
     status: 'Idle',
     url: 'No active browsing session',
-    content: 'Waiting for browser activity...'
+    content: 'Waiting for browser activity...',
   });
   const [showActivityModal, setShowActivityModal] = createSignal(false);
   const [showStatusPanel, setShowStatusPanel] = createSignal(false);
   const [systemHealthy, setSystemHealthy] = createSignal(true);
-  const [activeTab, setActiveTab] = createSignal<'chat' | 'jobs' | 'timeline' | 'applications' | 'leads'>('chat');
+  const [activeTab, setActiveTab] = createSignal<
+    'chat' | 'jobs' | 'timeline' | 'applications' | 'leads' | 'profile'
+  >('chat');
   const [selectedJobId, setSelectedJobId] = createSignal<string | null>(null);
   const [showJobModal, setShowJobModal] = createSignal(false);
 
@@ -42,7 +55,7 @@ const App: Component = () => {
       id: generateId(),
       type,
       content,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
     setMessages(prev => [...prev, message]);
   };
@@ -52,7 +65,7 @@ const App: Component = () => {
       id: generateActivityId(),
       type,
       message,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
     setActivities(prev => {
       const newActivities = [...prev, activity];
@@ -80,7 +93,7 @@ const App: Component = () => {
         setProgress({
           current: message.step || 0,
           total: message.total || 20,
-          isActive: true
+          isActive: true,
         });
         break;
 
@@ -108,7 +121,7 @@ const App: Component = () => {
           setBrowserState({
             status: 'Browsing',
             url: message.url,
-            content: message.content || 'Loading page content...'
+            content: message.content || 'Loading page content...',
           });
           addActivity('browser', `🌐 Browser: ${message.action} - ${message.url}`);
         }
@@ -209,10 +222,7 @@ const App: Component = () => {
 
         <Show when={activeTab() === 'jobs'}>
           <div class="bg-base-100 rounded-lg p-2 h-full">
-            <JobsContainer
-              onJobSelect={handleJobSelect}
-              onJobSave={handleJobSave}
-            />
+            <JobsContainer onJobSelect={handleJobSelect} onJobSave={handleJobSave} />
           </div>
         </Show>
 
@@ -234,6 +244,21 @@ const App: Component = () => {
         <Show when={activeTab() === 'leads'}>
           <div class="bg-base-100 rounded-lg p-2 h-full overflow-y-auto">
             <LeadsManager />
+          </div>
+        </Show>
+
+        <Show when={activeTab() === 'profile'}>
+          <div class="bg-base-100 rounded-lg p-2 h-full overflow-y-auto">
+            <ProfileDashboard
+              userId="demo-user-123"
+              onProfileChange={profile => {
+                console.log('Profile updated in main app:', profile);
+                addActivity(
+                  'info',
+                  `👤 Profile updated: ${profile.first_name} ${profile.last_name}`
+                );
+              }}
+            />
           </div>
         </Show>
       </main>
@@ -261,9 +286,7 @@ const App: Component = () => {
       />
 
       {/* Mobile responsive adjustments */}
-      <div class="lg:hidden">
-        {/* On mobile, stack vertically with better spacing */}
-      </div>
+      <div class="lg:hidden">{/* On mobile, stack vertically with better spacing */}</div>
     </div>
   );
 };

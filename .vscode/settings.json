@@ -5,8 +5,32 @@
             "source.organizeImports": "always"
         }
     },
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit"
+        }
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit"
+        }
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[scss]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     "[toml]": {
-        "editor.defaultFormatter": "tamasfe.even-better-toml",
+        "editor.defaultFormatter": "tamasfe.even-better-toml"
     },
     "pre-commit-helper.runOnSave": "none",
     "pre-commit-helper.config": ".pre-commit-config.yaml",
@@ -14,7 +38,12 @@
     "evenBetterToml.schema.associations": {
         "^.+config[/\\\\].+\\.toml$": "../config/schema.config.json"
     },
+    "files.eol": "\n",
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
-    "editor.formatOnSave": true
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "never"
+    },
+    "prettier.endOfLine": "lf"
 }
