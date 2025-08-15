@@ -105,3 +105,9 @@ win32-setctime==1.2.0; sys_platform == "win32"
 xxhash==3.5.0
 yarl==1.20.1
 zstandard==0.23.0
+# Code quality and development tools
+black==23.12.1
+isort==5.12.0
+flake8==6.0.0
+autoflake==2.2.1
+pre-commit==3.5.0
