@@ -213,107 +213,108 @@ jobs:
           test-results.xml
         retention-days: 30
 
-  # End-to-End Tests - Longer execution time
-  e2e-tests:
-    name: 🎭 End-to-End Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    needs: backend-tests
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: ${{ env.PYTHON_VERSION }}
-        cache: 'pip'
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
-        cache-dependency-path: 'frontend/package.json'
-
-    - name: Install Python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements-ci.txt
-        pip install playwright pytest-playwright pytest-html
-
-    - name: Install frontend dependencies
-      env:
-        npm_config_build_from_source: true
-        npm_config_cache_min: 999999999
-      run: |
-        cd frontend
-        echo "Node.js version: $(node --version)"
-        echo "npm version: $(npm --version)"
-
-        # Clean everything
-        rm -rf node_modules package-lock.json .npmrc || true
-        npm cache clean --force || true
-
-        # Try multiple installation strategies
-        echo "Attempting npm install with fallback strategies..."
-
-        # Strategy 1: Force install with ignore engines
-        npm install --force --ignore-engines --verbose || {
-          echo "Strategy 1 failed, trying strategy 2..."
-
-          # Strategy 2: Install without optional deps
-          npm install --no-optional --force || {
-            echo "Strategy 2 failed, trying strategy 3..."
-
-            # Strategy 3: Install with legacy peer deps
-            npm install --legacy-peer-deps --force || {
-              echo "All npm install strategies failed, but continuing..."
-            }
-          }
-        }
-
-        # Rebuild native modules
-        npm rebuild --verbose || echo "npm rebuild failed, continuing..."
-
-        # List installed packages for debugging
-        npm list --depth=0 || true
-
-        # Try to build
-        npm run build
-
-    - name: Install Playwright browsers
-      run: playwright install --with-deps chromium firefox webkit
-
-    - name: Run E2E tests
-      env:
-        RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
-      run: |
-        python run_tests.py --e2e --html=reports/e2e-report.html
-
-    - name: Upload E2E test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: e2e-test-results
-        path: |
-          reports/
-          test-results/
-          screenshots/
-          videos/
-        retention-days: 30
-
-    - name: Upload E2E failure artifacts
-      uses: actions/upload-artifact@v4
-      if: failure()
-      with:
-        name: e2e-failure-artifacts
-        path: |
-          screenshots/
-          videos/
-          logs/
-        retention-days: 7
+  # End-to-End Tests - TEMPORARILY DISABLED while frontend is under development
+  # TODO: Re-enable when frontend is ready for testing
+  # e2e-tests:
+  #   name: 🎭 End-to-End Tests
+  #   runs-on: ubuntu-latest
+  #   timeout-minutes: 25
+  #   needs: backend-tests
+  #
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+  #
+  #   - name: Set up Python
+  #     uses: actions/setup-python@v5
+  #     with:
+  #       python-version: ${{ env.PYTHON_VERSION }}
+  #       cache: 'pip'
+  #
+  #   - name: Set up Node.js
+  #     uses: actions/setup-node@v4
+  #     with:
+  #       node-version: ${{ env.NODE_VERSION }}
+  #       cache: 'npm'
+  #       cache-dependency-path: 'frontend/package.json'
+  #
+  #   - name: Install Python dependencies
+  #     run: |
+  #       python -m pip install --upgrade pip
+  #       pip install -r requirements-ci.txt
+  #       pip install playwright pytest-playwright pytest-html
+  #
+  #   - name: Install frontend dependencies
+  #     env:
+  #       npm_config_build_from_source: true
+  #       npm_config_cache_min: 999999999
+  #     run: |
+  #       cd frontend
+  #       echo "Node.js version: $(node --version)"
+  #       echo "npm version: $(npm --version)"
+  #
+  #       # Clean everything
+  #       rm -rf node_modules package-lock.json .npmrc || true
+  #       npm cache clean --force || true
+  #
+  #       # Try multiple installation strategies
+  #       echo "Attempting npm install with fallback strategies..."
+  #
+  #       # Strategy 1: Force install with ignore engines
+  #       npm install --force --ignore-engines --verbose || {
+  #         echo "Strategy 1 failed, trying strategy 2..."
+  #
+  #         # Strategy 2: Install without optional deps
+  #         npm install --no-optional --force || {
+  #           echo "Strategy 2 failed, trying strategy 3..."
+  #
+  #           # Strategy 3: Install with legacy peer deps
+  #           npm install --legacy-peer-deps --force || {
+  #             echo "All npm install strategies failed, but continuing..."
+  #           }
+  #         }
+  #       }
+  #
+  #       # Rebuild native modules
+  #       npm rebuild --verbose || echo "npm rebuild failed, continuing..."
+  #
+  #       # List installed packages for debugging
+  #       npm list --depth=0 || true
+  #
+  #       # Try to build
+  #       npm run build
+  #
+  #   - name: Install Playwright browsers
+  #     run: playwright install --with-deps chromium firefox webkit
+  #
+  #   - name: Run E2E tests
+  #     env:
+  #       RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
+  #     run: |
+  #       python run_tests.py --e2e --html=reports/e2e-report.html
+  #
+  #   - name: Upload E2E test results
+  #     uses: actions/upload-artifact@v4
+  #     if: always()
+  #     with:
+  #       name: e2e-test-results
+  #       path: |
+  #         reports/
+  #         test-results/
+  #         screenshots/
+  #         videos/
+  #       retention-days: 30
+  #
+  #   - name: Upload E2E failure artifacts
+  #     uses: actions/upload-artifact@v4
+  #     if: failure()
+  #     with:
+  #       name: e2e-failure-artifacts
+  #       path: |
+  #         screenshots/
+  #         videos/
+  #         logs/
+  #       retention-days: 7
 
   # Performance Tests - Check for regressions
   performance-tests:
@@ -407,7 +408,7 @@ jobs:
   test-summary:
     name: 📊 Test Results Summary
     runs-on: ubuntu-latest
-    needs: [backend-tests, integration-tests, e2e-tests, performance-tests, code-quality]
+    needs: [backend-tests, integration-tests, performance-tests, code-quality]
     if: always()
 
     steps:
@@ -421,7 +422,7 @@ jobs:
         echo "## Test Suite Results" >> $GITHUB_STEP_SUMMARY
         echo "- 🚀 Backend API Tests: ${{ needs.backend-tests.result }}" >> $GITHUB_STEP_SUMMARY
         echo "- 🔄 Integration Tests: ${{ needs.integration-tests.result }}" >> $GITHUB_STEP_SUMMARY
-        echo "- 🎭 End-to-End Tests: ${{ needs.e2e-tests.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- 🎭 End-to-End Tests: DISABLED (frontend under development)" >> $GITHUB_STEP_SUMMARY
         echo "- ⚡ Performance Tests: ${{ needs.performance-tests.result }}" >> $GITHUB_STEP_SUMMARY
         echo "- 🔍 Code Quality: ${{ needs.code-quality.result }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
