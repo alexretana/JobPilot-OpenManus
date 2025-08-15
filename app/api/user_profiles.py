@@ -8,6 +8,7 @@ from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, EmailStr
+from sqlalchemy.exc import IntegrityError
 
 from app.data.models import UserProfile, JobType, RemoteType
 from app.data.database import get_user_repository
@@ -107,6 +108,9 @@ async def create_user_profile(user_data: UserProfileCreate):
         
     except Exception as e:
         logger.error(f"Error creating user profile: {e}")
+        # Handle duplicate email constraint violation
+        if "UNIQUE constraint failed: user_profiles.email" in str(e) or "IntegrityError" in str(type(e)):
+            raise HTTPException(status_code=409, detail="A user with this email address already exists")
         raise HTTPException(status_code=500, detail=str(e))
 
 
