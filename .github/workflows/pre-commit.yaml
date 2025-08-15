@@ -1,4 +1,4 @@
-name: Pre-commit checks
+name: 🔍 Pre-commit Checks
 
 on:
   pull_request:
@@ -11,6 +11,7 @@ on:
 jobs:
   pre-commit-check:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout Source Code
         uses: actions/checkout@v4
