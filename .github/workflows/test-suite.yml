@@ -235,7 +235,7 @@ jobs:
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
-        cache-dependency-path: 'frontend/package-lock.json'
+        cache-dependency-path: 'frontend/package.json'
 
     - name: Install Python dependencies
       run: |
@@ -246,7 +246,8 @@ jobs:
     - name: Install frontend dependencies
       run: |
         cd frontend
-        npm ci
+        rm -rf node_modules package-lock.json || true
+        npm install
         npm run build
 
     - name: Install Playwright browsers
