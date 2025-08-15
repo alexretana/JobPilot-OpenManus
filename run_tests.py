@@ -108,15 +108,45 @@ if __name__ == "__main__":
     run_all = "--all" in sys.argv
     run_db_only = "--db-only" in sys.argv
     run_api_only = "--api-only" in sys.argv
+    run_backend = "--backend" in sys.argv
+    run_integration = "--integration" in sys.argv
+    run_e2e = "--e2e" in sys.argv
+    run_performance = "--performance" in sys.argv
+    generate_coverage = "--cov" in sys.argv
+    generate_html = any(arg.startswith("--html=") for arg in sys.argv)
+    
+    # Default behavior - run user profiles tests
+    if not any([run_backend, run_integration, run_e2e, run_performance, run_api_only]):
+        run_backend = True
     
     success = True
     
-    if not run_api_only:
-        print("\n1. Running Database & CRUD Tests...")
+    if run_backend or run_db_only:
+        print("\n🚀 Running Backend/Database Tests...")
         success = run_user_profiles_test()
     
+    if run_integration and success:
+        print("\n🔄 Running Integration Tests...")
+        print("Integration tests not yet implemented - using backend tests")
+        success = run_user_profiles_test()
+    
+    if run_e2e and success:
+        print("\n🎭 Running End-to-End Tests...")
+        print("E2E tests not yet implemented - skipping")
+        
+    if run_performance and success:
+        print("\n⚡ Running Performance Tests...")
+        print("Performance tests not yet implemented - skipping")
+    
     if run_all and success:
-        print("\n2. Running API Integration Tests...")
+        print("\n📊 Running All Available Tests...")
+        if not run_backend:
+            success = run_user_profiles_test()
+        if success:
+            success = run_api_test()
+    
+    if run_api_only:
+        print("\n🌐 Running API Tests Only...")
         success = run_api_test()
     
     print("\n" + "=" * 50)
@@ -126,5 +156,11 @@ if __name__ == "__main__":
     else:
         print("❌ SOME TESTS FAILED!")
         print("Please check the errors above.")
+    
+    # Show coverage/html info if requested
+    if generate_coverage:
+        print("\nℹ️ Coverage reporting requested but not yet implemented")
+    if generate_html:
+        print("ℹ️ HTML reporting requested but not yet implemented")
     
     sys.exit(0 if success else 1)
