@@ -78,7 +78,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
 python-multipart==0.0.20
 pytz==2025.2
-pywin32==311
+pywin32==311; sys_platform == "win32"
 pyyaml==6.0.2
 referencing==0.36.2
 regex==2025.7.34
@@ -101,7 +101,7 @@ typing-inspection==0.4.1
 tzdata==2025.2
 urllib3==2.5.0
 uvicorn==0.35.0
-win32-setctime==1.2.0
+win32-setctime==1.2.0; sys_platform == "win32"
 xxhash==3.5.0
 yarl==1.20.1
 zstandard==0.23.0
