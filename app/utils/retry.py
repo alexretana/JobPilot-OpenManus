@@ -150,7 +150,6 @@ class RetryableError(Exception):
     """
 
 
-
 def is_retryable_error(exception: Exception) -> bool:
     """
     Check if an exception is retryable based on its type and content.

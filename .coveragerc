@@ -1,6 +1,6 @@
 [run]
 source = app
-omit = 
+omit =
     app/sandbox/*
     app/tool/sandbox/*
     tests/*
@@ -11,7 +11,7 @@ omit =
     */venv/*
     */env/*
     */.venv/*
-    
+
 [report]
 exclude_lines =
     pragma: no cover
@@ -21,7 +21,7 @@ exclude_lines =
     if __name__ == .__main__.:
     @abstractmethod
     @abc.abstractmethod
-    
+
 show_missing = True
 skip_covered = False
 precision = 2
