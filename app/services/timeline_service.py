@@ -23,7 +23,6 @@ from app.data.models import (
     sqlalchemy_to_pydantic,
 )
 
-
 logger = logging.getLogger(__name__)
 
 

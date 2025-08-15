@@ -36,7 +36,6 @@ from ..data.models import (  # SQLAlchemy models; Pydantic models; Enums; Utilit
 )
 from ..database.manager import DatabaseManager
 
-
 # Settings will be passed as parameter
 
 logger = logging.getLogger(__name__)

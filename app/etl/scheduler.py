@@ -21,7 +21,6 @@ from .collector import JSearchDataCollector
 from .loader import JobDataLoader, load_all_pending_batches
 from .processor import JobDataProcessor
 
-
 # Settings will be passed as parameter
 
 

@@ -12,7 +12,6 @@ from sqlalchemy.exc import TimeoutError as SQLTimeoutError
 
 from app.logger import logger
 
-
 # Default retryable exceptions for database operations
 RETRYABLE_DB_EXCEPTIONS = (
     OperationalError,  # Database connection issues

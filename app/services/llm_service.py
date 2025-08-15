@@ -9,7 +9,6 @@ import os
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Optional
 
-
 try:
     import openai
 

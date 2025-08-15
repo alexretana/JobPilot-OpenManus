@@ -80,7 +80,6 @@ chat_history: List[ChatMessage] = []
 # Mount static files for the Solid.js frontend
 import os
 
-
 frontend_dist_path = os.path.join(os.path.dirname(__file__), "frontend", "dist")
 if os.path.exists(frontend_dist_path):
     app.mount(

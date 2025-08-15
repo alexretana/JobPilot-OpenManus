@@ -7,7 +7,6 @@ Provides ethical job data acquisition from various job boards and platforms.
 from .base_scraper import JobBoardScraper, JobSearchQuery, RateLimiter, RawJobData
 from .indeed_scraper import IndeedScraper, create_indeed_scraper
 
-
 __all__ = [
     "JobBoardScraper",
     "JobSearchQuery",

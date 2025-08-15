@@ -17,7 +17,6 @@ from app.tool.terminate import _TERMINATE_DESCRIPTION
 from .agent import A2AManus
 from .agent_executor import ManusExecutor
 
-
 load_dotenv()
 
 logging.basicConfig(level=logging.INFO)

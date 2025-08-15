@@ -12,7 +12,6 @@ from typing import Any, Dict, List, Optional
 
 from faker import Faker
 
-
 # Initialize faker for generating realistic test data
 fake = Faker()
 

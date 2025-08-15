@@ -15,7 +15,6 @@ from a2a.utils.errors import ServerError
 
 from .agent import A2AManus
 
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

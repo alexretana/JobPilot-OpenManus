@@ -13,7 +13,6 @@ from app.data.database import get_user_repository
 from app.data.models import JobType, RemoteType, UserProfile
 from app.logger import logger
 
-
 router = APIRouter(prefix="/api/users", tags=["User Profiles"])
 
 

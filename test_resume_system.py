@@ -10,7 +10,6 @@ from datetime import date, datetime
 from pathlib import Path
 from uuid import uuid4
 
-
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -32,7 +31,6 @@ from app.data.resume_models import (
 )
 from app.logger import logger
 from app.repositories.resume_repository import ResumeRepository
-
 
 # Create database connection
 db_manager = DatabaseManager("sqlite:///jobpilot.db")

@@ -16,7 +16,6 @@ from typing import Any, Dict, Optional
 import psutil
 import requests
 
-
 # Set up logging
 logger = logging.getLogger(__name__)
 

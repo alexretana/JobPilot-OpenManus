@@ -17,7 +17,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from app.data.database import DatabaseManager
 from app.data.models import JobEmbedding, JobListing, JobMatch
 
-
 logger = logging.getLogger(__name__)
 
 

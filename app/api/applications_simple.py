@@ -13,7 +13,6 @@ from pydantic import BaseModel
 from ..data.database import get_application_repository, get_job_repository
 from ..data.models import ApplicationStatus, JobApplication
 
-
 router = APIRouter(prefix="/api/applications", tags=["applications"])
 
 # =====================================

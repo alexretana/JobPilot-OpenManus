@@ -19,7 +19,6 @@ from app.data.database import get_database_manager
 from app.data.models import TimelineEventType
 from app.services.timeline_service import TimelineService
 
-
 router = APIRouter(prefix="/api/timeline", tags=["timeline"])
 
 

@@ -19,7 +19,6 @@ from fastapi import FastAPI
 # FastAPI testing imports
 from fastapi.testclient import TestClient
 
-
 # Add project root to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 

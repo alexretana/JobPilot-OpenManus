@@ -6,7 +6,6 @@ Tests the actual FastAPI endpoints using HTTP requests.
 
 import requests
 
-
 # Test data
 test_user_data = {
     "first_name": "API",

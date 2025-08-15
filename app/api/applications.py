@@ -25,7 +25,6 @@ from ..data.models import (
     TimelineEventType,
 )
 
-
 router = APIRouter(prefix="/applications", tags=["applications"])
 
 # =====================================

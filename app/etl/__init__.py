@@ -9,7 +9,6 @@ from .loader import JobDataLoader
 from .processor import JobDataProcessor
 from .scheduler import ETLScheduler
 
-
 __all__ = [
     "JSearchDataCollector",
     "JobDataProcessor",

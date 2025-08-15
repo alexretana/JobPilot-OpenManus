@@ -16,7 +16,6 @@ from pydantic_settings import BaseSettings
 
 from .config import ETLConfig
 
-
 logger = logging.getLogger(__name__)
 
 

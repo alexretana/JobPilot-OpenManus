@@ -15,7 +15,6 @@ from sqlalchemy import Float, ForeignKey, Integer, String, Text, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
-
 # =====================================
 # Enums for Job-Related Classifications
 # =====================================

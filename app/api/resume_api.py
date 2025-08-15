@@ -28,7 +28,6 @@ from app.services.resume_orchestrator_service import (
     create_resume_orchestrator,
 )
 
-
 # Create router
 router = APIRouter(prefix="/api/resumes", tags=["resumes"])
 

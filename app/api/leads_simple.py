@@ -11,7 +11,6 @@ from uuid import uuid4
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
-
 router = APIRouter(prefix="/api/leads", tags=["leads"])
 
 # Default user ID (same as in web_server.py)

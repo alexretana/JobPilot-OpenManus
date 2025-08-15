@@ -11,7 +11,6 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
-
 try:
     pass
 
