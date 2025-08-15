@@ -83,7 +83,7 @@ jobs:
         echo "🗄️ Validating database schema and models..."
         python -c "
         from app.data.models import Base, UserProfileDB, JobListingDB, JobApplicationDB
-        from app.data.database import create_database_engine, create_tables
+        from app.data.models import create_database_engine, create_tables
         engine = create_database_engine('sqlite:///test_ci.db')
         create_tables(engine)
         print('✅ Database schema validation passed')
