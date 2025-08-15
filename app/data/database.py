@@ -20,6 +20,7 @@ from app.data.models import (
     pydantic_to_sqlalchemy, sqlalchemy_to_pydantic
 )
 from app.logger import logger
+from app.utils.retry import retry_db_read, retry_db_write, retry_db_critical
 
 
 class DatabaseManager:
@@ -51,6 +52,7 @@ class DatabaseManager:
             logger.error(f"Error creating database tables: {e}")
             raise
     
+    @retry_db_critical(max_retries=5, base_delay=2.0)
     @contextmanager
     def get_session(self):
         """Get database session with automatic cleanup."""
@@ -98,6 +100,7 @@ class JobRepository:
         """Initialize job repository."""
         self.db_manager = db_manager
     
+    @retry_db_write()
     def create_job(self, job_data: JobListing) -> JobListing:
         """Create a new job listing."""
         try:
@@ -127,6 +130,7 @@ class JobRepository:
             logger.error(f"Error getting job {job_id}: {e}")
             return None
     
+    @retry_db_write()
     def update_job(self, job_id: str, job_data: Dict[str, Any]) -> Optional[JobListing]:
         """Update job listing."""
         try:
@@ -300,6 +304,7 @@ class JobRepository:
             logger.error(f"Error getting jobs for company {company}: {e}")
             return []
     
+    @retry_db_write(max_retries=2, base_delay=1.5)
     def bulk_create_jobs(self, jobs_data: List[JobListing]) -> int:
         """Create multiple job listings efficiently."""
         try:
@@ -625,6 +630,7 @@ class ApplicationRepository:
         """Initialize application repository."""
         self.db_manager = db_manager
     
+    @retry_db_write()
     def create_application(self, app_data: JobApplication) -> JobApplication:
         """Create a new job application."""
         try:
@@ -710,6 +716,7 @@ class ApplicationRepository:
             logger.error(f"Error getting applications for user {user_profile_id}: {e}")
             return [], 0
     
+    @retry_db_write()
     def update_application(self, application_id: str, update_data: Dict[str, Any]) -> Optional[JobApplication]:
         """Update application."""
         try:
