@@ -24,22 +24,22 @@ jobs:
     name: ⚡ Quick Validation
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    
+
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
-      
+
     - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
-        
+
     - name: 📦 Install basic dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-ci.txt
-        
+
     - name: 🔍 Python syntax validation
       run: |
         echo "🔧 Checking Python syntax..."
@@ -47,7 +47,7 @@ jobs:
         python -m py_compile app/data/database.py
         python -m py_compile app/data/models.py
         echo "✅ Syntax check passed"
-        
+
     - name: 🧪 Quick model validation
       run: |
         echo "🏗️ Running quick model validation..."
@@ -57,7 +57,7 @@ jobs:
         print('✅ User Profiles models imported successfully')
         print('✅ API models validated')
         "
-        
+
     - name: 🗄️ Database schema validation
       run: |
         echo "🗄️ Validating database schema and models..."
@@ -68,7 +68,7 @@ jobs:
         create_tables(engine)
         print('✅ Database schema validation passed')
         "
-        
+
     - name: 🔌 API endpoint structure validation
       run: |
         echo "🌐 Validating API endpoints structure..."
@@ -87,17 +87,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: quick-validation
-    
+
     steps:
     - name: 📥 Checkout code
       uses: actions/checkout@v4
-      
+
     - name: 🐍 Set up Python ${{ env.PYTHON_VERSION }}
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
-        
+
     - name: 📦 Cache pip dependencies
       uses: actions/cache@v4
       with:
@@ -105,18 +105,18 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-ci.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-        
+
     - name: 📦 Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-ci.txt
         pip install pytest pytest-cov pytest-html pytest-xdist pytest-xvfb
-        
+
     - name: 🏥 Health check - verify installation
       run: |
         python --version
         pip list | grep -E "(fastapi|pydantic|sqlalchemy|pytest)"
-        
+
     - name: 🧪 Run comprehensive backend tests
       run: |
         echo "🔧 Running comprehensive user profiles database tests..."
@@ -124,12 +124,12 @@ jobs:
         echo "🌐 Running CI-friendly FastAPI backend tests..."
         pytest tests/backend/api/test_backend_fastapi_ci.py -v --tb=short --disable-warnings
         pytest tests/backend/test_user_profiles_pytest.py -v --tb=short --disable-warnings
-        
+
     - name: 🧪 Run core component tests
       run: |
         echo "🏗️ Running core component tests..."
         pytest test_core_components.py -v --tb=short --disable-warnings
-        
+
     - name: 🧪 Run additional backend validation tests
       run: |
         echo "📊 Running additional backend validation tests..."
@@ -140,20 +140,20 @@ jobs:
             python "$test_file" || echo "⚠️ $test_file failed or requires special setup"
           fi
         done
-        
+
     - name: 📊 Generate test summary
       run: |
         echo "📊 Backend Test Summary:" > backend_test_summary.txt
         echo "===================" >> backend_test_summary.txt
         echo "✅ User Profiles Database Tests: PASSED" >> backend_test_summary.txt
-        echo "✅ Backend API Tests: PASSED" >> backend_test_summary.txt  
+        echo "✅ Backend API Tests: PASSED" >> backend_test_summary.txt
         echo "✅ Core Component Tests: PASSED" >> backend_test_summary.txt
         echo "===================" >> backend_test_summary.txt
         echo "🎉 All backend tests completed successfully!" >> backend_test_summary.txt
         echo "Timestamp: $(date)" >> backend_test_summary.txt
         echo "Python Version: $(python --version)" >> backend_test_summary.txt
         cat backend_test_summary.txt
-        
+
     - name: 📤 Upload backend test results
       uses: actions/upload-artifact@v4
       if: always()
@@ -166,7 +166,7 @@ jobs:
           .coverage
           backend_test_summary.txt
         retention-days: 30
-        
+
     - name: 📈 Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       if: success()
@@ -177,31 +177,31 @@ jobs:
 
   # Integration Tests - Medium execution time
   integration-tests:
-    name: 🔄 Integration Tests  
+    name: 🔄 Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: backend-tests
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
-        
+
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-ci.txt
         pip install pytest pytest-cov pytest-html
-        
+
     - name: Run integration tests
       run: |
         python run_tests.py --integration --cov --html=reports/integration-report.html
-        
+
     - name: Upload integration test results
       uses: actions/upload-artifact@v4
       if: always()
@@ -219,45 +219,45 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
     needs: backend-tests
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
-        
+
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
         cache: 'npm'
         cache-dependency-path: 'frontend/package-lock.json'
-        
+
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-ci.txt
         pip install playwright pytest-playwright pytest-html
-        
+
     - name: Install frontend dependencies
       run: |
         cd frontend
         npm ci
         npm run build
-        
+
     - name: Install Playwright browsers
       run: playwright install --with-deps chromium firefox webkit
-      
+
     - name: Run E2E tests
       env:
         RAPIDAPI_KEY: ${{ secrets.RAPIDAPI_KEY }}
       run: |
         python run_tests.py --e2e --html=reports/e2e-report.html
-        
+
     - name: Upload E2E test results
       uses: actions/upload-artifact@v4
       if: always()
@@ -269,7 +269,7 @@ jobs:
           screenshots/
           videos/
         retention-days: 30
-        
+
     - name: Upload E2E failure artifacts
       uses: actions/upload-artifact@v4
       if: failure()
@@ -287,27 +287,27 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: backend-tests
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
-        
+
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-ci.txt
         pip install pytest pytest-benchmark pytest-html
-        
+
     - name: Run performance tests
       run: |
         python run_tests.py --performance --html=reports/performance-report.html
-        
+
     - name: Upload performance test results
       uses: actions/upload-artifact@v4
       if: always()
@@ -323,43 +323,43 @@ jobs:
     name: 🔍 Code Quality & Security
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: ${{ env.PYTHON_VERSION }}
         cache: 'pip'
-        
+
     - name: Install code quality tools
       run: |
         python -m pip install --upgrade pip
         pip install black isort flake8 mypy bandit safety
-        
+
     - name: Check code formatting with Black
       run: black --check --diff .
-      
+
     - name: Check import sorting with isort
       run: isort --check-only --diff .
-      
+
     - name: Lint with flake8
       run: flake8 app tests --max-line-length=100
-      
+
     - name: Type check with mypy
       run: mypy app --ignore-missing-imports
       continue-on-error: true
-      
+
     - name: Security check with bandit
       run: bandit -r app -f json -o reports/bandit-report.json
       continue-on-error: true
-      
+
     - name: Check dependencies for security vulnerabilities
       run: safety check --json --output reports/safety-report.json
       continue-on-error: true
-      
+
     - name: Upload code quality reports
       uses: actions/upload-artifact@v4
       if: always()
@@ -374,11 +374,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: [backend-tests, integration-tests, e2e-tests, performance-tests, code-quality]
     if: always()
-    
+
     steps:
     - name: Download all test artifacts
       uses: actions/download-artifact@v4
-      
+
     - name: Create test summary
       run: |
         echo "# 🧪 Test Results Summary" >> $GITHUB_STEP_SUMMARY
@@ -390,13 +390,13 @@ jobs:
         echo "- ⚡ Performance Tests: ${{ needs.performance-tests.result }}" >> $GITHUB_STEP_SUMMARY
         echo "- 🔍 Code Quality: ${{ needs.code-quality.result }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        
+
         if [ "${{ needs.backend-tests.result }}" = "success" ] && [ "${{ needs.integration-tests.result }}" = "success" ]; then
           echo "✅ **Core testing passed!** All critical tests are working." >> $GITHUB_STEP_SUMMARY
         else
           echo "❌ **Core testing failed!** Please check the failed test results." >> $GITHUB_STEP_SUMMARY
         fi
-        
+
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## Test Artifacts" >> $GITHUB_STEP_SUMMARY
         echo "- Backend test results and coverage reports" >> $GITHUB_STEP_SUMMARY

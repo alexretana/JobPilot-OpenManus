@@ -137,7 +137,7 @@ fi
 if [[ ! -d "frontend/dist" ]]; then
     log_warn "Frontend dist directory not found."
     log_info "Building frontend for production..."
-    
+
     cd frontend
     log_info "Installing frontend dependencies..."
     npm install
@@ -145,7 +145,7 @@ if [[ ! -d "frontend/dist" ]]; then
         log_error "Failed to install frontend dependencies!"
         exit 1
     fi
-    
+
     log_info "Building frontend..."
     npm run build
     if [[ $? -ne 0 ]]; then
@@ -153,7 +153,7 @@ if [[ ! -d "frontend/dist" ]]; then
         exit 1
     fi
     cd ..
-    
+
     log_success "Frontend built successfully!"
 else
     log_success "Frontend dist directory found."
@@ -230,7 +230,7 @@ if [[ "$MODE" == "attached-backend" ]]; then
     log_info "Starting frontend in new terminal, backend will run attached..."
     echo "Press Ctrl+C to stop the backend server."
     echo
-    
+
     # Start frontend in new terminal (different methods for different systems)
     if command -v gnome-terminal &> /dev/null; then
         gnome-terminal --title="JobPilot Frontend" -- bash -c "cd frontend && npm run dev; read -p 'Press Enter to close...'"
@@ -247,24 +247,24 @@ if [[ "$MODE" == "attached-backend" ]]; then
         FRONTEND_PID=$!
         cd ..
     fi
-    
+
     # Give frontend a moment to start
     sleep 3
-    
+
     log_info "Starting backend server in this terminal..."
     echo "You can now access:"
     echo "- Frontend: http://localhost:3000"
     echo "- Backend API: http://localhost:8080/api/health"
     echo
-    
+
     # Run backend in current terminal
     $PYTHON_CMD web_server.py
-    
+
 elif [[ "$MODE" == "attached-frontend" ]]; then
     log_info "Starting backend in new terminal, frontend will run attached..."
     echo "Press Ctrl+C to stop the frontend server."
     echo
-    
+
     # Start backend in new terminal (different methods for different systems)
     if command -v gnome-terminal &> /dev/null; then
         gnome-terminal --title="JobPilot Backend" -- bash -c "$PYTHON_CMD web_server.py; read -p 'Press Enter to close...'"
@@ -279,41 +279,41 @@ elif [[ "$MODE" == "attached-frontend" ]]; then
         $PYTHON_CMD web_server.py &
         BACKEND_PID=$!
     fi
-    
+
     # Give backend a moment to start
     sleep 3
-    
+
     log_info "Starting frontend development server in this terminal..."
     echo "You can now access:"
     echo "- Frontend: http://localhost:3000"
     echo "- Backend API: http://localhost:8080/api/health"
     echo
-    
+
     # Run frontend in current terminal
     cd frontend
     npm run dev
     cd ..
-    
+
 else
     # Default mode - both in background
     echo "Press Ctrl+C to stop both servers."
     echo
-    
+
     # Start backend server in background
     log_info "Starting backend server..."
     $PYTHON_CMD web_server.py &
     BACKEND_PID=$!
-    
+
     # Give backend a moment to start
     sleep 3
-    
+
     # Start frontend development server in background
     log_info "Starting frontend development server..."
     cd frontend
     npm run dev &
     FRONTEND_PID=$!
     cd ..
-    
+
     echo
     log_success "Both servers are starting!"
     echo
@@ -322,7 +322,7 @@ else
     echo "- Backend API: http://localhost:8080/api/health"
     echo
     echo "Press Ctrl+C to stop both servers."
-    
+
     # Wait for background processes
     wait
 fi

@@ -143,7 +143,7 @@ const { test, expect } = require('../fixtures/test-fixtures');
 test('should login successfully', async ({ loginPage, dashboardPage }) => {
   await loginPage.navigate();
   await loginPage.loginAsTestUser();
-  
+
   expect(await dashboardPage.isOnDashboard()).toBeTruthy();
 });
 ```
@@ -155,7 +155,7 @@ Use the extended test fixtures for common functionality:
 ```javascript
 const { test, expect } = require('../fixtures/test-fixtures');
 
-test('dashboard test', async ({ 
+test('dashboard test', async ({
   page,           // Standard Playwright page
   loginPage,      // Login page object
   dashboardPage,  // Dashboard page object

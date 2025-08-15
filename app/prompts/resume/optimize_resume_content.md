@@ -58,7 +58,7 @@ Return a JSON object with the following structure:
   "optimized_experience": [
     {
       "company": "Company Name",
-      "position": "Position Title", 
+      "position": "Position Title",
       "location": "Location",
       "start_date": "YYYY-MM-DD",
       "end_date": "YYYY-MM-DD",
@@ -86,7 +86,7 @@ Return a JSON object with the following structure:
       "name": "Project Name",
       "description": "Enhanced description with job-relevant focus...",
       "start_date": "YYYY-MM-DD",
-      "end_date": "YYYY-MM-DD", 
+      "end_date": "YYYY-MM-DD",
       "url": "project-url",
       "github_url": "github-url",
       "technologies": ["tech1", "tech2"],

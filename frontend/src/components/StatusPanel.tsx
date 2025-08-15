@@ -13,7 +13,7 @@ interface StatusPanelProps {
 const StatusPanel: Component<StatusPanelProps> = (props) => {
   const [health, setHealth] = createSignal<HealthCheckResponse | null>(null);
   const [lastHealthCheck, setLastHealthCheck] = createSignal<Date | null>(null);
-  
+
   let healthCheckInterval: number | undefined;
 
   const checkHealth = async () => {
@@ -90,12 +90,12 @@ const StatusPanel: Component<StatusPanelProps> = (props) => {
     <>
       {/* Drawer Overlay */}
       {props.isOpen() && (
-        <div 
+        <div
           class="fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={() => props.onClose()}
         />
       )}
-      
+
       {/* Right Drawer */}
       <div class={`fixed top-0 right-0 h-full w-80 bg-base-100 shadow-xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col ${
         props.isOpen() ? 'translate-x-0' : 'translate-x-full'
@@ -106,7 +106,7 @@ const StatusPanel: Component<StatusPanelProps> = (props) => {
             <span class="text-xl">⚡</span>
             <h2 class="text-lg font-bold">System Status</h2>
           </div>
-          <button 
+          <button
             class="btn btn-sm btn-circle btn-ghost"
             onClick={() => props.onClose()}
           >
@@ -115,7 +115,7 @@ const StatusPanel: Component<StatusPanelProps> = (props) => {
             </svg>
           </button>
         </div>
-        
+
         {/* Scrollable Content */}
         <div class="flex-1 overflow-y-auto p-2 space-y-2">
           {/* System Status */}
@@ -138,7 +138,7 @@ const StatusPanel: Component<StatusPanelProps> = (props) => {
                   {webSocketService.getIsConnected()() ? 'Connected' : 'Disconnected'}
                 </div>
               </div>
-              
+
               <div class="stat">
                 <div class="stat-figure text-secondary">
                   <div class={`avatar placeholder ${health() ? 'online' : 'offline'}`}>
@@ -215,7 +215,7 @@ const StatusPanel: Component<StatusPanelProps> = (props) => {
               System Actions
             </h3>
             <div class="space-y-2">
-              <button 
+              <button
                 class="btn btn-outline btn-sm w-full justify-start"
                 onClick={checkHealth}
                 disabled={props.isProcessing()}
@@ -225,7 +225,7 @@ const StatusPanel: Component<StatusPanelProps> = (props) => {
                 </svg>
                 Refresh Status
               </button>
-              <button 
+              <button
                 class="btn btn-outline btn-sm w-full justify-start"
                 onClick={() => webSocketService.connect()}
                 disabled={webSocketService.getIsConnected()()}

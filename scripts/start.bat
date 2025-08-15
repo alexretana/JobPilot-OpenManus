@@ -84,7 +84,7 @@ if not exist "frontend\package.json" (
 if not exist "frontend\dist" (
     echo [WARN] Frontend dist directory not found.
     echo Building frontend for production...
-    
+
     pushd frontend
     echo [INFO] Installing frontend dependencies...
     call npm install
@@ -94,7 +94,7 @@ if not exist "frontend\dist" (
         pause
         exit /b 1
     )
-    
+
     echo [INFO] Building frontend...
     call npm run build
     if errorlevel 1 (
@@ -104,7 +104,7 @@ if not exist "frontend\dist" (
         exit /b 1
     )
     popd
-    
+
     echo [OK] Frontend built successfully!
 ) else (
     echo [OK] Frontend dist directory found.
@@ -136,60 +136,60 @@ if "%MODE%"=="attached-backend" (
     echo [INFO] Starting frontend in new window, backend will run attached...
     echo Press Ctrl+C to stop the backend server.
     echo.
-    
+
     :: Start frontend in new window
     start "JobPilot Frontend" cmd /k "cd frontend && npm run dev && pause"
-    
+
     :: Give frontend a moment to start
     powershell -Command "Start-Sleep -Seconds 2" >nul
-    
+
     echo [INFO] Starting backend server in this window...
     echo You can now access:
     echo - Frontend: http://localhost:3000
     echo - Backend API: http://localhost:8080/api/health
     echo.
-    
+
     :: Run backend in current shell
     python web_server.py
-    
+
 ) else if "%MODE%"=="attached-frontend" (
     echo [INFO] Starting backend in new window, frontend will run attached...
     echo Press Ctrl+C to stop the frontend server.
     echo.
-    
+
     :: Start backend in new window
     start "JobPilot Backend" cmd /k "python web_server.py && pause"
-    
+
     :: Give backend a moment to start
     powershell -Command "Start-Sleep -Seconds 2" >nul
-    
+
     echo [INFO] Starting frontend development server in this window...
     echo You can now access:
     echo - Frontend: http://localhost:3000
     echo - Backend API: http://localhost:8080/api/health
     echo.
-    
+
     :: Run frontend in current shell
     cd frontend
     npm run dev
     cd ..
-    
+
 ) else (
     :: Default mode - both in separate windows
     echo Press Ctrl+C in any window to stop both servers.
     echo.
-    
+
     :: Start backend server in a new command prompt
     echo [INFO] Starting backend server...
     start "JobPilot Backend" cmd /k "python web_server.py && pause"
-    
+
     :: Give backend a moment to start
     powershell -Command "Start-Sleep -Seconds 2" >nul
-    
+
     :: Start frontend development server in a new command prompt
     echo [INFO] Starting frontend development server...
     start "JobPilot Frontend" cmd /k "cd frontend && npm run dev && pause"
-    
+
     echo.
     echo [SUCCESS] Both servers should be starting in separate windows.
     echo.

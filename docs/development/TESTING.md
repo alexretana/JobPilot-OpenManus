@@ -195,7 +195,7 @@ def test_task_database_operations(db_session):
     task = Task(title="Test Task", status="pending")
     db_session.add(task)
     db_session.commit()
-    
+
     retrieved = db_session.query(Task).filter_by(title="Test Task").first()
     assert retrieved is not None
     assert retrieved.status == "pending"
@@ -235,19 +235,19 @@ def test_task_management_workflow(page):
     """Test complete task management workflow."""
     # Navigate to application
     page.goto("http://localhost:3000")
-    
+
     # Create new task
     page.click('[data-testid="add-task-button"]')
     page.fill('[data-testid="task-title"]', "E2E Test Task")
     page.click('[data-testid="save-task"]')
-    
+
     # Verify task appears in list
     expect(page.locator('[data-testid="task-item"]')).to_contain_text("E2E Test Task")
-    
+
     # Update task status
     page.click('[data-testid="task-status-dropdown"]')
     page.click('[data-testid="status-completed"]')
-    
+
     # Verify status update
     expect(page.locator('[data-testid="task-status"]')).to_contain_text("Completed")
 ```
@@ -269,12 +269,12 @@ async def test_real_time_task_updates(websocket_client):
     """Test real-time task updates via WebSocket."""
     # Connect to WebSocket
     await websocket_client.connect()
-    
+
     # Create task via API
     task_data = {"title": "WebSocket Test", "status": "pending"}
     response = await api_client.post("/api/tasks", json=task_data)
     task_id = response.json()["id"]
-    
+
     # Verify WebSocket notification
     message = await websocket_client.receive_json()
     assert message["type"] == "task_created"
@@ -297,10 +297,10 @@ async def test_real_time_task_updates(websocket_client):
    def test_update_task_status():
        # Arrange
        task = create_test_task()
-       
+
        # Act
        response = client.put(f"/api/tasks/{task.id}", json={"status": "completed"})
-       
+
        # Assert
        assert response.status_code == 200
    ```
@@ -337,17 +337,17 @@ Organize E2E tests with page object models:
 class TaskListPage:
     def __init__(self, page):
         self.page = page
-    
+
     def goto(self):
         self.page.goto("/tasks")
-    
+
     def add_task(self, title, description=""):
         self.page.click('[data-testid="add-task-btn"]')
         self.page.fill('[data-testid="task-title"]', title)
         if description:
             self.page.fill('[data-testid="task-description"]', description)
         self.page.click('[data-testid="save-task-btn"]')
-    
+
     def get_task_count(self):
         return self.page.locator('[data-testid="task-item"]').count()
 ```

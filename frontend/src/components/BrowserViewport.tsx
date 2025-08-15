@@ -22,7 +22,7 @@ const BrowserViewport: Component<BrowserViewportProps> = (props) => {
     if (!content || content === 'Waiting for browser activity...') {
       return content;
     }
-    
+
     // Truncate content and add ellipsis
     return content.length > 1000 ? content.substring(0, 1000) + '...' : content;
   };
@@ -40,7 +40,7 @@ const BrowserViewport: Component<BrowserViewportProps> = (props) => {
           </div>
         </div>
       </div>
-      
+
       <div class="p-2 border-b border-base-200">
         <div class="mockup-browser bg-base-300 border">
           <div class="mockup-browser-toolbar">
@@ -50,11 +50,11 @@ const BrowserViewport: Component<BrowserViewportProps> = (props) => {
           </div>
         </div>
       </div>
-      
+
       <div class="flex-1 p-2 min-h-0">
         <div class={`h-full rounded-lg ${
-          props.browserState().status === 'Active' || props.browserState().status === 'Browsing' 
-            ? 'bg-base-100 border-2 border-dashed border-base-300' 
+          props.browserState().status === 'Active' || props.browserState().status === 'Browsing'
+            ? 'bg-base-100 border-2 border-dashed border-base-300'
             : 'bg-base-200 flex items-center justify-center'
         }`}>
           {props.browserState().status === 'Active' || props.browserState().status === 'Browsing' ? (
@@ -76,7 +76,7 @@ const BrowserViewport: Component<BrowserViewportProps> = (props) => {
           )}
         </div>
       </div>
-      
+
       {props.browserState().status === 'Browsing' && (
         <div class="p-2 border-t border-base-200">
           <div class="flex items-center space-x-2 text-sm">

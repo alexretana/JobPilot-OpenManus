@@ -9,25 +9,26 @@ import sys
 from datetime import datetime, timezone
 from uuid import uuid4
 
+
 # Add project root to path
 project_root = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 
-from app.data.models import JobListing, JobType, RemoteType, ExperienceLevel
 from app.data.database import DatabaseManager, JobRepository
+from app.data.models import ExperienceLevel, JobListing, JobType, RemoteType
 
 
 def create_demo_jobs():
     """Create demo jobs directly in the database."""
     print("🚀 Creating demo jobs...")
-    
+
     # Initialize database with the same path as web server
-    data_dir = os.path.join(project_root, 'data')
+    data_dir = os.path.join(project_root, "data")
     os.makedirs(data_dir, exist_ok=True)
     database_url = f"sqlite:///{data_dir}/jobpilot.db"
     db_manager = DatabaseManager(database_url)
     job_repo = JobRepository(db_manager)
-    
+
     # Demo job data
     demo_jobs = [
         {
@@ -45,10 +46,15 @@ def create_demo_jobs():
             "salary_currency": "USD",
             "skills_required": ["Python", "Django", "AWS", "PostgreSQL", "REST API"],
             "skills_preferred": ["Docker", "Kubernetes", "React"],
-            "benefits": ["Health Insurance", "401(k)", "Remote Work", "Professional Development"],
+            "benefits": [
+                "Health Insurance",
+                "401(k)",
+                "Remote Work",
+                "Professional Development",
+            ],
             "company_size": "51-200",
             "industry": "Technology",
-            "source": "demo"
+            "source": "demo",
         },
         {
             "title": "Data Scientist",
@@ -63,12 +69,23 @@ def create_demo_jobs():
             "salary_min": 140000,
             "salary_max": 200000,
             "salary_currency": "USD",
-            "skills_required": ["Python", "Machine Learning", "TensorFlow", "SQL", "Statistics"],
+            "skills_required": [
+                "Python",
+                "Machine Learning",
+                "TensorFlow",
+                "SQL",
+                "Statistics",
+            ],
             "skills_preferred": ["PyTorch", "Spark", "AWS", "Docker"],
-            "benefits": ["Health Insurance", "Stock Options", "Flexible Hours", "Learning Budget"],
+            "benefits": [
+                "Health Insurance",
+                "Stock Options",
+                "Flexible Hours",
+                "Learning Budget",
+            ],
             "company_size": "201-500",
             "industry": "Artificial Intelligence",
-            "source": "demo"
+            "source": "demo",
         },
         {
             "title": "Frontend Developer",
@@ -85,10 +102,15 @@ def create_demo_jobs():
             "salary_currency": "USD",
             "skills_required": ["JavaScript", "React", "CSS", "HTML", "TypeScript"],
             "skills_preferred": ["Vue.js", "Node.js", "GraphQL", "Testing"],
-            "benefits": ["Health Insurance", "Remote Work", "Flexible Hours", "Equipment Allowance"],
+            "benefits": [
+                "Health Insurance",
+                "Remote Work",
+                "Flexible Hours",
+                "Equipment Allowance",
+            ],
             "company_size": "11-50",
             "industry": "Web Development",
-            "source": "demo"
+            "source": "demo",
         },
         {
             "title": "DevOps Engineer",
@@ -105,10 +127,15 @@ def create_demo_jobs():
             "salary_currency": "USD",
             "skills_required": ["AWS", "Docker", "Kubernetes", "Terraform", "Linux"],
             "skills_preferred": ["Jenkins", "Ansible", "Monitoring", "Python"],
-            "benefits": ["Health Insurance", "Stock Options", "On-site Gym", "Catered Meals"],
+            "benefits": [
+                "Health Insurance",
+                "Stock Options",
+                "On-site Gym",
+                "Catered Meals",
+            ],
             "company_size": "501-1000",
             "industry": "Cloud Computing",
-            "source": "demo"
+            "source": "demo",
         },
         {
             "title": "Product Manager",
@@ -123,12 +150,23 @@ def create_demo_jobs():
             "salary_min": 130000,
             "salary_max": 180000,
             "salary_currency": "USD",
-            "skills_required": ["Product Management", "Analytics", "Agile", "Strategy", "Communication"],
+            "skills_required": [
+                "Product Management",
+                "Analytics",
+                "Agile",
+                "Strategy",
+                "Communication",
+            ],
             "skills_preferred": ["SQL", "Jira", "Figma", "A/B Testing"],
-            "benefits": ["Health Insurance", "401(k)", "Flexible Hours", "Stock Options"],
+            "benefits": [
+                "Health Insurance",
+                "401(k)",
+                "Flexible Hours",
+                "Stock Options",
+            ],
             "company_size": "1000+",
             "industry": "Technology",
-            "source": "demo"
+            "source": "demo",
         },
         {
             "title": "Mobile Developer (iOS)",
@@ -145,47 +183,56 @@ def create_demo_jobs():
             "salary_currency": "USD",
             "skills_required": ["Swift", "iOS", "Xcode", "UIKit", "Core Data"],
             "skills_preferred": ["SwiftUI", "Combine", "Firebase", "TestFlight"],
-            "benefits": ["Health Insurance", "MacBook Pro", "Flexible Hours", "Learning Budget"],
+            "benefits": [
+                "Health Insurance",
+                "MacBook Pro",
+                "Flexible Hours",
+                "Learning Budget",
+            ],
             "company_size": "51-200",
             "industry": "Mobile Development",
-            "source": "demo"
-        }
+            "source": "demo",
+        },
     ]
-    
+
     created_count = 0
-    
+
     for job_data in demo_jobs:
         try:
             # Add timestamp and ID
-            job_data.update({
-                "posted_date": datetime.now(timezone.utc),
-                "job_url": f"https://demo-jobs.example.com/job/{str(uuid4())[:8]}",
-                "status": "active"
-            })
-            
+            job_data.update(
+                {
+                    "posted_date": datetime.now(timezone.utc),
+                    "job_url": f"https://demo-jobs.example.com/job/{str(uuid4())[:8]}",
+                    "status": "active",
+                }
+            )
+
             # Create job listing
             job = JobListing(**job_data)
             created_job = job_repo.create_job(job)
-            
+
             print(f"✅ Created: {created_job.title} at {created_job.company}")
             created_count += 1
-            
+
         except Exception as e:
             print(f"❌ Error creating job {job_data['title']}: {e}")
-    
-    print(f"""
-🎯 Demo Job Creation Complete! 
+
+    print(
+        f"""
+🎯 Demo Job Creation Complete!
 
 ✅ Created {created_count} demo jobs
 🌐 Ready to test the web interface at http://localhost:8080
 💼 Switch to the "Jobs" tab to see the job cards
 
 Next steps:
-1. Start the web server: python web_server.py  
+1. Start the web server: python web_server.py
 2. Open http://localhost:8080 in your browser
 3. Click the "💼 Jobs" tab to see your new job cards!
-""")
-    
+"""
+    )
+
     return created_count
 
 

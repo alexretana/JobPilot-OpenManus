@@ -209,7 +209,7 @@ const App: Component = () => {
 
         <Show when={activeTab() === 'jobs'}>
           <div class="bg-base-100 rounded-lg p-2 h-full">
-            <JobsContainer 
+            <JobsContainer
               onJobSelect={handleJobSelect}
               onJobSave={handleJobSave}
             />
@@ -218,7 +218,7 @@ const App: Component = () => {
 
         <Show when={activeTab() === 'timeline'}>
           <div class="bg-base-100 rounded-lg p-4 h-full overflow-y-auto">
-            <Timeline 
+            <Timeline
               userProfileId="demo-user-123" // TODO: Replace with actual user ID from auth
               className="h-full"
             />

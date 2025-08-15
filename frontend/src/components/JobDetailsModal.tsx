@@ -62,7 +62,7 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
 
     try {
       setSaving(true);
-      
+
       if (isSaved()) {
         // Unsave the job
         await jobApi.unsaveJob(currentJob.id);
@@ -130,7 +130,7 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
 
   return (
     <Show when={props.isOpen}>
-      <div 
+      <div
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2"
         onClick={handleBackdropClick}
       >
@@ -142,7 +142,7 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
                 {job()?.title}
               </Show>
             </h2>
-            <button 
+            <button
               class="btn btn-ghost btn-sm btn-circle"
               onClick={handleClose}
               aria-label="Close modal"
@@ -162,7 +162,7 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
                   onClick={() => setActiveTab('details')}
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                   Job Details
@@ -172,7 +172,7 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
                   onClick={() => setActiveTab('timeline')}
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                           d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   Timeline
@@ -193,7 +193,7 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
             <Show when={error()}>
               <div class="alert alert-error">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
                 <span>{error()}</span>
@@ -224,7 +224,7 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
                       </Show>
                     </div>
                   </div>
-                  
+
                   <Show when={formatSalary(job()?.salary_min, job()?.salary_max, job()?.salary_currency)}>
                     <div class="text-right">
                       <div class="text-lg font-bold text-success">
@@ -341,7 +341,7 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
                       <Show when={job()?.job_url}>
                         <div class="flex items-center gap-2">
                           <span class="w-4 h-4">🔗</span>
-                          <a href={job()!.job_url!} target="_blank" rel="noopener noreferrer" 
+                          <a href={job()!.job_url!} target="_blank" rel="noopener noreferrer"
                              class="link link-primary">
                             View Original Posting
                           </a>
@@ -372,7 +372,7 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
               <button class="btn btn-ghost" onClick={handleClose}>
                 Close
               </button>
-              <button 
+              <button
                 class={`btn ${isSaved() ? 'btn-error' : 'btn-success'}`}
                 onClick={handleSaveJob}
                 disabled={saving()}
@@ -385,9 +385,9 @@ export const JobDetailsModal: Component<JobDetailsModalProps> = (props) => {
                 </Show>
               </button>
               <Show when={job()?.job_url}>
-                <a 
-                  href={job()!.job_url!} 
-                  target="_blank" 
+                <a
+                  href={job()!.job_url!}
+                  target="_blank"
                   rel="noopener noreferrer"
                   class="btn btn-primary"
                 >

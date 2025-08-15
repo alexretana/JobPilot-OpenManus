@@ -60,7 +60,7 @@ export interface SavedJob {
   posted_date: string | null;
   description: string | null;
   job_url: string | null;
-  
+
   // Saved job metadata
   saved_date: string;
   notes: string | null;
@@ -89,11 +89,11 @@ class JobApiService {
    */
   async getRecentJobs(limit: number = 20): Promise<JobSearchResponse> {
     const response = await fetch(`${this.baseUrl}/api/jobs/recent?limit=${limit}`);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch recent jobs: ${response.statusText}`);
     }
-    
+
     return response.json();
   }
 
@@ -102,14 +102,14 @@ class JobApiService {
    */
   async getJobDetails(jobId: string): Promise<JobDetails> {
     const response = await fetch(`${this.baseUrl}/api/jobs/${jobId}`);
-    
+
     if (!response.ok) {
       if (response.status === 404) {
         throw new Error('Job not found');
       }
       throw new Error(`Failed to fetch job details: ${response.statusText}`);
     }
-    
+
     return response.json();
   }
 
@@ -118,18 +118,18 @@ class JobApiService {
    */
   async searchJobs(filters: JobSearchFilters = {}): Promise<JobSearchResponse> {
     const params = new URLSearchParams();
-    
+
     if (filters.query) params.append('query', filters.query);
     if (filters.job_types) params.append('job_types', filters.job_types);
     if (filters.locations) params.append('locations', filters.locations);
     if (filters.limit) params.append('limit', filters.limit.toString());
-    
+
     const response = await fetch(`${this.baseUrl}/api/jobs/search?${params}`);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to search jobs: ${response.statusText}`);
     }
-    
+
     return response.json();
   }
 
@@ -140,21 +140,21 @@ class JobApiService {
     if (!job.salary_min && !job.salary_max) {
       return 'Salary not specified';
     }
-    
+
     const currency = job.salary_currency || '$';
-    
+
     if (job.salary_min && job.salary_max) {
       return `${currency}${job.salary_min.toLocaleString()} - ${currency}${job.salary_max.toLocaleString()}`;
     }
-    
+
     if (job.salary_min) {
       return `${currency}${job.salary_min.toLocaleString()}+`;
     }
-    
+
     if (job.salary_max) {
       return `Up to ${currency}${job.salary_max.toLocaleString()}`;
     }
-    
+
     return 'Salary not specified';
   }
 
@@ -165,12 +165,12 @@ class JobApiService {
     if (!job.posted_date) {
       return 'Date not specified';
     }
-    
+
     const date = new Date(job.posted_date);
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 1) {
       return '1 day ago';
     } else if (diffDays < 7) {
@@ -188,7 +188,7 @@ class JobApiService {
    */
   getJobTypeLabel(jobType: string | null): string {
     if (!jobType) return 'Not specified';
-    
+
     const labels: Record<string, string> = {
       'Full-time': 'Full-time',
       'Part-time': 'Part-time',
@@ -197,7 +197,7 @@ class JobApiService {
       'Internship': 'Internship',
       'Volunteer': 'Volunteer'
     };
-    
+
     return labels[jobType] || jobType;
   }
 
@@ -206,13 +206,13 @@ class JobApiService {
    */
   getRemoteTypeLabel(remoteType: string | null): string {
     if (!remoteType) return 'Not specified';
-    
+
     const labels: Record<string, string> = {
       'Remote': 'Remote',
       'On-site': 'On-site',
       'Hybrid': 'Hybrid'
     };
-    
+
     return labels[remoteType] || remoteType;
   }
 
@@ -225,7 +225,7 @@ class JobApiService {
       'On-site': '🏢',
       'Hybrid': '🔄'
     };
-    
+
     return icons[remoteType || ''] || '📍';
   }
 
@@ -244,7 +244,7 @@ class JobApiService {
       },
       body: JSON.stringify(request),
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to save job: ${response.statusText}`);
     }
@@ -257,7 +257,7 @@ class JobApiService {
     const response = await fetch(`${this.baseUrl}/api/jobs/${jobId}/save`, {
       method: 'DELETE',
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to unsave job: ${response.statusText}`);
     }
@@ -268,11 +268,11 @@ class JobApiService {
    */
   async isJobSaved(jobId: string): Promise<boolean> {
     const response = await fetch(`${this.baseUrl}/api/jobs/${jobId}/saved`);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to check if job is saved: ${response.statusText}`);
     }
-    
+
     const result = await response.json();
     return result.is_saved;
   }
@@ -282,11 +282,11 @@ class JobApiService {
    */
   async getSavedJobs(limit: number = 20): Promise<SavedJob[]> {
     const response = await fetch(`${this.baseUrl}/api/saved-jobs?limit=${limit}`);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to fetch saved jobs: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
     return data.jobs; // Return just the jobs array, not the full response
   }
@@ -302,7 +302,7 @@ class JobApiService {
       },
       body: JSON.stringify(request),
     });
-    
+
     if (!response.ok) {
       throw new Error(`Failed to update saved job: ${response.statusText}`);
     }
@@ -316,7 +316,7 @@ class JobApiService {
     const now = new Date();
     const diffTime = Math.abs(now.getTime() - date.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) {
       return 'Saved today';
     } else if (diffDays === 1) {

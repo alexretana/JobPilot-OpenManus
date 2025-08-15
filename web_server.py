@@ -4,30 +4,28 @@ JobPilot-OpenManus Web Server
 A simple FastAPI web interface for the JobPilot job hunting agent system.
 """
 
-import asyncio
 import json
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect, HTTPException
-from fastapi.responses import HTMLResponse, JSONResponse, FileResponse
+import uvicorn
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-from typing import Optional, List
-import uvicorn
 
 from app.agent.manus import Manus
+from app.api.applications_simple import router as applications_router
+from app.api.enhanced_jobs_api import router as enhanced_jobs_router
+from app.api.leads_simple import router as leads_router
+from app.api.timeline import router as timeline_router
+from app.api.user_profiles import router as user_profiles_router
 from app.logger import logger
 from app.prompt.jobpilot import get_jobpilot_prompt
-from app.api.timeline import router as timeline_router
-from app.api.applications_simple import router as applications_router
-from app.api.leads_simple import router as leads_router
-from app.api.enhanced_jobs_api import router as enhanced_jobs_router
-from app.api.user_profiles import router as user_profiles_router
 
 
 class ChatMessage(BaseModel):
-    type: str  # "user" or "assistant" 
+    type: str  # "user" or "assistant"
     content: str
     timestamp: datetime = datetime.now()
 
@@ -64,7 +62,9 @@ class ConnectionManager:
             await connection.send_text(message)
 
 
-app = FastAPI(title="JobPilot-OpenManus", description="AI-Powered Job Hunting Assistant")
+app = FastAPI(
+    title="JobPilot-OpenManus", description="AI-Powered Job Hunting Assistant"
+)
 manager = ConnectionManager()
 
 # Include API routers
@@ -79,10 +79,16 @@ chat_history: List[ChatMessage] = []
 
 # Mount static files for the Solid.js frontend
 import os
+
+
 frontend_dist_path = os.path.join(os.path.dirname(__file__), "frontend", "dist")
 if os.path.exists(frontend_dist_path):
-    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist_path, "assets")), name="assets")
-    
+    app.mount(
+        "/assets",
+        StaticFiles(directory=os.path.join(frontend_dist_path, "assets")),
+        name="assets",
+    )
+
     @app.get("/")
     async def serve_frontend():
         """Serve the Solid.js frontend index.html"""
@@ -92,142 +98,178 @@ if os.path.exists(frontend_dist_path):
         else:
             return HTMLResponse(
                 content="<h1>Frontend not built</h1><p>Please run 'npm run build' in the frontend directory.</p>",
-                status_code=404
+                status_code=404,
             )
+
 else:
+
     @app.get("/")
     async def fallback_frontend():
         """Fallback when frontend is not built"""
         return HTMLResponse(
             content="<h1>Frontend not found</h1><p>Please build the frontend by running 'npm run build' in the frontend directory.</p>",
-            status_code=404
+            status_code=404,
         )
 
 
 class ProgressStreamingAgent:
     """Agent wrapper that provides progress streaming to WebSocket clients."""
-    
+
     def __init__(self, websocket: WebSocket, agent: Manus):
         self.websocket = websocket
         self.agent = agent
         self.current_step = 0
         self.total_steps = 20
-        
+
     async def send_progress(self, message: str, step: int = None):
         """Send progress update to client."""
         if step is not None:
             self.current_step = step
         else:
             self.current_step += 1
-            
-        await self.websocket.send_text(json.dumps({
-            "type": "progress",
-            "content": message,
-            "step": self.current_step,
-            "total": self.total_steps,
-            "timestamp": datetime.now().isoformat()
-        }))
-        
+
+        await self.websocket.send_text(
+            json.dumps(
+                {
+                    "type": "progress",
+                    "content": message,
+                    "step": self.current_step,
+                    "total": self.total_steps,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+        )
+
     async def send_tool_start(self, tool_name: str, args: dict = None):
         """Send tool start notification."""
-        await self.websocket.send_text(json.dumps({
-            "type": "tool_start",
-            "tool": tool_name,
-            "args": args,
-            "timestamp": datetime.now().isoformat()
-        }))
-        
+        await self.websocket.send_text(
+            json.dumps(
+                {
+                    "type": "tool_start",
+                    "tool": tool_name,
+                    "args": args,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+        )
+
     async def send_tool_result(self, tool_name: str, result: str, url: str = None):
         """Send tool result notification."""
-        await self.websocket.send_text(json.dumps({
-            "type": "tool_result",
-            "tool": tool_name,
-            "content": result[:500] if result else None,  # Limit content size
-            "url": url,
-            "timestamp": datetime.now().isoformat()
-        }))
-        
+        await self.websocket.send_text(
+            json.dumps(
+                {
+                    "type": "tool_result",
+                    "tool": tool_name,
+                    "content": result[:500] if result else None,  # Limit content size
+                    "url": url,
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+        )
+
     async def send_browser_action(self, action: str, url: str, content: str = None):
         """Send browser action notification."""
-        await self.websocket.send_text(json.dumps({
-            "type": "browser_action",
-            "action": action,
-            "url": url,
-            "content": content[:200] if content else None,  # Limit content size
-            "timestamp": datetime.now().isoformat()
-        }))
-        
+        await self.websocket.send_text(
+            json.dumps(
+                {
+                    "type": "browser_action",
+                    "action": action,
+                    "url": url,
+                    "content": content[:200] if content else None,  # Limit content size
+                    "timestamp": datetime.now().isoformat(),
+                }
+            )
+        )
+
     async def run_with_progress(self, user_message: str) -> str:
         """Run agent with progress streaming."""
         try:
             # Send initial progress
             await self.send_progress("🚀 JobPilot agent initializing...")
-            
+
             # Inject JobPilot-specific system prompt
             import os
+
             current_dir = os.getcwd()
             jobpilot_prompt = get_jobpilot_prompt(current_dir)
-            
+
             # Override the system prompt for this session
-            original_prompt = getattr(self.agent, '_system_prompt', None)
+            original_prompt = getattr(self.agent, "_system_prompt", None)
             self.agent._system_prompt = jobpilot_prompt
-            
+
             await self.send_progress("🎯 Analyzing your job search request...")
-            
+
             # Create a custom step counter to track agent progress
-            step_counter = {'value': 2}
-            
+            step_counter = {"value": 2}
+
             # Monkey patch the agent's tool execution to send progress
             original_execute_tool = None
-            if hasattr(self.agent, 'execute_tool'):
+            if hasattr(self.agent, "execute_tool"):
                 original_execute_tool = self.agent.execute_tool
-                
+
                 async def progress_execute_tool(tool_call):
-                    tool_name = tool_call.function.name if hasattr(tool_call, 'function') else str(tool_call)
-                    await self.send_progress(f"🔧 Using {tool_name} tool...", step_counter['value'])
+                    tool_name = (
+                        tool_call.function.name
+                        if hasattr(tool_call, "function")
+                        else str(tool_call)
+                    )
+                    await self.send_progress(
+                        f"🔧 Using {tool_name} tool...", step_counter["value"]
+                    )
                     await self.send_tool_start(tool_name)
-                    
+
                     try:
                         result = await original_execute_tool(tool_call)
-                        
+
                         # Extract URL and content from browser actions
                         url = None
-                        content = None
-                        if 'browser' in tool_name.lower() and result:
-                            if 'http' in str(result):
+                        if "browser" in tool_name.lower() and result:
+                            if "http" in str(result):
                                 import re
-                                url_match = re.search(r'https?://[^\s]+', str(result))
+
+                                url_match = re.search(r"https?://[^\s]+", str(result))
                                 if url_match:
                                     url = url_match.group()
-                                    await self.send_browser_action('navigate', url, str(result))
-                        
+                                    await self.send_browser_action(
+                                        "navigate", url, str(result)
+                                    )
+
                         await self.send_tool_result(tool_name, str(result), url)
-                        step_counter['value'] += 1
-                        
+                        step_counter["value"] += 1
+
                         return result
                     except Exception as e:
-                        await self.send_progress(f"⚠️ Tool {tool_name} encountered an issue: {str(e)[:100]}...", step_counter['value'])
-                        step_counter['value'] += 1
+                        await self.send_progress(
+                            f"⚠️ Tool {tool_name} encountered an issue: {str(e)[:100]}...",
+                            step_counter["value"],
+                        )
+                        step_counter["value"] += 1
                         raise e
-                
+
                 self.agent.execute_tool = progress_execute_tool
-            
+
             # Run the agent
-            await self.send_progress("🔍 Starting job search process...", step_counter['value'])
+            await self.send_progress(
+                "🔍 Starting job search process...", step_counter["value"]
+            )
             response = await self.agent.run(user_message)
-            
-            await self.send_progress("✅ Job search completed successfully!", self.total_steps)
-            
+
+            await self.send_progress(
+                "✅ Job search completed successfully!", self.total_steps
+            )
+
             # Restore original methods
             if original_execute_tool:
                 self.agent.execute_tool = original_execute_tool
             if original_prompt:
                 self.agent._system_prompt = original_prompt
-                
+
             return response
-            
+
         except Exception as e:
-            await self.send_progress(f"❌ Error during job search: {str(e)}", self.total_steps)
+            await self.send_progress(
+                f"❌ Error during job search: {str(e)}", self.total_steps
+            )
             raise e
 
 
@@ -239,51 +281,55 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_text()
             message_data = json.loads(data)
-            
+
             if message_data["type"] == "message":
                 user_message = message_data["content"]
-                
+
                 # Add user message to history
                 chat_history.append(ChatMessage(type="user", content=user_message))
-                
+
                 # Process with JobPilot agent with progress streaming
                 try:
                     # Create agent
                     agent = await Manus.create()
-                    
+
                     # Create progress streaming wrapper
                     progress_agent = ProgressStreamingAgent(websocket, agent)
-                    
+
                     # Run with progress updates
                     response = await progress_agent.run_with_progress(user_message)
-                    
+
                     # Add assistant response to history
                     chat_history.append(ChatMessage(type="assistant", content=response))
-                    
+
                     # Send final response back to client
                     await manager.send_personal_message(
-                        json.dumps({
-                            "type": "response",
-                            "content": response,
-                            "timestamp": datetime.now().isoformat()
-                        }),
-                        websocket
+                        json.dumps(
+                            {
+                                "type": "response",
+                                "content": response,
+                                "timestamp": datetime.now().isoformat(),
+                            }
+                        ),
+                        websocket,
                     )
-                    
+
                     await agent.cleanup()
-                    
+
                 except Exception as e:
                     error_msg = f"Sorry, I encountered an error: {str(e)}"
                     await manager.send_personal_message(
-                        json.dumps({
-                            "type": "error", 
-                            "content": error_msg,
-                            "timestamp": datetime.now().isoformat()
-                        }),
-                        websocket
+                        json.dumps(
+                            {
+                                "type": "error",
+                                "content": error_msg,
+                                "timestamp": datetime.now().isoformat(),
+                            }
+                        ),
+                        websocket,
                     )
                     logger.error(f"Agent error: {e}")
-                    
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
 
@@ -291,7 +337,11 @@ async def websocket_endpoint(websocket: WebSocket):
 @app.get("/api/health")
 async def health_check():
     """Health check endpoint."""
-    return {"status": "healthy", "service": "JobPilot-OpenManus", "timestamp": datetime.now()}
+    return {
+        "status": "healthy",
+        "service": "JobPilot-OpenManus",
+        "timestamp": datetime.now(),
+    }
 
 
 @app.get("/api/chat/history")
@@ -312,9 +362,10 @@ async def get_recent_jobs(limit: int = 20):
     """Get recently posted jobs."""
     try:
         from app.data.database import get_job_repository
+
         job_repo = get_job_repository()
         jobs = job_repo.get_recent_jobs(limit=min(limit, 50))
-        
+
         return {
             "jobs": [
                 {
@@ -327,17 +378,23 @@ async def get_recent_jobs(limit: int = 20):
                     "salary_min": job.salary_min,
                     "salary_max": job.salary_max,
                     "salary_currency": job.salary_currency,
-                    "skills_required": job.skills_required[:5] if job.skills_required else [],
-                    "posted_date": job.posted_date.isoformat() if job.posted_date else None,
-                    "description": job.description[:200] + "..." if job.description and len(job.description) > 200 else job.description,
-                    "job_url": job.job_url
+                    "skills_required": job.skills_required[:5]
+                    if job.skills_required
+                    else [],
+                    "posted_date": job.posted_date.isoformat()
+                    if job.posted_date
+                    else None,
+                    "description": job.description[:200] + "..."
+                    if job.description and len(job.description) > 200
+                    else job.description,
+                    "job_url": job.job_url,
                 }
                 for job in jobs
             ],
             "total": len(jobs),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error fetching recent jobs: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -348,12 +405,13 @@ async def get_job_details(job_id: str):
     """Get detailed information for a specific job."""
     try:
         from app.data.database import get_job_repository
+
         job_repo = get_job_repository()
         job = job_repo.get_job(job_id)
-        
+
         if not job:
             raise HTTPException(status_code=404, detail="Job not found")
-        
+
         return {
             "id": str(job.id),
             "title": job.title,
@@ -361,7 +419,9 @@ async def get_job_details(job_id: str):
             "location": job.location,
             "job_type": job.job_type.value if job.job_type else None,
             "remote_type": job.remote_type.value if job.remote_type else None,
-            "experience_level": job.experience_level.value if job.experience_level else None,
+            "experience_level": job.experience_level.value
+            if job.experience_level
+            else None,
             "salary_min": job.salary_min,
             "salary_max": job.salary_max,
             "salary_currency": job.salary_currency,
@@ -377,9 +437,9 @@ async def get_job_details(job_id: str):
             "job_url": job.job_url,
             "source": job.source,
             "created_at": job.created_at.isoformat() if job.created_at else None,
-            "updated_at": job.updated_at.isoformat() if job.updated_at else None
+            "updated_at": job.updated_at.isoformat() if job.updated_at else None,
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -388,13 +448,16 @@ async def get_job_details(job_id: str):
 
 
 @app.post("/api/jobs/search")
-async def search_jobs_simple(query: str = "", job_types: str = "", locations: str = "", limit: int = 20):
+async def search_jobs_simple(
+    query: str = "", job_types: str = "", locations: str = "", limit: int = 20
+):
     """Search jobs using filters (simple version for direct API calls)."""
     try:
         from app.data.database import get_job_repository
         from app.data.models import JobType
+
         job_repo = get_job_repository()
-        
+
         # Parse job types
         parsed_job_types = None
         if job_types:
@@ -404,17 +467,21 @@ async def search_jobs_simple(query: str = "", job_types: str = "", locations: st
                     parsed_job_types.append(JobType(jt.strip()))
                 except ValueError:
                     pass  # Skip invalid job types
-        
+
         # Parse locations
-        location_list = [loc.strip() for loc in locations.split(",") if loc.strip()] if locations else None
-        
+        location_list = (
+            [loc.strip() for loc in locations.split(",") if loc.strip()]
+            if locations
+            else None
+        )
+
         jobs, total = job_repo.search_jobs(
             query=query or None,
             job_types=parsed_job_types,
             locations=location_list,
-            limit=min(limit, 50)
+            limit=min(limit, 50),
         )
-        
+
         return {
             "jobs": [
                 {
@@ -426,21 +493,24 @@ async def search_jobs_simple(query: str = "", job_types: str = "", locations: st
                     "remote_type": job.remote_type.value if job.remote_type else None,
                     "salary_min": job.salary_min,
                     "salary_max": job.salary_max,
-                    "skills_required": job.skills_required[:5] if job.skills_required else [],
-                    "posted_date": job.posted_date.isoformat() if job.posted_date else None,
-                    "description": job.description[:200] + "..." if job.description and len(job.description) > 200 else job.description,
+                    "skills_required": job.skills_required[:5]
+                    if job.skills_required
+                    else [],
+                    "posted_date": job.posted_date.isoformat()
+                    if job.posted_date
+                    else None,
+                    "description": job.description[:200] + "..."
+                    if job.description and len(job.description) > 200
+                    else job.description,
                 }
                 for job in jobs
             ],
             "total": total,
             "query": query,
-            "filters": {
-                "job_types": job_types,
-                "locations": locations
-            },
-            "timestamp": datetime.now().isoformat()
+            "filters": {"job_types": job_types, "locations": locations},
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error searching jobs: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -451,7 +521,7 @@ async def search_jobs_agent(request: JobSearchRequest):
     """Search for jobs using the JobPilot agent (original functionality)."""
     try:
         agent = await Manus.create()
-        
+
         # Build query from request
         query_parts = [request.query]
         if request.experience_years:
@@ -460,14 +530,14 @@ async def search_jobs_agent(request: JobSearchRequest):
             query_parts.append(f"in {request.location}")
         if request.remote_only:
             query_parts.append("remote work preferred")
-            
+
         full_query = " ".join(query_parts)
-        
+
         response = await agent.run(full_query)
         await agent.cleanup()
-        
+
         return {"query": full_query, "response": response, "timestamp": datetime.now()}
-        
+
     except Exception as e:
         logger.error(f"Job search error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -478,48 +548,55 @@ async def search_jobs_agent(request: JobSearchRequest):
 # =====================================
 
 # For now, we'll use a default user ID. In a real app, this would come from authentication
-from uuid import uuid4
+
 DEFAULT_USER_ID = "00000000-0000-4000-8000-000000000001"  # Fixed UUID for default user
+
 
 @app.post("/api/jobs/{job_id}/save")
 async def save_job(job_id: str, request: SaveJobRequest):
     """Save a job for the user."""
     try:
-        from app.data.database import get_saved_job_repository, get_user_repository, get_job_repository
+        from app.data.database import (
+            get_job_repository,
+            get_saved_job_repository,
+            get_user_repository,
+        )
         from app.data.models import UserProfile
         from app.services.timeline_service import TimelineService
-        
+
         # Get repositories
         saved_job_repo = get_saved_job_repository()
         user_repo = get_user_repository()
         job_repo = get_job_repository()
-        
+
         # Ensure default user exists
         user = user_repo.get_user(DEFAULT_USER_ID)
         if not user:
             # Create default user
             from uuid import UUID
+
             default_user = UserProfile(
                 id=UUID(DEFAULT_USER_ID),
                 first_name="Demo",
                 last_name="User",
-                email="demo@jobpilot.com"
+                email="demo@jobpilot.com",
             )
             user = user_repo.create_user(default_user)
-        
+
         # Save the job
         saved_job = saved_job_repo.save_job(
             job_id=request.job_id,
             user_profile_id=DEFAULT_USER_ID,
             notes=request.notes,
-            tags=request.tags
+            tags=request.tags,
         )
-        
+
         # Log timeline event for job saved
         try:
             job = job_repo.get_job(request.job_id)
             if job:
                 from app.data.database import get_database_manager
+
                 db_manager = get_database_manager()
                 with db_manager.get_session() as db_session:
                     timeline_service = TimelineService(db_session)
@@ -529,19 +606,19 @@ async def save_job(job_id: str, request: SaveJobRequest):
                         job_title=job.title,
                         company_name=job.company,
                         notes=request.notes,
-                        tags=request.tags
+                        tags=request.tags,
                     )
         except Exception as e:
             logger.warning(f"Failed to log timeline event for saved job: {e}")
-        
+
         return {
             "message": "Job saved successfully",
             "saved_job_id": str(saved_job.id),
             "job_id": request.job_id,
             "saved_date": saved_job.saved_date.isoformat(),
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error saving job {job_id}: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -552,19 +629,19 @@ async def unsave_job(job_id: str):
     """Remove a job from saved jobs."""
     try:
         from app.data.database import get_saved_job_repository
-        
+
         saved_job_repo = get_saved_job_repository()
         success = saved_job_repo.unsave_job(job_id, DEFAULT_USER_ID)
-        
+
         if success:
             return {
                 "message": "Job unsaved successfully",
                 "job_id": job_id,
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
         else:
             raise HTTPException(status_code=404, detail="Saved job not found")
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -578,50 +655,56 @@ async def get_saved_jobs(limit: int = 20):
     logger.info(f"GET /api/saved-jobs called with limit={limit}")
     try:
         from app.data.database import get_saved_job_repository
+
         logger.info("Imported get_saved_job_repository")
-        
+
         saved_job_repo = get_saved_job_repository()
         logger.info("Got saved job repository")
-        saved_jobs = saved_job_repo.get_saved_jobs(DEFAULT_USER_ID, limit=min(limit, 50))
+        saved_jobs = saved_job_repo.get_saved_jobs(
+            DEFAULT_USER_ID, limit=min(limit, 50)
+        )
         logger.info(f"Retrieved {len(saved_jobs)} saved jobs")
-        
+
         # Format the response
         formatted_jobs = []
         for saved_job_data in saved_jobs:
-            saved_job = saved_job_data['saved_job']
-            job = saved_job_data['job']
-            
+            saved_job = saved_job_data["saved_job"]
+            job = saved_job_data["job"]
+
             formatted_job = {
                 # Job details
-                "id": job['id'],
-                "title": job['title'],
-                "company": job['company'],
-                "location": job['location'],
-                "job_type": job['job_type'],
-                "remote_type": job['remote_type'],
-                "salary_min": job['salary_min'],
-                "salary_max": job['salary_max'],
-                "salary_currency": job['salary_currency'],
-                "skills_required": job['skills_required'][:5] if job['skills_required'] else [],
-                "posted_date": job['posted_date'],
-                "description": job['description'][:200] + "..." if job['description'] and len(job['description']) > 200 else job['description'],
-                "job_url": job['job_url'],
-                
+                "id": job["id"],
+                "title": job["title"],
+                "company": job["company"],
+                "location": job["location"],
+                "job_type": job["job_type"],
+                "remote_type": job["remote_type"],
+                "salary_min": job["salary_min"],
+                "salary_max": job["salary_max"],
+                "salary_currency": job["salary_currency"],
+                "skills_required": job["skills_required"][:5]
+                if job["skills_required"]
+                else [],
+                "posted_date": job["posted_date"],
+                "description": job["description"][:200] + "..."
+                if job["description"] and len(job["description"]) > 200
+                else job["description"],
+                "job_url": job["job_url"],
                 # Saved job metadata
-                "saved_date": saved_job['saved_date'],
-                "notes": saved_job['notes'],
-                "tags": saved_job['tags'],
-                "saved_job_id": saved_job['id']
+                "saved_date": saved_job["saved_date"],
+                "notes": saved_job["notes"],
+                "tags": saved_job["tags"],
+                "saved_job_id": saved_job["id"],
             }
             formatted_jobs.append(formatted_job)
-        
+
         return {
             "jobs": formatted_jobs,
             "total": len(formatted_jobs),
             "user_id": DEFAULT_USER_ID,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error fetching saved jobs: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -632,16 +715,16 @@ async def check_job_saved(job_id: str):
     """Check if a job is saved by the user."""
     try:
         from app.data.database import get_saved_job_repository
-        
+
         saved_job_repo = get_saved_job_repository()
         is_saved = saved_job_repo.is_job_saved(job_id, DEFAULT_USER_ID)
-        
+
         return {
             "job_id": job_id,
             "is_saved": is_saved,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.now().isoformat(),
         }
-        
+
     except Exception as e:
         logger.error(f"Error checking if job {job_id} is saved: {e}")
         raise HTTPException(status_code=500, detail=str(e))
@@ -652,15 +735,15 @@ async def update_saved_job(job_id: str, request: SaveJobRequest):
     """Update notes and tags for a saved job."""
     try:
         from app.data.database import get_saved_job_repository
-        
+
         saved_job_repo = get_saved_job_repository()
         updated_saved_job = saved_job_repo.update_saved_job(
             job_id=job_id,
             user_profile_id=DEFAULT_USER_ID,
             notes=request.notes,
-            tags=request.tags
+            tags=request.tags,
         )
-        
+
         if updated_saved_job:
             return {
                 "message": "Saved job updated successfully",
@@ -669,11 +752,11 @@ async def update_saved_job(job_id: str, request: SaveJobRequest):
                 "notes": updated_saved_job.notes,
                 "tags": updated_saved_job.tags,
                 "updated_at": updated_saved_job.updated_at.isoformat(),
-                "timestamp": datetime.now().isoformat()
+                "timestamp": datetime.now().isoformat(),
             }
         else:
             raise HTTPException(status_code=404, detail="Saved job not found")
-        
+
     except HTTPException:
         raise
     except Exception as e:
@@ -681,38 +764,38 @@ async def update_saved_job(job_id: str, request: SaveJobRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-                
-
 if __name__ == "__main__":
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="JobPilot-OpenManus Web Server")
     parser.add_argument(
-        "--host", 
-        default="localhost", 
-        help="Host to bind the server to (default: localhost)"
+        "--host",
+        default="localhost",
+        help="Host to bind the server to (default: localhost)",
     )
     parser.add_argument(
-        "--port", 
-        type=int, 
-        default=8080, 
-        help="Port to bind the server to (default: 8080)"
+        "--port",
+        type=int,
+        default=8080,
+        help="Port to bind the server to (default: 8080)",
     )
-    
+
     args = parser.parse_args()
-    
+
     logger.info("🚀 Starting JobPilot-OpenManus Web Server")
     logger.info("📦 Serving built frontend from dist/ directory")
-    
+
     try:
-        logger.info(f"Starting JobPilot-OpenManus Web Server on {args.host}:{args.port}...")
+        logger.info(
+            f"Starting JobPilot-OpenManus Web Server on {args.host}:{args.port}..."
+        )
         uvicorn.run(
             "web_server:app",
             host=args.host,
             port=args.port,
             reload=False,
-            log_level="info"
+            log_level="info",
         )
-        
+
     except KeyboardInterrupt:
         logger.info("Received interrupt signal, shutting down...")

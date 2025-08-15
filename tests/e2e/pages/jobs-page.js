@@ -8,7 +8,7 @@ const BasePage = require('./base-page');
 class JobsPage extends BasePage {
   constructor(page) {
     super(page);
-    
+
     // Selectors
     this.selectors = {
       // Header and controls
@@ -18,7 +18,7 @@ class JobsPage extends BasePage {
       addJobButton: '[data-testid="add-job-button"]',
       filterButton: '[data-testid="filter-button"]',
       sortDropdown: '[data-testid="sort-dropdown"]',
-      
+
       // Job list
       jobsList: '[data-testid="jobs-list"]',
       jobItem: '[data-testid="job-item"]',
@@ -28,13 +28,13 @@ class JobsPage extends BasePage {
       jobSalary: '[data-testid="job-salary"]',
       jobStatus: '[data-testid="job-status"]',
       jobActions: '[data-testid="job-actions"]',
-      
+
       // Job item actions
       viewJobButton: '[data-testid="view-job-button"]',
       editJobButton: '[data-testid="edit-job-button"]',
       deleteJobButton: '[data-testid="delete-job-button"]',
       applyButton: '[data-testid="apply-button"]',
-      
+
       // Filters
       filtersPanel: '[data-testid="filters-panel"]',
       locationFilter: '[data-testid="location-filter"]',
@@ -43,17 +43,17 @@ class JobsPage extends BasePage {
       statusFilter: '[data-testid="status-filter"]',
       clearFiltersButton: '[data-testid="clear-filters-button"]',
       applyFiltersButton: '[data-testid="apply-filters-button"]',
-      
+
       // Pagination
       pagination: '[data-testid="pagination"]',
       prevPageButton: '[data-testid="prev-page-button"]',
       nextPageButton: '[data-testid="next-page-button"]',
       pageInfo: '[data-testid="page-info"]',
-      
+
       // Empty state
       emptyState: '[data-testid="empty-jobs-state"]',
       noResultsMessage: '[data-testid="no-results-message"]',
-      
+
       // Loading state
       loadingSpinner: '[data-testid="loading-jobs"]'
     };
@@ -92,54 +92,54 @@ class JobsPage extends BasePage {
    */
   async getJobListings() {
     await this.waitForLoadingToComplete();
-    
+
     if (await this.isVisible(this.selectors.emptyState)) {
       return [];
     }
-    
+
     const jobElements = await this.page.$$(`${this.selectors.jobsList} ${this.selectors.jobItem}`);
     const jobs = [];
-    
+
     for (const jobElement of jobElements) {
       try {
         const job = {};
-        
+
         // Get job title
         const titleElement = await jobElement.$('[data-testid="job-title"]');
         if (titleElement) {
           job.title = await titleElement.textContent();
         }
-        
+
         // Get company
         const companyElement = await jobElement.$('[data-testid="job-company"]');
         if (companyElement) {
           job.company = await companyElement.textContent();
         }
-        
+
         // Get location
         const locationElement = await jobElement.$('[data-testid="job-location"]');
         if (locationElement) {
           job.location = await locationElement.textContent();
         }
-        
+
         // Get salary
         const salaryElement = await jobElement.$('[data-testid="job-salary"]');
         if (salaryElement) {
           job.salary = await salaryElement.textContent();
         }
-        
+
         // Get status
         const statusElement = await jobElement.$('[data-testid="job-status"]');
         if (statusElement) {
           job.status = await statusElement.textContent();
         }
-        
+
         jobs.push(job);
       } catch (error) {
         console.warn('Could not parse job element:', error.message);
       }
     }
-    
+
     return jobs;
   }
 
@@ -149,7 +149,7 @@ class JobsPage extends BasePage {
    */
   async clickJobByTitle(jobTitle) {
     const jobElements = await this.page.$$(`${this.selectors.jobsList} ${this.selectors.jobItem}`);
-    
+
     for (const jobElement of jobElements) {
       try {
         const titleElement = await jobElement.$('[data-testid="job-title"]');
@@ -165,7 +165,7 @@ class JobsPage extends BasePage {
         console.warn('Error clicking job:', error.message);
       }
     }
-    
+
     throw new Error(`Job with title "${jobTitle}" not found`);
   }
 
@@ -175,7 +175,7 @@ class JobsPage extends BasePage {
    */
   async applyToJobByTitle(jobTitle) {
     const jobElements = await this.page.$$(`${this.selectors.jobsList} ${this.selectors.jobItem}`);
-    
+
     for (const jobElement of jobElements) {
       try {
         const titleElement = await jobElement.$('[data-testid="job-title"]');
@@ -194,7 +194,7 @@ class JobsPage extends BasePage {
         console.warn('Error applying to job:', error.message);
       }
     }
-    
+
     throw new Error(`Job with title "${jobTitle}" not found or apply button not available`);
   }
 
@@ -217,23 +217,23 @@ class JobsPage extends BasePage {
    */
   async applyFilters(filters) {
     await this.openFilters();
-    
+
     if (filters.location) {
       await this.fill(this.selectors.locationFilter, filters.location);
     }
-    
+
     if (filters.salary) {
       await this.page.selectOption(this.selectors.salaryFilter, filters.salary);
     }
-    
+
     if (filters.company) {
       await this.fill(this.selectors.companyFilter, filters.company);
     }
-    
+
     if (filters.status) {
       await this.page.selectOption(this.selectors.statusFilter, filters.status);
     }
-    
+
     await this.click(this.selectors.applyFiltersButton);
     await this.waitForLoadingToComplete();
   }
@@ -309,7 +309,7 @@ class JobsPage extends BasePage {
    * Check if jobs list is empty
    */
   async isJobsListEmpty() {
-    return await this.isVisible(this.selectors.emptyState) || 
+    return await this.isVisible(this.selectors.emptyState) ||
            await this.isVisible(this.selectors.noResultsMessage);
   }
 
@@ -338,7 +338,7 @@ class JobsPage extends BasePage {
         return false;
       }
     }
-    
+
     return true;
   }
 
@@ -348,33 +348,33 @@ class JobsPage extends BasePage {
    */
   async getJobByIndex(index) {
     const jobElements = await this.page.$$(`${this.selectors.jobsList} ${this.selectors.jobItem}`);
-    
+
     if (index >= jobElements.length) {
       throw new Error(`Job index ${index} is out of range (${jobElements.length} jobs found)`);
     }
-    
+
     const jobElement = jobElements[index];
     const job = {};
-    
+
     try {
       const titleElement = await jobElement.$('[data-testid="job-title"]');
       if (titleElement) job.title = await titleElement.textContent();
-      
+
       const companyElement = await jobElement.$('[data-testid="job-company"]');
       if (companyElement) job.company = await companyElement.textContent();
-      
+
       const locationElement = await jobElement.$('[data-testid="job-location"]');
       if (locationElement) job.location = await locationElement.textContent();
-      
+
       const salaryElement = await jobElement.$('[data-testid="job-salary"]');
       if (salaryElement) job.salary = await salaryElement.textContent();
-      
+
       const statusElement = await jobElement.$('[data-testid="job-status"]');
       if (statusElement) job.status = await statusElement.textContent();
     } catch (error) {
       console.warn('Could not parse job element:', error.message);
     }
-    
+
     return job;
   }
 }

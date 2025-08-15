@@ -52,12 +52,12 @@ export function ApplicationTimeline(props: ApplicationTimelineProps) {
     const statusEvents = events().filter(e => e.event_type === TimelineEventType.STATUS_CHANGED);
     if (statusEvents.length > 0) {
       // Get the most recent status change
-      const latestStatus = statusEvents.sort((a, b) => 
+      const latestStatus = statusEvents.sort((a, b) =>
         new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
       )[0];
       return latestStatus.event_data.new_status || 'Unknown';
     }
-    
+
     // Infer status from event types
     if (events().some(e => e.event_type === TimelineEventType.OFFER_ACCEPTED)) return 'Offer Accepted';
     if (events().some(e => e.event_type === TimelineEventType.OFFER_DECLINED)) return 'Offer Declined';
@@ -65,7 +65,7 @@ export function ApplicationTimeline(props: ApplicationTimelineProps) {
     if (events().some(e => e.event_type === TimelineEventType.INTERVIEW_COMPLETED)) return 'Interview Completed';
     if (events().some(e => e.event_type === TimelineEventType.INTERVIEW_SCHEDULED)) return 'Interview Scheduled';
     if (events().some(e => e.event_type === TimelineEventType.APPLICATION_SUBMITTED)) return 'Applied';
-    
+
     return 'Unknown';
   };
 
@@ -149,7 +149,7 @@ export function ApplicationTimeline(props: ApplicationTimelineProps) {
       </Show>
 
       {/* Timeline Events */}
-      <Show 
+      <Show
         when={events().length > 0}
         fallback={
           <div class="text-center py-12">
@@ -165,7 +165,7 @@ export function ApplicationTimeline(props: ApplicationTimelineProps) {
           <For each={events()}>
             {(event) => (
               <div class={props.compact ? "scale-95" : ""}>
-                <TimelineEventCard 
+                <TimelineEventCard
                   event={event}
                   onDelete={handleEventDeleted}
                   onUpdate={handleEventUpdated}
@@ -182,19 +182,19 @@ export function ApplicationTimeline(props: ApplicationTimelineProps) {
               <div class="stat-title">Total Events</div>
               <div class="stat-value text-primary">{events().length}</div>
             </div>
-            
+
             <div class="stat">
               <div class="stat-title">Milestones</div>
               <div class="stat-value text-secondary">
                 {events().filter(e => e.is_milestone).length}
               </div>
             </div>
-            
+
             <div class="stat">
               <div class="stat-title">Latest Activity</div>
               <div class="stat-value text-xs">
-                {events().length > 0 ? 
-                  new Date(events().sort((a, b) => 
+                {events().length > 0 ?
+                  new Date(events().sort((a, b) =>
                     new Date(b.event_date).getTime() - new Date(a.event_date).getTime()
                   )[0].event_date).toLocaleDateString() : 'N/A'
                 }

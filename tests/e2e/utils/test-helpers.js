@@ -13,7 +13,7 @@ const { expect } = require('@playwright/test');
  */
 async function waitForElementSafe(page, selector, options = {}) {
   const { timeout = 10000, state = 'visible', throwOnTimeout = false } = options;
-  
+
   try {
     return await page.waitForSelector(selector, { state, timeout });
   } catch (error) {
@@ -33,20 +33,20 @@ async function waitForElementSafe(page, selector, options = {}) {
  */
 async function clickSafe(page, selector, options = {}) {
   const { maxRetries = 3, delay = 1000, waitForSelector = true } = options;
-  
+
   for (let i = 0; i < maxRetries; i++) {
     try {
       if (waitForSelector) {
         await waitForElementSafe(page, selector, { throwOnTimeout: true });
       }
-      
+
       await page.click(selector);
       return;
     } catch (error) {
       if (i === maxRetries - 1) {
         throw new Error(`Failed to click '${selector}' after ${maxRetries} attempts: ${error.message}`);
       }
-      
+
       console.warn(`Click attempt ${i + 1} failed for '${selector}', retrying...`);
       await page.waitForTimeout(delay);
     }
@@ -62,22 +62,22 @@ async function clickSafe(page, selector, options = {}) {
  */
 async function fillSafe(page, selector, value, options = {}) {
   const { maxRetries = 3, delay = 1000, clear = true } = options;
-  
+
   for (let i = 0; i < maxRetries; i++) {
     try {
       await waitForElementSafe(page, selector, { throwOnTimeout: true });
-      
+
       if (clear) {
         await page.fill(selector, '');
       }
-      
+
       await page.fill(selector, value);
       return;
     } catch (error) {
       if (i === maxRetries - 1) {
         throw new Error(`Failed to fill '${selector}' after ${maxRetries} attempts: ${error.message}`);
       }
-      
+
       console.warn(`Fill attempt ${i + 1} failed for '${selector}', retrying...`);
       await page.waitForTimeout(delay);
     }
@@ -93,12 +93,12 @@ async function fillSafe(page, selector, value, options = {}) {
 async function takeScreenshot(page, testName, step = 'default') {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const filename = `${testName}_${step}_${timestamp}.png`;
-  
+
   await page.screenshot({
     path: `test-reports/screenshots/${filename}`,
     fullPage: true
   });
-  
+
   return filename;
 }
 
@@ -109,7 +109,7 @@ async function takeScreenshot(page, testName, step = 'default') {
  */
 async function waitForNetworkIdle(page, options = {}) {
   const { timeout = 10000, idleTime = 500 } = options;
-  
+
   await page.waitForLoadState('networkidle', { timeout });
   await page.waitForTimeout(idleTime); // Additional buffer
 }
@@ -136,7 +136,7 @@ async function elementExists(page, selector) {
  */
 async function getTextSafe(page, selector, options = {}) {
   const { defaultValue = '', trim = true } = options;
-  
+
   try {
     await waitForElementSafe(page, selector, { throwOnTimeout: true });
     const text = await page.textContent(selector);
@@ -155,7 +155,7 @@ async function getTextSafe(page, selector, options = {}) {
  */
 async function waitForUrlPattern(page, pattern, options = {}) {
   const { timeout = 10000 } = options;
-  
+
   if (typeof pattern === 'string') {
     await page.waitForURL(`**${pattern}**`, { timeout });
   } else {
@@ -176,7 +176,7 @@ async function scrollIntoView(page, selector) {
   await page.$eval(selector, element => {
     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
-  
+
   // Wait for scroll to complete
   await page.waitForTimeout(500);
 }
@@ -188,15 +188,15 @@ async function scrollIntoView(page, selector) {
  */
 async function clearBrowserStorage(page, options = {}) {
   const { localStorage = true, sessionStorage = true, cookies = true } = options;
-  
+
   if (localStorage) {
     await page.evaluate(() => window.localStorage.clear());
   }
-  
+
   if (sessionStorage) {
     await page.evaluate(() => window.sessionStorage.clear());
   }
-  
+
   if (cookies) {
     await page.context().clearCookies();
   }
@@ -251,7 +251,7 @@ async function doubleClickElement(page, selector) {
 async function dragAndDrop(page, sourceSelector, targetSelector) {
   await waitForElementSafe(page, sourceSelector, { throwOnTimeout: true });
   await waitForElementSafe(page, targetSelector, { throwOnTimeout: true });
-  
+
   await page.dragAndDrop(sourceSelector, targetSelector);
 }
 
@@ -265,7 +265,7 @@ async function dragAndDrop(page, sourceSelector, targetSelector) {
 async function assertElementVisibility(page, selector, shouldBeVisible = true, message) {
   const isVisible = await elementExists(page, selector) && await page.isVisible(selector);
   const defaultMessage = `Element '${selector}' should ${shouldBeVisible ? 'be visible' : 'not be visible'}`;
-  
+
   if (shouldBeVisible) {
     expect(isVisible, message || defaultMessage).toBeTruthy();
   } else {
@@ -282,12 +282,12 @@ async function assertElementVisibility(page, selector, shouldBeVisible = true, m
  */
 async function waitForText(page, selector, text, options = {}) {
   const { timeout = 10000, exact = false } = options;
-  
+
   await page.waitForFunction(
     ({ selector, text, exact }) => {
       const element = document.querySelector(selector);
       if (!element) return false;
-      
+
       const elementText = element.textContent || '';
       return exact ? elementText === text : elementText.includes(text);
     },

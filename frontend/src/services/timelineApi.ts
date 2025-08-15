@@ -1,6 +1,6 @@
-import type { 
-  TimelineEvent, 
-  CreateTimelineEventRequest, 
+import type {
+  TimelineEvent,
+  CreateTimelineEventRequest,
   CreateCustomEventRequest,
   UpdateTimelineEventRequest
 } from '../types';
@@ -27,7 +27,7 @@ export class TimelineApiService {
 
   // User Timeline
   async getUserTimeline(
-    userProfileId: string, 
+    userProfileId: string,
     options?: {
       limit?: number;
       offset?: number;
@@ -37,7 +37,7 @@ export class TimelineApiService {
     }
   ): Promise<TimelineEvent[]> {
     const params = new URLSearchParams();
-    
+
     if (options?.limit) params.set('limit', options.limit.toString());
     if (options?.offset) params.set('offset', options.offset.toString());
     if (options?.job_id) params.set('job_id', options.job_id);
@@ -58,7 +58,7 @@ export class TimelineApiService {
     }
   ): Promise<TimelineEvent[]> {
     const params = new URLSearchParams();
-    
+
     if (options?.limit) params.set('limit', options.limit.toString());
     if (options?.days_back) params.set('days_back', options.days_back.toString());
 
@@ -74,7 +74,7 @@ export class TimelineApiService {
     }
   ): Promise<TimelineEvent[]> {
     const params = new URLSearchParams();
-    
+
     if (options?.days_ahead) params.set('days_ahead', options.days_ahead.toString());
     if (options?.limit) params.set('limit', options.limit.toString());
 
@@ -91,7 +91,7 @@ export class TimelineApiService {
     }
   ): Promise<TimelineEvent[]> {
     const params = new URLSearchParams();
-    
+
     if (options?.user_profile_id) params.set('user_profile_id', options.user_profile_id);
     if (options?.limit) params.set('limit', options.limit.toString());
 
@@ -106,7 +106,7 @@ export class TimelineApiService {
     }
   ): Promise<TimelineEvent[]> {
     const params = new URLSearchParams();
-    
+
     if (options?.limit) params.set('limit', options.limit.toString());
 
     const queryString = params.toString() ? `?${params.toString()}` : '';
@@ -115,7 +115,7 @@ export class TimelineApiService {
 
   // Event Management
   async createTimelineEvent(
-    userProfileId: string, 
+    userProfileId: string,
     request: CreateTimelineEventRequest
   ): Promise<TimelineEvent> {
     return this.fetchApi<TimelineEvent>(`/user/${userProfileId}/event`, {
@@ -125,7 +125,7 @@ export class TimelineApiService {
   }
 
   async createCustomEvent(
-    userProfileId: string, 
+    userProfileId: string,
     request: CreateCustomEventRequest
   ): Promise<TimelineEvent> {
     return this.fetchApi<TimelineEvent>(`/user/${userProfileId}/custom-event`, {
@@ -135,7 +135,7 @@ export class TimelineApiService {
   }
 
   async updateTimelineEvent(
-    eventId: string, 
+    eventId: string,
     request: UpdateTimelineEventRequest
   ): Promise<TimelineEvent> {
     return this.fetchApi<TimelineEvent>(`/event/${eventId}`, {

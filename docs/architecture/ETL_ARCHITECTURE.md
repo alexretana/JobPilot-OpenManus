@@ -9,7 +9,7 @@ The JobPilot ETL (Extract-Transform-Load) system is a production-ready data pipe
 ## 🎯 **System Goals**
 
 - **Real-time Data**: Provide live job market data from external APIs
-- **Scalability**: Process thousands of jobs per hour efficiently  
+- **Scalability**: Process thousands of jobs per hour efficiently
 - **Reliability**: 99.9% uptime with comprehensive error handling
 - **Extensibility**: Easy integration of additional job board APIs
 - **Data Quality**: Ensure high-quality, validated job data
@@ -42,12 +42,12 @@ class JSearchDataCollector(ETLDataCollector):
     """
     Collects job data from JSearch API with rate limiting and error handling
     """
-    
+
     def __init__(self, config: ETLConfig):
         self.api_key = config.rapidapi_key
         self.base_url = "https://jsearch.p.rapidapi.com"
         self.rate_limiter = RateLimiter(requests_per_minute=60)
-    
+
     async def extract(self, search_params: Dict) -> List[Dict]:
         # API calls with error handling and retries
         # Rate limiting and quota management
@@ -82,12 +82,12 @@ class JobDataProcessor(ETLDataProcessor):
     """
     Processes and transforms job data into standardized format
     """
-    
+
     def __init__(self, config: ETLConfig):
         self.skill_extractor = SkillExtractor()
         self.location_normalizer = LocationNormalizer()
         self.salary_processor = SalaryProcessor()
-    
+
     def transform(self, raw_data: List[Dict]) -> List[JobListing]:
         # Data cleaning and normalization
         # Skill extraction from job descriptions
@@ -119,12 +119,12 @@ class JobDataLoader(ETLDataLoader):
     """
     Loads processed job data into JobPilot database with deduplication
     """
-    
+
     def __init__(self, db_manager: DatabaseManager, config: ETLConfig):
         self.db_manager = db_manager
         self.duplicate_detector = DuplicateDetector()
         self.batch_size = config.batch_size
-    
+
     def load(self, job_listings: List[JobListing]) -> LoadResult:
         # Duplicate detection and handling
         # Batch processing for performance
@@ -155,13 +155,13 @@ class ETLOrchestrator:
     """
     Orchestrates the complete ETL pipeline with error handling
     """
-    
+
     def __init__(self, config: ETLConfig, db_manager: DatabaseManager):
         self.collector = JSearchDataCollector(config)
         self.processor = JobDataProcessor(config)
         self.loader = JobDataLoader(db_manager, config)
         self.logger = ETLLogger()
-    
+
     async def run_pipeline(self, search_params: Dict) -> ETLResult:
         # Progress tracking and monitoring
         # Component coordination
@@ -235,22 +235,22 @@ class ETLOrchestrator:
 @dataclass
 class ETLConfig:
     """Central configuration for ETL pipeline"""
-    
+
     # API Configuration
     rapidapi_key: str = ""
     requests_per_minute: int = 60
     timeout_seconds: int = 30
-    
-    # Processing Configuration  
+
+    # Processing Configuration
     batch_size: int = 100
     max_retries: int = 3
     enable_skill_extraction: bool = True
-    
+
     # Database Configuration
     max_connections: int = 10
     transaction_timeout: int = 300
     enable_duplicate_detection: bool = True
-    
+
     # Logging Configuration
     log_level: str = "INFO"
     enable_performance_logging: bool = True
@@ -324,22 +324,22 @@ Error Detected → Classification → Recovery Strategy → Logging → Continue
 @dataclass
 class ETLMetrics:
     """Performance tracking for ETL operations"""
-    
+
     # Throughput Metrics
     jobs_processed_per_minute: float
     api_requests_per_minute: float
     database_inserts_per_second: float
-    
+
     # Latency Metrics
     average_api_response_time: float
     average_processing_time: float
     average_database_write_time: float
-    
+
     # Quality Metrics
     success_rate: float
     error_rate: float
     duplicate_detection_rate: float
-    
+
     # Resource Metrics
     peak_memory_usage_mb: float
     cpu_utilization_percent: float
@@ -354,16 +354,16 @@ class ETLMetrics:
 ```python
 class ETLHealthCheck:
     """Comprehensive health monitoring for ETL system"""
-    
+
     async def check_api_connectivity(self) -> HealthStatus:
         # Test RapidAPI JSearch connectivity
-        
+
     async def check_database_health(self) -> HealthStatus:
         # Validate database connections and performance
-        
+
     async def check_system_resources(self) -> HealthStatus:
         # Monitor memory, CPU, disk usage
-        
+
     async def check_data_quality(self) -> HealthStatus:
         # Validate recent data quality metrics
 ```
@@ -376,7 +376,7 @@ logger = ETLLogger()
 # Info: Normal operations
 logger.info("ETL pipeline started", extra={"batch_size": 100})
 
-# Warning: Non-critical issues  
+# Warning: Non-critical issues
 logger.warning("API rate limit approached", extra={"remaining_quota": 10})
 
 # Error: Recoverable failures
@@ -552,7 +552,7 @@ ETL      ETL        ETL        ETL Platform
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: January 15, 2025  
-**Author**: JobPilot Development Team  
+**Document Version**: 1.0
+**Last Updated**: January 15, 2025
+**Author**: JobPilot Development Team
 **Status**: ✅ Production Ready

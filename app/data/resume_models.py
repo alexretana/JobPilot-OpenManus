@@ -1,20 +1,32 @@
 # JobPilot Resume Management Data Models
 # Adapted from resume-lm with JobPilot-specific enhancements
 
-from typing import Dict, List, Optional, Any, Union
-from enum import Enum
-from datetime import datetime, date
-from pydantic import BaseModel, Field, validator
-from sqlalchemy import Column, String, Text, JSON, DateTime, Boolean, Integer, ForeignKey, Float
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 import uuid
+from datetime import date, datetime
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
-from .models import Base, UserProfileDB, JobListingDB
+from pydantic import BaseModel, Field, validator
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+)
+from sqlalchemy.orm import relationship
+
+from .models import Base
+
 
 # =============================================================================
 # ENUMS AND TYPES
 # =============================================================================
+
 
 class ResumeStatus(str, Enum):
     DRAFT = "draft"
@@ -22,10 +34,12 @@ class ResumeStatus(str, Enum):
     ARCHIVED = "archived"
     TEMPLATE = "template"
 
+
 class ResumeType(str, Enum):
-    BASE = "base"            # Master resume with all experience
-    TAILORED = "tailored"    # Job-specific tailored version
-    TEMPLATE = "template"    # Reusable template
+    BASE = "base"  # Master resume with all experience
+    TAILORED = "tailored"  # Job-specific tailored version
+    TEMPLATE = "template"  # Reusable template
+
 
 class SectionType(str, Enum):
     CONTACT = "contact"
@@ -41,11 +55,13 @@ class SectionType(str, Enum):
     INTERESTS = "interests"
     CUSTOM = "custom"
 
+
 class SkillLevel(str, Enum):
     BEGINNER = "beginner"
     INTERMEDIATE = "intermediate"
     ADVANCED = "advanced"
     EXPERT = "expert"
+
 
 class ExperienceType(str, Enum):
     FULL_TIME = "full_time"
@@ -55,12 +71,15 @@ class ExperienceType(str, Enum):
     VOLUNTEER = "volunteer"
     FREELANCE = "freelance"
 
+
 # =============================================================================
 # PYDANTIC MODELS (API/Validation Layer)
 # =============================================================================
 
+
 class ContactInfo(BaseModel):
     """Contact information section"""
+
     full_name: str
     email: str
     phone: Optional[str] = None
@@ -70,8 +89,10 @@ class ContactInfo(BaseModel):
     website: Optional[str] = None
     portfolio: Optional[str] = None
 
+
 class WorkExperience(BaseModel):
     """Single work experience entry"""
+
     company: str
     position: str
     location: Optional[str] = None
@@ -82,15 +103,17 @@ class WorkExperience(BaseModel):
     description: Optional[str] = None
     achievements: List[str] = Field(default_factory=list)
     skills_used: List[str] = Field(default_factory=list)
-    
-    @validator('end_date')
+
+    @validator("end_date")
     def validate_end_date(cls, v, values):
-        if v and 'start_date' in values and v < values['start_date']:
-            raise ValueError('End date must be after start date')
+        if v and "start_date" in values and v < values["start_date"]:
+            raise ValueError("End date must be after start date")
         return v
+
 
 class Education(BaseModel):
     """Education entry"""
+
     institution: str
     degree: str
     field_of_study: Optional[str] = None
@@ -101,16 +124,20 @@ class Education(BaseModel):
     honors: List[str] = Field(default_factory=list)
     relevant_coursework: List[str] = Field(default_factory=list)
 
+
 class Skill(BaseModel):
     """Individual skill with metadata"""
+
     name: str
     level: SkillLevel = SkillLevel.INTERMEDIATE
     category: Optional[str] = None  # e.g., "Programming Languages", "Frameworks"
     years_experience: Optional[int] = None
     is_featured: bool = False  # Should this skill be prominently displayed?
 
+
 class Project(BaseModel):
     """Project entry"""
+
     name: str
     description: str
     start_date: Optional[date] = None
@@ -120,8 +147,10 @@ class Project(BaseModel):
     technologies: List[str] = Field(default_factory=list)
     achievements: List[str] = Field(default_factory=list)
 
+
 class Certification(BaseModel):
     """Certification entry"""
+
     name: str
     issuer: str
     issue_date: Optional[date] = None
@@ -129,16 +158,20 @@ class Certification(BaseModel):
     credential_id: Optional[str] = None
     url: Optional[str] = None
 
+
 class ResumeSection(BaseModel):
     """Generic resume section"""
+
     section_type: SectionType
     title: str
     content: Dict[str, Any]  # Flexible content storage
     is_visible: bool = True
     order: int = 0
 
+
 class ResumeTemplate(BaseModel):
     """Resume template configuration"""
+
     name: str
     description: Optional[str] = None
     sections: List[SectionType]
@@ -146,8 +179,10 @@ class ResumeTemplate(BaseModel):
     styling: Dict[str, Any] = Field(default_factory=dict)
     is_default: bool = False
 
+
 class ATSScore(BaseModel):
     """ATS compatibility score"""
+
     overall_score: float = Field(ge=0, le=100)
     keyword_score: float = Field(ge=0, le=100)
     formatting_score: float = Field(ge=0, le=100)
@@ -155,9 +190,11 @@ class ATSScore(BaseModel):
     length_score: float = Field(ge=0, le=100)
     suggestions: List[str] = Field(default_factory=list)
     missing_keywords: List[str] = Field(default_factory=list)
-    
+
+
 class JobTailoringAnalysis(BaseModel):
     """Analysis of how well resume matches a job"""
+
     job_id: Optional[str] = None
     match_score: float = Field(ge=0, le=100)
     skill_match: List[str] = Field(default_factory=list)
@@ -165,14 +202,16 @@ class JobTailoringAnalysis(BaseModel):
     recommended_additions: List[str] = Field(default_factory=list)
     sections_to_emphasize: List[SectionType] = Field(default_factory=list)
 
+
 class Resume(BaseModel):
     """Complete resume model"""
+
     id: Optional[str] = None
     user_id: str
     title: str
     resume_type: ResumeType = ResumeType.BASE
     status: ResumeStatus = ResumeStatus.DRAFT
-    
+
     # Resume content
     contact_info: ContactInfo
     summary: Optional[str] = None
@@ -182,67 +221,75 @@ class Resume(BaseModel):
     projects: List[Project] = Field(default_factory=list)
     certifications: List[Certification] = Field(default_factory=list)
     custom_sections: List[ResumeSection] = Field(default_factory=list)
-    
+
     # Metadata and configuration
     template_id: Optional[str] = None
     based_on_resume_id: Optional[str] = None  # For tailored resumes
     job_id: Optional[str] = None  # If tailored for specific job
-    
+
     # Analysis and scoring
     ats_score: Optional[ATSScore] = None
     tailoring_analysis: Optional[JobTailoringAnalysis] = None
-    
+
     # Timestamps
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
     last_generated_at: Optional[datetime] = None
-    
+
     # Version control
     version: int = 1
     parent_version_id: Optional[str] = None
+
 
 # =============================================================================
 # SKILLS BANK MODELS
 # =============================================================================
 
+
 class SkillBank(BaseModel):
     """Centralized skill repository for resume building"""
+
     user_id: str
     skills: Dict[str, List[Skill]]  # Categorized skills
     experience_keywords: List[str] = Field(default_factory=list)
     industry_keywords: List[str] = Field(default_factory=list)
     technical_keywords: List[str] = Field(default_factory=list)
     soft_skills: List[str] = Field(default_factory=list)
-    
+
     # Auto-extracted from job applications and experiences
     auto_extracted_skills: List[str] = Field(default_factory=list)
     skill_confidence: Dict[str, float] = Field(default_factory=dict)
-    
+
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
+
 class SkillSuggestion(BaseModel):
     """AI-generated skill suggestions"""
+
     skill_name: str
     category: str
     confidence: float = Field(ge=0, le=1)
     reason: str  # Why this skill was suggested
     source: str  # Job posting, experience, etc.
 
+
 # =============================================================================
 # SQLALCHEMY MODELS (Database Layer)
 # =============================================================================
 
+
 class ResumeDB(Base):
     """Resume database model"""
+
     __tablename__ = "resumes"
-    
+
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String, ForeignKey("user_profiles.id"), nullable=False)
     title = Column(String, nullable=False)
     resume_type = Column(String, nullable=False, default="base")
     status = Column(String, nullable=False, default="draft")
-    
+
     # JSON content fields
     contact_info = Column(JSON, nullable=False)
     summary = Column(Text)
@@ -252,35 +299,37 @@ class ResumeDB(Base):
     projects = Column(JSON, default=list)
     certifications = Column(JSON, default=list)
     custom_sections = Column(JSON, default=list)
-    
+
     # Configuration
     template_id = Column(String, ForeignKey("resume_templates.id"))
     based_on_resume_id = Column(String, ForeignKey("resumes.id"))
     job_id = Column(String, ForeignKey("job_listings.id"))
-    
+
     # Analysis results
     ats_score_data = Column(JSON)
     tailoring_analysis = Column(JSON)
-    
+
     # Metadata
     version = Column(Integer, default=1)
     parent_version_id = Column(String, ForeignKey("resumes.id"))
-    
+
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_generated_at = Column(DateTime)
-    
+
     # Relationships
     user = relationship("UserProfileDB", back_populates="resumes")
     template = relationship("ResumeTemplateDB")
     job = relationship("JobListingDB")
     generations = relationship("ResumeGenerationDB", back_populates="resume")
 
+
 class ResumeTemplateDB(Base):
     """Resume template database model"""
+
     __tablename__ = "resume_templates"
-    
+
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String, nullable=False)
     description = Column(Text)
@@ -289,17 +338,19 @@ class ResumeTemplateDB(Base):
     styling = Column(JSON, default=dict)
     is_default = Column(Boolean, default=False)
     is_system = Column(Boolean, default=False)  # System vs user templates
-    
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+
 class SkillBankDB(Base):
     """Skills bank database model"""
+
     __tablename__ = "skill_banks"
-    
+
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String, ForeignKey("user_profiles.id"), nullable=False)
-    
+
     # Skill data
     skills = Column(JSON, default=dict)
     experience_keywords = Column(JSON, default=list)
@@ -308,50 +359,57 @@ class SkillBankDB(Base):
     soft_skills = Column(JSON, default=list)
     auto_extracted_skills = Column(JSON, default=list)
     skill_confidence = Column(JSON, default=dict)
-    
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relationships
     user = relationship("UserProfileDB", back_populates="skill_bank")
 
+
 class ResumeVersionDB(Base):
     """Resume version tracking"""
+
     __tablename__ = "resume_versions"
-    
+
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     resume_id = Column(String, ForeignKey("resumes.id"), nullable=False)
     version_number = Column(Integer, nullable=False)
     changes_summary = Column(Text)
     content_snapshot = Column(JSON, nullable=False)
-    
+
     created_at = Column(DateTime, default=datetime.utcnow)
     created_by = Column(String)  # User action vs AI action
+
 
 # =============================================================================
 # RESUME BUILDER AGENT MODELS
 # =============================================================================
 
+
 class ResumeGenerationRequest(BaseModel):
     """Request for AI resume generation/optimization"""
+
     user_id: str
     base_resume_id: Optional[str] = None
     job_id: Optional[str] = None
     job_description: Optional[str] = None
     template_id: Optional[str] = None
-    
+
     # Generation parameters
     tone: str = "professional"  # professional, creative, technical
-    length: str = "standard"    # concise, standard, detailed
+    length: str = "standard"  # concise, standard, detailed
     focus_areas: List[str] = Field(default_factory=list)
     include_sections: List[SectionType] = Field(default_factory=list)
-    
+
     # AI model preferences
     ai_provider: str = "openai"
     model: str = "gpt-4"
 
+
 class ResumeGenerationResult(BaseModel):
     """Result of AI resume generation"""
+
     resume: Resume
     generation_metadata: Dict[str, Any]
     suggestions: List[str]
@@ -359,52 +417,54 @@ class ResumeGenerationResult(BaseModel):
     processing_time: float
     tokens_used: Optional[int] = None
 
+
 # =============================================================================
 # RESUME REPOSITORY INTERFACE
 # =============================================================================
 
+
 class ResumeRepository:
     """Repository interface for resume operations"""
-    
+
     async def create_resume(self, resume_data: Resume) -> ResumeDB:
         """Create new resume"""
-        pass
-    
+
     async def get_resume(self, resume_id: str, user_id: str) -> Optional[Resume]:
         """Get resume by ID"""
-        pass
-    
-    async def update_resume(self, resume_id: str, updates: Dict[str, Any]) -> Optional[Resume]:
+
+    async def update_resume(
+        self, resume_id: str, updates: Dict[str, Any]
+    ) -> Optional[Resume]:
         """Update resume"""
-        pass
-    
+
     async def delete_resume(self, resume_id: str, user_id: str) -> bool:
         """Delete resume"""
-        pass
-    
-    async def get_user_resumes(self, user_id: str, status: Optional[ResumeStatus] = None) -> List[Resume]:
+
+    async def get_user_resumes(
+        self, user_id: str, status: Optional[ResumeStatus] = None
+    ) -> List[Resume]:
         """Get all resumes for user"""
-        pass
-    
+
     async def create_tailored_resume(self, base_resume_id: str, job_id: str) -> Resume:
         """Create job-tailored resume version"""
-        pass
-    
+
     async def get_resume_versions(self, resume_id: str) -> List[ResumeVersionDB]:
         """Get all versions of a resume"""
-        pass
-    
-    async def calculate_ats_score(self, resume: Resume, job_description: Optional[str] = None) -> ATSScore:
+
+    async def calculate_ats_score(
+        self, resume: Resume, job_description: Optional[str] = None
+    ) -> ATSScore:
         """Calculate ATS compatibility score"""
-        pass
 
 
 # =============================================================================
 # RESUME GENERATION AND FILE OUTPUT
 # =============================================================================
 
+
 class ResumeFormat(str, Enum):
     """Resume output formats"""
+
     PDF = "pdf"
     DOCX = "docx"
     HTML = "html"
@@ -415,53 +475,55 @@ class ResumeFormat(str, Enum):
 
 class ResumeGenerationDB(Base):
     """Resume generation tracking database model"""
+
     __tablename__ = "resume_generations"
-    
+
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     resume_id = Column(String, ForeignKey("resumes.id"), nullable=False)
-    
+
     # Generation details
     format = Column(String, nullable=False)  # PDF, DOCX, HTML, etc.
     template_name = Column(String, nullable=False)
     file_path = Column(String)
     file_size = Column(Integer)
     generation_params = Column(JSON, default=dict)
-    
+
     # Generation status
     status = Column(String, default="pending")  # pending, completed, failed
     error_message = Column(Text)
-    
+
     # Timestamps
     generated_at = Column(DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     resume = relationship("ResumeDB", back_populates="generations")
 
 
 class ResumeOptimizationDB(Base):
     """Resume optimization tracking for specific jobs"""
+
     __tablename__ = "resume_optimizations"
-    
+
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     resume_id = Column(String, ForeignKey("resumes.id"), nullable=False)
     job_id = Column(String, ForeignKey("job_listings.id"), nullable=False)
-    
+
     # Optimization results
     match_score = Column(Float, nullable=False)
     keyword_matches = Column(JSON, default=list)
     missing_keywords = Column(JSON, default=list)
     skill_matches = Column(JSON, default=list)
     missing_skills = Column(JSON, default=list)
-    
+
     # Recommendations
     recommendations = Column(JSON, default=list)
     sections_to_emphasize = Column(JSON, default=list)
     content_suggestions = Column(JSON, default=list)
-    
+
     # Analysis metadata
     analyzed_at = Column(DateTime, default=datetime.utcnow)
     analysis_version = Column(String, default="v1.0")
-    
+
     # Relationships
     resume = relationship("ResumeDB")
     job = relationship("JobListingDB")
@@ -471,35 +533,38 @@ class ResumeOptimizationDB(Base):
 # UTILITY FUNCTIONS FOR RESUME OPERATIONS
 # =============================================================================
 
+
 def create_resume_from_profile(user_profile_data: Dict[str, Any]) -> Resume:
     """Create a basic resume from user profile data"""
     contact_info = ContactInfo(
         full_name=f"{user_profile_data.get('first_name', '')} {user_profile_data.get('last_name', '')}".strip(),
-        email=user_profile_data.get('email', ''),
-        phone=user_profile_data.get('phone'),
-        linkedin=user_profile_data.get('linkedin_url'),
-        github=user_profile_data.get('github_url'),
-        website=user_profile_data.get('website_url')
+        email=user_profile_data.get("email", ""),
+        phone=user_profile_data.get("phone"),
+        linkedin=user_profile_data.get("linkedin_url"),
+        github=user_profile_data.get("github_url"),
+        website=user_profile_data.get("website_url"),
     )
-    
+
     # Convert profile skills to resume skills
     skills = []
-    if user_profile_data.get('skills'):
-        for skill_name in user_profile_data['skills']:
-            skills.append(Skill(
-                name=skill_name,
-                level=SkillLevel.INTERMEDIATE,
-                category="Technical Skills"
-            ))
-    
+    if user_profile_data.get("skills"):
+        for skill_name in user_profile_data["skills"]:
+            skills.append(
+                Skill(
+                    name=skill_name,
+                    level=SkillLevel.INTERMEDIATE,
+                    category="Technical Skills",
+                )
+            )
+
     resume = Resume(
-        user_id=user_profile_data['id'],
+        user_id=user_profile_data["id"],
         title=f"{user_profile_data.get('current_title', 'Professional')} Resume",
         contact_info=contact_info,
-        summary=user_profile_data.get('bio'),
-        skills=skills
+        summary=user_profile_data.get("bio"),
+        skills=skills,
     )
-    
+
     return resume
 
 
@@ -507,7 +572,7 @@ def calculate_resume_completeness(resume: Resume) -> float:
     """Calculate resume completeness score (0.0 to 100.0)"""
     score = 0
     total_sections = 8
-    
+
     # Essential sections
     if resume.contact_info.full_name and resume.contact_info.email:
         score += 1
@@ -525,65 +590,67 @@ def calculate_resume_completeness(resume: Resume) -> float:
         score += 1
     if any(exp.achievements for exp in resume.work_experience):
         score += 1
-    
+
     return (score / total_sections) * 100
 
 
 def extract_resume_keywords(resume: Resume) -> List[str]:
     """Extract all keywords from resume content"""
     keywords = set()
-    
+
     # From skills
     for skill in resume.skills:
         keywords.add(skill.name.lower())
         if skill.category:
             keywords.add(skill.category.lower())
-    
+
     # From work experience
     for exp in resume.work_experience:
         keywords.update(skill.lower() for skill in exp.skills_used)
         keywords.add(exp.position.lower())
         keywords.add(exp.company.lower())
-    
+
     # From projects
     for project in resume.projects:
         keywords.update(tech.lower() for tech in project.technologies)
-    
+
     # From education
     for edu in resume.education:
         if edu.field_of_study:
             keywords.add(edu.field_of_study.lower())
         keywords.add(edu.degree.lower())
-    
+
     # From certifications
     for cert in resume.certifications:
         keywords.add(cert.name.lower())
         keywords.add(cert.issuer.lower())
-    
+
     return list(keywords)
 
 
-def generate_ats_score(resume: Resume, job_description: Optional[str] = None) -> ATSScore:
+def generate_ats_score(
+    resume: Resume, job_description: Optional[str] = None
+) -> ATSScore:
     """Generate ATS compatibility score for resume"""
     # Basic scoring algorithm
     format_score = 85.0  # Assume good format
-    
+
     # Section scoring
     has_contact = bool(resume.contact_info.full_name and resume.contact_info.email)
     has_experience = len(resume.work_experience) > 0
     has_skills = len(resume.skills) > 0
     has_education = len(resume.education) > 0
-    
+
     section_score = (
-        (25 if has_contact else 0) +
-        (35 if has_experience else 0) +
-        (25 if has_skills else 0) +
-        (15 if has_education else 0)
+        (25 if has_contact else 0)
+        + (35 if has_experience else 0)
+        + (25 if has_skills else 0)
+        + (15 if has_education else 0)
     )
-    
+
     # Length scoring (assume good length)
     length_score = 90.0
-    
+
     # Keyword scoring
     resume_keywords = set(extract_resume_keywords(resume))
     if job_description:
@@ -595,9 +662,9 @@ def generate_ats_score(resume: Resume, job_description: Optional[str] = None) ->
     else:
         keyword_score = 75.0  # Default score without job description
         missing_keywords = []
-    
+
     overall_score = (format_score + section_score + length_score + keyword_score) / 4
-    
+
     suggestions = []
     if not has_contact:
         suggestions.append("Add complete contact information")
@@ -609,7 +676,7 @@ def generate_ats_score(resume: Resume, job_description: Optional[str] = None) ->
         suggestions.append("Add more relevant skills")
     if not any(exp.achievements for exp in resume.work_experience):
         suggestions.append("Add specific achievements to work experience")
-    
+
     return ATSScore(
         overall_score=overall_score,
         keyword_score=keyword_score,
@@ -617,5 +684,5 @@ def generate_ats_score(resume: Resume, job_description: Optional[str] = None) ->
         section_score=section_score,
         length_score=length_score,
         suggestions=suggestions,
-        missing_keywords=missing_keywords
+        missing_keywords=missing_keywords,
     )

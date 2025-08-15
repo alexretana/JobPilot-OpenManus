@@ -30,10 +30,10 @@ class BasePage {
    * @param {Object} options - Additional options
    */
   async waitForElement(selector, options = {}) {
-    return await this.page.waitForSelector(selector, { 
-      state: 'visible', 
+    return await this.page.waitForSelector(selector, {
+      state: 'visible',
       timeout: 10000,
-      ...options 
+      ...options
     });
   }
 
@@ -93,10 +93,10 @@ class BasePage {
    * @param {Object} options - Additional options
    */
   async screenshot(name, options = {}) {
-    return await this.page.screenshot({ 
+    return await this.page.screenshot({
       path: `test-reports/screenshots/${name}.png`,
       fullPage: true,
-      ...options 
+      ...options
     });
   }
 

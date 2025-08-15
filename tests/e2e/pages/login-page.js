@@ -8,7 +8,7 @@ const BasePage = require('./base-page');
 class LoginPage extends BasePage {
   constructor(page) {
     super(page);
-    
+
     // Selectors
     this.selectors = {
       emailInput: '[data-testid="email"]',
@@ -19,7 +19,7 @@ class LoginPage extends BasePage {
       errorMessage: '[data-testid="error-message"]',
       successMessage: '[data-testid="success-message"]',
       loadingSpinner: '[data-testid="loading"]',
-      
+
       // Alternative selectors if data-testids are not available
       altEmailInput: 'input[type="email"]',
       altPasswordInput: 'input[type="password"]',
@@ -81,15 +81,15 @@ class LoginPage extends BasePage {
    */
   async login(email, password, options = {}) {
     const { waitForRedirect = true, expectedRedirect = '/dashboard' } = options;
-    
+
     await this.navigate();
     await this.enterEmail(email);
     await this.enterPassword(password);
     await this.clickLogin();
-    
+
     if (waitForRedirect) {
       await this.waitForNavigation();
-      
+
       // Check if we're redirected to the expected page
       if (expectedRedirect && !(await this.isOnPage(expectedRedirect))) {
         // Check for error messages if not redirected
@@ -99,7 +99,7 @@ class LoginPage extends BasePage {
         }
       }
     }
-    
+
     await this.waitForLoadingToComplete();
   }
 
@@ -180,7 +180,7 @@ class LoginPage extends BasePage {
         return false;
       }
     }
-    
+
     return true;
   }
 
@@ -189,10 +189,10 @@ class LoginPage extends BasePage {
    */
   async checkIfAlreadyLoggedIn() {
     await this.navigate();
-    
+
     // If we're redirected away from login page, user is already logged in
     await this.page.waitForTimeout(2000); // Give time for potential redirect
-    
+
     return !(await this.isOnLoginPage());
   }
 

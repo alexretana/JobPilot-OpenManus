@@ -58,7 +58,7 @@ On Unix systems, we can use `select()` for better performance:
 while True:
     reads = [process.stdout.fileno(), process.stderr.fileno()]
     ret = select.select(reads, [], [])
-    
+
     for fd in ret[0]:
         if fd == process.stdout.fileno():
             line = process.stdout.readline().strip()

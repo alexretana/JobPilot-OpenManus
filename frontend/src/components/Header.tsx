@@ -58,31 +58,31 @@ const Header: Component<HeaderProps> = (props) => {
 
       <div class="navbar-center hidden lg:flex">
         <div class="tabs tabs-border tabs-lg">
-          <button 
+          <button
             class={`tab ${props.activeTab?.() === 'chat' ? 'tab-active' : ''}`}
             onClick={() => props.onTabChange?.('chat')}
           >
             💬 AI Chat
           </button>
-          <button 
+          <button
             class={`tab ${props.activeTab?.() === 'jobs' ? 'tab-active' : ''}`}
             onClick={() => props.onTabChange?.('jobs')}
           >
             💼 Jobs
           </button>
-          <button 
+          <button
             class={`tab ${props.activeTab?.() === 'timeline' ? 'tab-active' : ''}`}
             onClick={() => props.onTabChange?.('timeline')}
           >
             📅 Timeline
           </button>
-          <button 
+          <button
             class={`tab ${props.activeTab?.() === 'applications' ? 'tab-active' : ''}`}
             onClick={() => props.onTabChange?.('applications')}
           >
             📝 Applications
           </button>
-          <button 
+          <button
             class={`tab ${props.activeTab?.() === 'leads' ? 'tab-active' : ''}`}
             onClick={() => props.onTabChange?.('leads')}
           >

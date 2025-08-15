@@ -83,7 +83,7 @@ Generate 3 variations of professional summaries with different focus areas:
       "target_roles": ["Senior Software Engineer", "Full Stack Developer", "Technical Lead"]
     },
     {
-      "version": "leadership_focus", 
+      "version": "leadership_focus",
       "summary": "Experienced Software Engineer and emerging technical leader with 5+ years building high-performance web applications. Expert in Python, React, and cloud technologies with demonstrated success mentoring junior developers and leading cross-functional projects. Proven ability to drive technical decisions while delivering 25% faster project completion and maintaining 99.9% system uptime.",
       "word_count": 65,
       "key_strengths": ["leadership potential", "mentoring", "project delivery"],

@@ -19,7 +19,7 @@ This error occurred when trying to print emoji characters (like ✅, ❌, 🎯, 
 Created `test_user_profiles_ci.py` - a copy of the original test script with all Unicode emojis replaced with ASCII-safe text:
 
 - ✅ → "SUCCESS:"
-- ❌ → "FAILED:"  
+- ❌ → "FAILED:"
 - 🎯 → "TESTING:"
 - 🔧 → "INITIALIZING:"
 - 📊 → "TEST SUMMARY:"
@@ -93,7 +93,7 @@ python run_tests.py --db-only
 ✅ **All 9 tests pass successfully:**
 
 1. Create user profile
-2. Get user by ID  
+2. Get user by ID
 3. Get user by email
 4. Update user profile
 5. Create second user for list testing

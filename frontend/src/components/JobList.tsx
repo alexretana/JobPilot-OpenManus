@@ -29,14 +29,14 @@ export const JobList: Component<JobListProps> = (props) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       let response;
       if (props.filters && (props.filters.query || props.filters.job_types || props.filters.locations)) {
         response = await jobApi.searchJobs(props.filters);
       } else {
         response = await jobApi.getRecentJobs(props.filters?.limit || 20);
       }
-      
+
       setJobs(response.jobs);
       setTotal(response.total);
     } catch (err) {
@@ -77,23 +77,23 @@ export const JobList: Component<JobListProps> = (props) => {
             </div>
           </Show>
         </div>
-        
-        <button 
+
+        <button
           class="btn btn-ghost btn-sm"
           onClick={handleRefresh}
           disabled={loading()}
           title="Refresh jobs"
         >
-          <svg 
-            class={`w-4 h-4 ${loading() ? 'animate-spin' : ''}`} 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            class={`w-4 h-4 ${loading() ? 'animate-spin' : ''}`}
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path 
-              stroke-linecap="round" 
-              stroke-linejoin="round" 
-              stroke-width="2" 
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
               d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
             />
           </svg>
@@ -112,7 +112,7 @@ export const JobList: Component<JobListProps> = (props) => {
       <Show when={error()}>
         <div class="alert alert-error mb-2">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <span>{error()}</span>

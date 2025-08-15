@@ -63,7 +63,7 @@ JobPilot revolutionizes job hunting by automating tedious tasks while enhancing 
 - **Professional PDF Export**: LaTeX-quality resumes via RenderCV integration
 - **Multi-Format Export**: PDF, JSON, YAML, and TXT formats supported
 - **Template System**: 5+ professional resume templates (ModernCV, Classic, Academic, etc.)
-- **Batch Processing**: Generate multiple resume variations simultaneously  
+- **Batch Processing**: Generate multiple resume variations simultaneously
 - **Performance Optimized**: Sub-second generation times (0.01-0.03s per resume)
 - **REST API Integration**: Complete FastAPI endpoints for frontend integration
 

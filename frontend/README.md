@@ -121,7 +121,7 @@ The frontend communicates with the FastAPI backend through:
 - Quick action buttons
 - Progress indicator integration
 
-### BrowserViewport Component  
+### BrowserViewport Component
 - Live browser status display
 - URL tracking
 - Content preview with truncation

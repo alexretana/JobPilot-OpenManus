@@ -60,7 +60,7 @@ This will inform our ETL pipeline design with real-world data patterns.
    - Focus: Remote job data structure
    - Expected: Simple JSON, good for learning
 
-2. **The Muse API** 
+2. **The Muse API**
    - Endpoint: `https://www.themuse.com/api/public/jobs`
    - Focus: Company data and job descriptions
    - Expected: Rich job metadata
@@ -134,7 +134,7 @@ document_field_mapping(jobs)
 # Test different search parameters
 test_queries = [
     "software engineer",
-    "data scientist", 
+    "data scientist",
     "product manager",
     "remote developer"
 ]
@@ -170,10 +170,10 @@ Create a file `api_research/{provider}_analysis.md` for each API:
 - **Cost**: [Pricing details]
 
 ## API Details
-- **Base URL**: 
-- **Documentation**: 
-- **Rate Limits**: 
-- **Pagination**: 
+- **Base URL**:
+- **Documentation**:
+- **Rate Limits**:
+- **Pagination**:
 
 ## Data Structure
 - **Job Fields Available**: [List]
@@ -190,15 +190,15 @@ Create a file `api_research/{provider}_analysis.md` for each API:
 
 ## Pros & Cons
 **Pros:**
-- 
+-
 
 **Cons:**
-- 
+-
 
 ## Recommendation
 - **Use for MVP**: Yes/No
 - **Priority**: High/Medium/Low
-- **Notes**: 
+- **Notes**:
 ```
 
 ---
@@ -277,14 +277,14 @@ After investigating each API, we should know:
 
 After research, rank APIs by:
 1. **MVP Suitability** (free/cheap + easy integration)
-2. **Data Quality** (completeness + freshness)  
+2. **Data Quality** (completeness + freshness)
 3. **Scale Potential** (rate limits + pricing)
 4. **Geographic Coverage** (matches target users)
 5. **Maintenance Overhead** (reliability + support)
 
 **Goal**: Select 2-3 APIs that give us:
 - Good data diversity to design ETL pipeline
-- Sufficient volume for MVP testing  
+- Sufficient volume for MVP testing
 - Reasonable costs for early stage
 - Different data formats to test pipeline flexibility
 

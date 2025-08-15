@@ -32,7 +32,7 @@ export const JobCard: Component<JobCardProps> = (props) => {
   };
 
   return (
-    <div 
+    <div
       class="card bg-base-100 shadow-md hover:shadow-lg transition-all duration-200 cursor-pointer border border-base-300 hover:border-primary"
       onClick={handleViewDetails}
     >
@@ -43,13 +43,13 @@ export const JobCard: Component<JobCardProps> = (props) => {
             {props.job.title}
           </h3>
           <div class="flex gap-1">
-            <button 
+            <button
               class={`btn btn-ghost btn-xs ${props.isSaved ? 'text-warning' : ''}`}
               onClick={handleSaveJob}
               title={props.isSaved ? 'Unsave job' : 'Save job'}
             >
               <svg class="w-4 h-4" fill={props.isSaved ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
               </svg>
             </button>
@@ -73,7 +73,7 @@ export const JobCard: Component<JobCardProps> = (props) => {
               {jobApi.getJobTypeLabel(props.job.job_type)}
             </div>
           </Show>
-          
+
           <Show when={props.job.remote_type}>
             <div class="badge badge-outline badge-sm">
               {jobApi.getRemoteTypeLabel(props.job.remote_type)}
@@ -120,25 +120,25 @@ export const JobCard: Component<JobCardProps> = (props) => {
         {/* Actions */}
         <div class="card-actions justify-between items-center">
           <Show when={props.job.job_url}>
-            <button 
+            <button
               class="btn btn-outline btn-sm"
               onClick={handleVisitJob}
             >
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
               </svg>
               Visit
             </button>
           </Show>
-          
-          <button 
+
+          <button
             class="btn btn-primary btn-sm"
             onClick={handleViewDetails}
           >
             View Details
             <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M9 5l7 7-7 7"></path>
             </svg>
           </button>

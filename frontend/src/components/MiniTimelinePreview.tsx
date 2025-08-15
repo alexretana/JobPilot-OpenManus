@@ -98,7 +98,7 @@ export function MiniTimelinePreview(props: MiniTimelinePreviewProps) {
     const now = new Date();
     const diffTime = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) {
       return 'Today';
     } else if (diffDays === 1) {
@@ -149,7 +149,7 @@ export function MiniTimelinePreview(props: MiniTimelinePreviewProps) {
               <span class="text-sm flex-shrink-0">
                 {getEventTypeIcon(event.event_type)}
               </span>
-              
+
               {/* Event details */}
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-1">
@@ -159,7 +159,7 @@ export function MiniTimelinePreview(props: MiniTimelinePreviewProps) {
                   </Show>
                 </div>
               </div>
-              
+
               {/* Time and status */}
               <div class="flex-shrink-0 flex items-center gap-1">
                 <span class="text-base-content/60">
@@ -170,7 +170,7 @@ export function MiniTimelinePreview(props: MiniTimelinePreviewProps) {
             </div>
           )}
         </For>
-        
+
         {/* Show count if there are more events */}
         <Show when={events().length > maxEvents()}>
           <div class="text-xs text-base-content/50 pt-1 border-t border-base-300">

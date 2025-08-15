@@ -44,7 +44,7 @@ const ActivityModal: Component<ActivityModalProps> = (props) => {
   };
 
   return (
-    <dialog 
+    <dialog
       ref={modalRef}
       class="modal"
       onClick={(e) => {
@@ -60,7 +60,7 @@ const ActivityModal: Component<ActivityModalProps> = (props) => {
             <span class="text-2xl">🔍</span>
             <h2 class="text-xl font-bold">Activity Log</h2>
           </div>
-          <button 
+          <button
             class="btn btn-sm btn-circle btn-ghost"
             onClick={() => props.onClose()}
           >

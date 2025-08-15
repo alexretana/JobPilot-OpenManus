@@ -47,7 +47,7 @@ const LeadsManager = () => {
   const [showCreateModal, setShowCreateModal] = createSignal(false);
   const [editingLead, setEditingLead] = createSignal<Lead | null>(null);
   const [showStatsModal, setShowStatsModal] = createSignal(false);
-  
+
   // Store for the create/edit form
   const [leadForm, setLeadForm] = createStore<CreateLeadRequest>({
     name: '',
@@ -182,7 +182,7 @@ const LeadsManager = () => {
       // Reset form and close modal
       resetForm();
       setShowCreateModal(false);
-      
+
       // Refresh leads and stats
       refetchLeads();
       refetchStats();
@@ -257,13 +257,13 @@ const LeadsManager = () => {
         <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <h1 class="text-3xl font-bold">Lead Management</h1>
           <div class="flex gap-2">
-            <button 
+            <button
               class="btn btn-outline btn-info"
               onClick={() => setShowStatsModal(true)}
             >
               📊 Statistics
             </button>
-            <button 
+            <button
               class="btn btn-primary"
               onClick={() => setShowCreateModal(true)}
             >
@@ -296,7 +296,7 @@ const LeadsManager = () => {
             <label class="label">
               <span class="label-text">Filter by Status:</span>
             </label>
-            <select 
+            <select
               class="select select-bordered select-sm"
               value={selectedStatus()}
               onChange={(e) => setSelectedStatus(e.target.value as Lead['status'] | 'all')}
@@ -308,12 +308,12 @@ const LeadsManager = () => {
               </For>
             </select>
           </div>
-          
+
           <div class="form-control">
             <label class="label">
               <span class="label-text">Filter by Type:</span>
             </label>
-            <select 
+            <select
               class="select select-bordered select-sm"
               value={selectedType()}
               onChange={(e) => setSelectedType(e.target.value as Lead['lead_type'] | 'all')}
@@ -329,7 +329,7 @@ const LeadsManager = () => {
 
         {/* Leads List */}
         <div class="grid gap-4">
-          <Show 
+          <Show
             when={!leads.loading}
             fallback={
               <div class="flex justify-center p-8">
@@ -345,7 +345,7 @@ const LeadsManager = () => {
                     <h2 class="card-title justify-center">No Leads Found</h2>
                     <p>You haven't added any leads yet. Start building your network!</p>
                     <div class="card-actions justify-center">
-                      <button 
+                      <button
                         class="btn btn-primary"
                         onClick={() => setShowCreateModal(true)}
                       >
@@ -374,14 +374,14 @@ const LeadsManager = () => {
                               <div class="badge badge-warning badge-sm">⚠️ Overdue</div>
                             )}
                           </div>
-                          
+
                           {lead.title && (
                             <p class="text-base-content/80 font-medium">{lead.title}</p>
                           )}
                           {lead.company && (
                             <p class="text-base-content/60">at {lead.company}</p>
                           )}
-                          
+
                           <div class="flex flex-wrap gap-4 mt-3 text-sm">
                             {lead.email && (
                               <a href={`mailto:${lead.email}`} class="link link-info">
@@ -399,13 +399,13 @@ const LeadsManager = () => {
                               </a>
                             )}
                           </div>
-                          
+
                           {lead.source && (
                             <div class="mt-2">
                               <span class="text-sm text-base-content/40">Source: {lead.source}</span>
                             </div>
                           )}
-                          
+
                           {lead.follow_up_date && (
                             <div class="mt-2">
                               <span class="text-sm text-base-content/40">
@@ -414,7 +414,7 @@ const LeadsManager = () => {
                               </span>
                             </div>
                           )}
-                          
+
                           {lead.last_contacted && (
                             <div class="mt-1">
                               <span class="text-sm text-base-content/40">
@@ -422,7 +422,7 @@ const LeadsManager = () => {
                               </span>
                             </div>
                           )}
-                          
+
                           {lead.notes && (
                             <div class="mt-3">
                               <p class="text-sm font-medium">Notes:</p>
@@ -430,15 +430,15 @@ const LeadsManager = () => {
                             </div>
                           )}
                         </div>
-                        
+
                         <div class="flex gap-2">
-                          <button 
+                          <button
                             class="btn btn-sm btn-ghost"
                             onClick={() => setEditingLead(lead)}
                           >
                             Edit
                           </button>
-                          <button 
+                          <button
                             class="btn btn-sm btn-error btn-outline"
                             onClick={() => handleDeleteLead(lead.id)}
                           >
@@ -460,13 +460,13 @@ const LeadsManager = () => {
         <div class="modal modal-open">
           <div class="modal-box max-w-2xl">
             <h3 class="font-bold text-lg">Add New Lead</h3>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div class="form-control">
                 <label class="label">
                   <span class="label-text">Name *</span>
                 </label>
-                <input 
+                <input
                   type="text"
                   class="input input-bordered"
                   placeholder="Full name"
@@ -479,7 +479,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Job Title</span>
                 </label>
-                <input 
+                <input
                   type="text"
                   class="input input-bordered"
                   placeholder="e.g., Senior Software Engineer"
@@ -492,7 +492,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Company</span>
                 </label>
-                <input 
+                <input
                   type="text"
                   class="input input-bordered"
                   placeholder="Company name"
@@ -505,7 +505,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Email</span>
                 </label>
-                <input 
+                <input
                   type="email"
                   class="input input-bordered"
                   placeholder="email@company.com"
@@ -518,7 +518,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Phone</span>
                 </label>
-                <input 
+                <input
                   type="tel"
                   class="input input-bordered"
                   placeholder="+1 (555) 123-4567"
@@ -531,7 +531,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">LinkedIn URL</span>
                 </label>
-                <input 
+                <input
                   type="url"
                   class="input input-bordered"
                   placeholder="https://linkedin.com/in/..."
@@ -544,7 +544,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Lead Type</span>
                 </label>
-                <select 
+                <select
                   class="select select-bordered"
                   value={leadForm.lead_type}
                   onChange={(e) => setLeadForm('lead_type', e.target.value as Lead['lead_type'])}
@@ -561,7 +561,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Status</span>
                 </label>
-                <select 
+                <select
                   class="select select-bordered"
                   value={leadForm.status}
                   onChange={(e) => setLeadForm('status', e.target.value as Lead['status'])}
@@ -578,7 +578,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Source</span>
                 </label>
-                <input 
+                <input
                   type="text"
                   class="input input-bordered"
                   placeholder="e.g., LinkedIn, Networking Event"
@@ -591,7 +591,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Follow-up Date</span>
                 </label>
-                <input 
+                <input
                   type="date"
                   class="input input-bordered"
                   value={leadForm.follow_up_date}
@@ -604,7 +604,7 @@ const LeadsManager = () => {
               <label class="label">
                 <span class="label-text">Notes</span>
               </label>
-              <textarea 
+              <textarea
                 class="textarea textarea-bordered h-24"
                 placeholder="Add notes about this lead..."
                 value={leadForm.notes}
@@ -613,7 +613,7 @@ const LeadsManager = () => {
             </div>
 
             <div class="modal-action">
-              <button 
+              <button
                 class="btn"
                 onClick={() => {
                   setShowCreateModal(false);
@@ -622,7 +622,7 @@ const LeadsManager = () => {
               >
                 Cancel
               </button>
-              <button 
+              <button
                 class="btn btn-primary"
                 disabled={!leadForm.name}
                 onClick={handleCreateLead}
@@ -639,7 +639,7 @@ const LeadsManager = () => {
         <div class="modal modal-open">
           <div class="modal-box max-w-2xl">
             <h3 class="font-bold text-lg">Edit Lead</h3>
-            
+
             <div class="mt-4">
               <h4 class="font-medium text-lg">{editingLead()?.name}</h4>
               {editingLead()?.company && (
@@ -652,7 +652,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Lead Type</span>
                 </label>
-                <select 
+                <select
                   class="select select-bordered"
                   value={editingLead()?.lead_type}
                   onChange={(e) => {
@@ -674,7 +674,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Status</span>
                 </label>
-                <select 
+                <select
                   class="select select-bordered"
                   value={editingLead()?.status}
                   onChange={(e) => {
@@ -696,7 +696,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Follow-up Date</span>
                 </label>
-                <input 
+                <input
                   type="date"
                   class="input input-bordered"
                   value={editingLead()?.follow_up_date?.split('T')[0] || ''}
@@ -713,7 +713,7 @@ const LeadsManager = () => {
                 <label class="label">
                   <span class="label-text">Source</span>
                 </label>
-                <input 
+                <input
                   type="text"
                   class="input input-bordered"
                   placeholder="e.g., LinkedIn, Networking Event"
@@ -732,7 +732,7 @@ const LeadsManager = () => {
               <label class="label">
                 <span class="label-text">Notes</span>
               </label>
-              <textarea 
+              <textarea
                 class="textarea textarea-bordered h-24"
                 placeholder="Add notes about this lead..."
                 value={editingLead()?.notes || ''}
@@ -746,7 +746,7 @@ const LeadsManager = () => {
             </div>
 
             <div class="modal-action">
-              <button 
+              <button
                 class="btn"
                 onClick={() => setEditingLead(null)}
               >
@@ -762,7 +762,7 @@ const LeadsManager = () => {
         <div class="modal modal-open">
           <div class="modal-box">
             <h3 class="font-bold text-lg">Lead Statistics</h3>
-            
+
             <Show when={stats()}>
               <div class="grid gap-4 mt-4">
                 <div class="stats shadow">
@@ -803,7 +803,7 @@ const LeadsManager = () => {
             </Show>
 
             <div class="modal-action">
-              <button 
+              <button
                 class="btn"
                 onClick={() => setShowStatsModal(false)}
               >

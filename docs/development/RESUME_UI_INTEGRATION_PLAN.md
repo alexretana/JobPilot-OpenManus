@@ -194,10 +194,10 @@ graph TD
     D --> E[ATS Analysis]
     E --> F[PDF Generation]
     F --> G[Save & Share]
-    
+
     C --> H[Skills Bank Integration]
     H --> C
-    
+
     D --> I[Job Tailoring]
     I --> E
 ```
@@ -254,7 +254,7 @@ export default function ResumeBuilder(props: ResumeBuilderProps) {
     <div class="flex h-screen bg-base-100">
       {/* Left Panel - Section Navigation */}
       <div class="w-64 bg-base-200 p-4">
-        <SectionNavigator 
+        <SectionNavigator
           sections={resume.sections}
           activeSection={activeSection()}
           onSectionChange={setActiveSection}
@@ -264,15 +264,15 @@ export default function ResumeBuilder(props: ResumeBuilderProps) {
       {/* Center Panel - Editor */}
       <div class="flex-1 flex flex-col">
         <div class="bg-white border-b p-4">
-          <ResumeToolbar 
+          <ResumeToolbar
             resume={resume}
             onPreviewToggle={() => setIsPreviewMode(!isPreviewMode())}
           />
         </div>
-        
+
         <div class="flex-1 p-6 overflow-y-auto">
           <Show when={!isPreviewMode()} fallback={<ResumePreview resume={resume} />}>
-            <SectionEditor 
+            <SectionEditor
               sectionType={activeSection()}
               data={resume[activeSection()]}
               onUpdate={(data) => setResume(activeSection(), data)}
@@ -283,7 +283,7 @@ export default function ResumeBuilder(props: ResumeBuilderProps) {
 
       {/* Right Panel - AI Assistant & Tools */}
       <div class="w-80 bg-base-200 p-4">
-        <AIResumeAssistant 
+        <AIResumeAssistant
           resume={resume}
           jobId={props.jobId}
           onSuggestion={(suggestion) => applySuggestion(suggestion)}
@@ -303,12 +303,12 @@ const resumeCommands = {
     const resume = await resumeService.createResume(args);
     return `Created new resume: ${resume.title}`;
   },
-  
+
   "tailor_resume": async (args: { resumeId: string, jobId: string }) => {
     const tailoredResume = await resumeService.tailorForJob(args.resumeId, args.jobId);
     return `Created tailored resume for job. ATS Score: ${tailoredResume.ats_score}`;
   },
-  
+
   "optimize_resume": async (args: { resumeId: string }) => {
     const suggestions = await aiService.optimizeResume(args.resumeId);
     return `Found ${suggestions.length} optimization suggestions`;

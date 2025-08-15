@@ -13,7 +13,7 @@
     "test:e2e:python": "python run_tests.py --e2e",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:debug": "playwright test --debug",
-    "test:integration": "python run_tests.py --integration", 
+    "test:integration": "python run_tests.py --integration",
     "test:performance": "python run_tests.py --performance",
     "test:unit": "python run_tests.py --unit",
     "test:coverage": "python run_tests.py --backend --cov",

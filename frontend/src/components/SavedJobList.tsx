@@ -26,7 +26,7 @@ export const SavedJobList: Component<SavedJobListProps> = (props) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await jobApi.getSavedJobs();
       setSavedJobs(response);
     } catch (err) {
@@ -75,27 +75,27 @@ export const SavedJobList: Component<SavedJobListProps> = (props) => {
             </div>
           </Show>
         </div>
-        
+
         <div class="flex items-center gap-2">
           {/* Filter Tabs - Simplified for now */}
 
           {/* Refresh Button */}
-          <button 
+          <button
             class="btn btn-ghost btn-sm"
             onClick={handleRefresh}
             disabled={loading()}
             title="Refresh saved jobs"
           >
-            <svg 
-              class={`w-4 h-4 ${loading() ? 'animate-spin' : ''}`} 
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              class={`w-4 h-4 ${loading() ? 'animate-spin' : ''}`}
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path 
-                stroke-linecap="round" 
-                stroke-linejoin="round" 
-                stroke-width="2" 
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
               />
             </svg>
@@ -115,7 +115,7 @@ export const SavedJobList: Component<SavedJobListProps> = (props) => {
       <Show when={error()}>
         <div class="alert alert-error mb-4">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
           </svg>
           <span>{error()}</span>
@@ -133,7 +133,7 @@ export const SavedJobList: Component<SavedJobListProps> = (props) => {
             No saved jobs yet
           </h3>
           <p class="text-base-content/60 text-center max-w-md mb-4">
-            Start saving jobs that interest you to keep track of them here. 
+            Start saving jobs that interest you to keep track of them here.
             You can save jobs by clicking the bookmark icon on any job card or in the job details.
           </p>
         </div>
@@ -151,7 +151,7 @@ export const SavedJobList: Component<SavedJobListProps> = (props) => {
                   onSaveJob={() => {}} // Already saved, so no-op
                   isSaved={true}
                 />
-                
+
                 {/* Saved Job Actions Overlay */}
                 <div class="absolute top-2 right-2 flex gap-1">
                   {/* Unsave Button */}

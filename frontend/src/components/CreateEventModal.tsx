@@ -63,8 +63,8 @@ export function CreateEventModal(props: CreateEventModalProps) {
   createEffect(() => {
     const currentTitle = title().trim();
     const suggested = suggestTitle(eventType());
-    
-    if (!currentTitle || Object.values(TimelineEventType).some(type => 
+
+    if (!currentTitle || Object.values(TimelineEventType).some(type =>
       currentTitle === suggestTitle(type)
     )) {
       setTitle(suggested);
@@ -75,13 +75,13 @@ export function CreateEventModal(props: CreateEventModalProps) {
   createEffect(() => {
     const milestoneTypes: TimelineEventType[] = [
       TimelineEventType.APPLICATION_SUBMITTED,
-      TimelineEventType.INTERVIEW_SCHEDULED, 
+      TimelineEventType.INTERVIEW_SCHEDULED,
       TimelineEventType.INTERVIEW_COMPLETED,
       TimelineEventType.OFFER_RECEIVED,
       TimelineEventType.OFFER_ACCEPTED,
       TimelineEventType.OFFER_DECLINED
     ];
-    
+
     setIsMilestone(milestoneTypes.includes(eventType()));
   });
 
@@ -114,7 +114,7 @@ export function CreateEventModal(props: CreateEventModalProps) {
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -168,9 +168,9 @@ export function CreateEventModal(props: CreateEventModalProps) {
                 Add a new event to your job search timeline
               </p>
             </div>
-            <button 
-              type="button" 
-              class="btn btn-sm btn-circle btn-ghost" 
+            <button
+              type="button"
+              class="btn btn-sm btn-circle btn-ghost"
               onClick={handleClose}
               disabled={isSubmitting()}
             >
@@ -184,7 +184,7 @@ export function CreateEventModal(props: CreateEventModalProps) {
               <label class="label">
                 <span class="label-text font-medium">Event Type</span>
               </label>
-              <select 
+              <select
                 class={`select select-bordered ${errors().eventType ? 'select-error' : ''}`}
                 value={eventType()}
                 onChange={(e) => setEventType(e.currentTarget.value as TimelineEventType)}
@@ -324,16 +324,16 @@ export function CreateEventModal(props: CreateEventModalProps) {
 
           {/* Footer */}
           <div class="modal-action">
-            <button 
-              type="button" 
-              class="btn btn-ghost" 
+            <button
+              type="button"
+              class="btn btn-ghost"
               onClick={handleClose}
               disabled={isSubmitting()}
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               class="btn btn-primary"
               disabled={isSubmitting()}
             >

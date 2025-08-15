@@ -11,7 +11,9 @@ import pytest
 def pytest_configure(config):
     """Configure pytest with custom markers."""
     # Register custom markers to avoid warnings
-    config.addinivalue_line("markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')")
+    config.addinivalue_line(
+        "markers", "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+    )
     config.addinivalue_line("markers", "integration: marks tests as integration tests")
     config.addinivalue_line("markers", "performance: marks tests as performance tests")
     config.addinivalue_line("markers", "e2e: marks tests as end-to-end tests")
@@ -28,28 +30,28 @@ def setup_test_environment():
     """Set up the test environment before running any tests."""
     import os
     import sys
-    
+
     # Ensure project root is in Python path
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     if project_root not in sys.path:
         sys.path.insert(0, project_root)
-    
+
     # Set test mode environment variable
-    os.environ['TEST_MODE'] = 'true'
-    
+    os.environ["TEST_MODE"] = "true"
+
     yield
-    
+
     # Cleanup after all tests
-    if 'TEST_MODE' in os.environ:
-        del os.environ['TEST_MODE']
+    if "TEST_MODE" in os.environ:
+        del os.environ["TEST_MODE"]
 
 
 @pytest.fixture
 def temp_test_data():
     """Provide temporary test data that gets cleaned up."""
     test_data = {}
-    
+
     yield test_data
-    
+
     # Cleanup test data if needed
     test_data.clear()

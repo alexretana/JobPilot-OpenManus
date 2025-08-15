@@ -21,7 +21,7 @@ export function TimelineEventCard(props: TimelineEventCardProps) {
     const now = new Date();
     const diffTime = now.getTime() - date.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
+
     if (diffDays === 0) {
       return `Today at ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     } else if (diffDays === 1) {
@@ -87,7 +87,7 @@ export function TimelineEventCard(props: TimelineEventCardProps) {
 
   // Format event type for display
   const formatEventType = (eventType: TimelineEventType) => {
-    return eventType.split('_').map(word => 
+    return eventType.split('_').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
     ).join(' ');
   };
@@ -118,7 +118,7 @@ export function TimelineEventCard(props: TimelineEventCardProps) {
             <div class="text-2xl flex-shrink-0 mt-1">
               {getEventTypeIcon(props.event.event_type)}
             </div>
-            
+
             {/* Content */}
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 mb-1">
@@ -127,7 +127,7 @@ export function TimelineEventCard(props: TimelineEventCardProps) {
                   <div class="badge badge-primary badge-xs">milestone</div>
                 </Show>
               </div>
-              
+
               <div class="flex items-center gap-2 mb-2">
                 <span class={`badge ${getEventTypeStyle(props.event.event_type)} badge-sm`}>
                   {formatEventType(props.event.event_type)}
@@ -169,7 +169,7 @@ export function TimelineEventCard(props: TimelineEventCardProps) {
             </div>
             <ul tabindex={0} class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-36">
               <li>
-                <button 
+                <button
                   class="text-xs"
                   onClick={() => setShowDetails(!showDetails())}
                 >
@@ -180,7 +180,7 @@ export function TimelineEventCard(props: TimelineEventCardProps) {
                 </button>
               </li>
               <li>
-                <button 
+                <button
                   class="text-xs"
                   onClick={() => setShowEditModal(true)}
                 >
@@ -192,7 +192,7 @@ export function TimelineEventCard(props: TimelineEventCardProps) {
               </li>
               <div class="divider my-1"></div>
               <li>
-                <button 
+                <button
                   class="text-xs text-error"
                   onClick={handleDelete}
                   disabled={deleting()}

@@ -24,7 +24,7 @@ const ApplicationsManager = () => {
   const [selectedStatus, setSelectedStatus] = createSignal<Application['status'] | 'all'>('all');
   const [showCreateModal, setShowCreateModal] = createSignal(false);
   const [editingApplication, setEditingApplication] = createSignal<Application | null>(null);
-  
+
   // Store for the create/edit form
   const [applicationForm, setApplicationForm] = createStore<CreateApplicationRequest>({
     job_id: '',
@@ -105,7 +105,7 @@ const ApplicationsManager = () => {
         notes: ''
       });
       setShowCreateModal(false);
-      
+
       // Refresh applications
       refetchApplications();
     } catch (error) {
@@ -166,7 +166,7 @@ const ApplicationsManager = () => {
         {/* Header */}
         <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <h1 class="text-3xl font-bold">Job Applications</h1>
-          <button 
+          <button
             class="btn btn-primary"
             onClick={() => setShowCreateModal(true)}
           >
@@ -180,7 +180,7 @@ const ApplicationsManager = () => {
             <label class="label">
               <span class="label-text">Filter by Status:</span>
             </label>
-            <select 
+            <select
               class="select select-bordered"
               value={selectedStatus()}
               onChange={(e) => setSelectedStatus(e.target.value as Application['status'] | 'all')}
@@ -192,7 +192,7 @@ const ApplicationsManager = () => {
               </For>
             </select>
           </div>
-          
+
           <div class="stats stats-horizontal shadow">
             <div class="stat">
               <div class="stat-title">Total Applications</div>
@@ -203,7 +203,7 @@ const ApplicationsManager = () => {
 
         {/* Applications List */}
         <div class="grid gap-4">
-          <Show 
+          <Show
             when={!applications.loading}
             fallback={
               <div class="flex justify-center p-8">
@@ -219,7 +219,7 @@ const ApplicationsManager = () => {
                     <h2 class="card-title justify-center">No Applications Found</h2>
                     <p>You haven't created any job applications yet.</p>
                     <div class="card-actions justify-center">
-                      <button 
+                      <button
                         class="btn btn-primary"
                         onClick={() => setShowCreateModal(true)}
                       >
@@ -257,15 +257,15 @@ const ApplicationsManager = () => {
                             </div>
                           </Show>
                         </div>
-                        
+
                         <div class="flex gap-2">
-                          <button 
+                          <button
                             class="btn btn-sm btn-ghost"
                             onClick={() => setEditingApplication(application)}
                           >
                             Edit
                           </button>
-                          <button 
+                          <button
                             class="btn btn-sm btn-error btn-outline"
                             onClick={() => handleDeleteApplication(application.id)}
                           >
@@ -287,12 +287,12 @@ const ApplicationsManager = () => {
         <div class="modal modal-open">
           <div class="modal-box">
             <h3 class="font-bold text-lg">Create New Application</h3>
-            
+
             <div class="form-control w-full max-w-xs mt-4">
               <label class="label">
                 <span class="label-text">Select Job</span>
               </label>
-              <select 
+              <select
                 class="select select-bordered"
                 value={applicationForm.job_id}
                 onChange={(e) => setApplicationForm('job_id', e.target.value)}
@@ -312,7 +312,7 @@ const ApplicationsManager = () => {
               <label class="label">
                 <span class="label-text">Status</span>
               </label>
-              <select 
+              <select
                 class="select select-bordered"
                 value={applicationForm.status}
                 onChange={(e) => setApplicationForm('status', e.target.value as Application['status'])}
@@ -329,7 +329,7 @@ const ApplicationsManager = () => {
               <label class="label">
                 <span class="label-text">Notes (Optional)</span>
               </label>
-              <textarea 
+              <textarea
                 class="textarea textarea-bordered h-24"
                 placeholder="Add notes about this application..."
                 value={applicationForm.notes}
@@ -338,13 +338,13 @@ const ApplicationsManager = () => {
             </div>
 
             <div class="modal-action">
-              <button 
+              <button
                 class="btn"
                 onClick={() => setShowCreateModal(false)}
               >
                 Cancel
               </button>
-              <button 
+              <button
                 class="btn btn-primary"
                 disabled={!applicationForm.job_id}
                 onClick={handleCreateApplication}
@@ -361,7 +361,7 @@ const ApplicationsManager = () => {
         <div class="modal modal-open">
           <div class="modal-box">
             <h3 class="font-bold text-lg">Edit Application</h3>
-            
+
             <div class="mt-4">
               <h4 class="font-medium">{editingApplication()?.job_title}</h4>
               <p class="text-sm text-base-content/60">at {editingApplication()?.company}</p>
@@ -371,7 +371,7 @@ const ApplicationsManager = () => {
               <label class="label">
                 <span class="label-text">Status</span>
               </label>
-              <select 
+              <select
                 class="select select-bordered"
                 value={editingApplication()?.status}
                 onChange={(e) => {
@@ -393,7 +393,7 @@ const ApplicationsManager = () => {
               <label class="label">
                 <span class="label-text">Notes</span>
               </label>
-              <textarea 
+              <textarea
                 class="textarea textarea-bordered h-24"
                 placeholder="Add notes about this application..."
                 value={editingApplication()?.notes || ''}
@@ -407,7 +407,7 @@ const ApplicationsManager = () => {
             </div>
 
             <div class="modal-action">
-              <button 
+              <button
                 class="btn"
                 onClick={() => setEditingApplication(null)}
               >

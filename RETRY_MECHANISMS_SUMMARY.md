@@ -20,14 +20,14 @@ Implement retry mechanisms for transient database failures to improve production
 - `is_retryable_error()`: Smart exception classification
 - Pre-configured decorators:
   - `retry_db_read()`: Optimized for read operations (3 retries, 0.5s base delay)
-  - `retry_db_write()`: Optimized for write operations (2 retries, 1.0s base delay) 
+  - `retry_db_write()`: Optimized for write operations (2 retries, 1.0s base delay)
   - `retry_db_critical()`: For critical operations (5 retries, 2.0s base delay)
 
 ### 2. Applied Retry Mechanisms to Database Operations
 
 #### Enhanced Database Classes:
 - **DatabaseManager**: `get_session()` method has critical retry logic
-- **JobRepository**: 
+- **JobRepository**:
   - `create_job()` ✅ Write retry applied
   - `update_job()` ✅ Write retry applied
   - `bulk_create_jobs()` ✅ Write retry applied
@@ -83,7 +83,7 @@ Implement retry mechanisms for transient database failures to improve production
 1. Initial attempt → OperationalError (connection timeout)
 2. Wait 1.2s (base_delay + jitter)
 3. Retry attempt 1 → OperationalError again
-4. Wait 2.1s (exponential backoff + jitter)  
+4. Wait 2.1s (exponential backoff + jitter)
 5. Retry attempt 2 → Success ✅
 ```
 

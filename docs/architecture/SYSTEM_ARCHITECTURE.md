@@ -140,7 +140,7 @@ class JobListing:
     job_type: JobType
     experience_level: ExperienceLevel
 
-@dataclass  
+@dataclass
 class UserProfile:
     id: str
     name: str
@@ -294,7 +294,7 @@ npm test
 # Backend tests only
 npm run test:backend
 
-# E2E tests only  
+# E2E tests only
 npm run test:e2e
 
 # With coverage
@@ -342,7 +342,7 @@ def calculate_job_match_score(job: JobListing, user: UserProfile) -> float:
     experience_score = match_experience_level(job.experience_level, user.experience)
     location_score = calculate_location_match(job.location, user.location_preferences)
     salary_score = evaluate_salary_fit(job.salary_range, user.salary_expectations)
-    
+
     return weighted_average([
         (semantic_score, 0.3),
         (skill_score, 0.25),
@@ -543,7 +543,7 @@ CMD ["python", "web_server.py"]
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: August 14, 2025  
-**Author**: JobPilot-OpenManus Development Team  
+**Document Version**: 1.0
+**Last Updated**: August 14, 2025
+**Author**: JobPilot-OpenManus Development Team
 **Status**: ✅ Production Ready with Comprehensive Testing

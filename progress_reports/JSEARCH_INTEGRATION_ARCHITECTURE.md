@@ -32,12 +32,12 @@ graph TD
     D --> E[Processed Data Storage]
     E --> F[Data Loader]
     F --> G[(JobPilot Database)]
-    
+
     H[Scheduler] --> B
     I[Error Handler] --> B
     I --> D
     I --> F
-    
+
     J[Monitoring] --> B
     J --> D
     J --> F
@@ -117,7 +117,7 @@ class JobDataProcessor:
     async def process_collection(self, collection_id: str):
         # 1. Load raw data
         raw_data = await self.load_raw_collection(collection_id)
-        
+
         # 2. Transform each job
         processed_jobs = []
         for raw_job in raw_data['raw_response']['data']:
@@ -126,13 +126,13 @@ class JobDataProcessor:
                 processed_jobs.append(processed_job)
             except Exception as e:
                 await self.log_processing_error(raw_job, e)
-        
+
         # 3. Generate embeddings
         await self.generate_embeddings(processed_jobs)
-        
+
         # 4. Detect duplicates
         await self.detect_duplicates(processed_jobs)
-        
+
         # 5. Store processed data
         await self.store_processed_data(collection_id, processed_jobs)
 ```
@@ -195,16 +195,16 @@ class JobDataLoader:
     async def load_processed_data(self, processing_id: str):
         # 1. Load processed data
         processed_data = await self.load_processed_data(processing_id)
-        
+
         # 2. Deduplication check
         unique_jobs = await self.deduplicate_jobs(processed_data['jobs'])
-        
+
         # 3. Database transaction
         async with self.db.transaction():
             job_ids = await self.insert_jobs(unique_jobs)
             await self.update_vector_index(job_ids)
             await self.update_search_cache()
-        
+
         # 4. Trigger post-load processes
         await self.trigger_recommendations_update()
         await self.notify_job_updates(job_ids)
@@ -271,7 +271,7 @@ CREATE TABLE processed_job_data (
     duplicate_of UUID,
     load_status VARCHAR(20) DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT NOW(),
-    
+
     PRIMARY KEY (processing_id, job_index)
 );
 ```
@@ -320,11 +320,11 @@ schedules:
       - "San Francisco, CA"
       - "New York, NY"
       - "Seattle, WA"
-    
+
   processing_batch:
     trigger: "after_collection"
     delay_minutes: 5
-    
+
   loading_batch:
     trigger: "after_processing"
     delay_minutes: 2
@@ -384,7 +384,7 @@ class RetryableOperation:
                 if attempt == max_retries:
                     await self.log_final_failure(operation, e)
                     raise
-                
+
                 delay = min(300, (2 ** attempt) + random.uniform(0, 1))
                 await asyncio.sleep(delay)
 ```
@@ -411,7 +411,7 @@ class ETLHealthCheck:
     async def check_system_health(self):
         return {
             'collector': await self.check_collector_health(),
-            'processor': await self.check_processor_health(), 
+            'processor': await self.check_processor_health(),
             'loader': await self.check_loader_health(),
             'database': await self.check_database_health(),
             'api_quota': await self.check_api_quota()
@@ -436,9 +436,9 @@ ALTER TABLE enhanced_jobs ADD COLUMN source_processing_id UUID;
 ALTER TABLE enhanced_jobs ADD COLUMN raw_data JSONB;
 
 -- Link to ETL pipeline
-ALTER TABLE enhanced_jobs 
-ADD CONSTRAINT fk_source_collection 
-FOREIGN KEY (source_collection_id) 
+ALTER TABLE enhanced_jobs
+ADD CONSTRAINT fk_source_collection
+FOREIGN KEY (source_collection_id)
 REFERENCES raw_job_collections(collection_id);
 ```
 
@@ -488,7 +488,7 @@ REFERENCES raw_job_collections(collection_id);
 
 ### **Core Components**
 - [ ] JSearchDataCollector class
-- [ ] JobDataProcessor class  
+- [ ] JobDataProcessor class
 - [ ] JobDataLoader class
 - [ ] ETLScheduler class
 

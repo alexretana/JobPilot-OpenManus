@@ -16,7 +16,7 @@ The API will be available at: `http://localhost:8000/api/timeline`
 
 ### User Timeline
 - **GET** `/api/timeline/user/{user_profile_id}` - Get timeline events for a user
-- **GET** `/api/timeline/user/{user_profile_id}/milestones` - Get milestone events 
+- **GET** `/api/timeline/user/{user_profile_id}/milestones` - Get milestone events
 - **GET** `/api/timeline/user/{user_profile_id}/upcoming` - Get upcoming events
 
 ### Job & Application Timeline
@@ -91,16 +91,16 @@ db_manager = get_database_manager()
 with db_manager.get_session() as session:
     # Create timeline service
     timeline_service = TimelineService(session)
-    
+
     # Log a job saved event
     event = timeline_service.log_job_saved(
         user_profile_id="user123",
-        job_id="job456", 
+        job_id="job456",
         job_title="Software Engineer",
         company_name="TechCorp",
         notes="Great opportunity!"
     )
-    
+
     # Get user timeline
     events = timeline_service.get_user_timeline(
         user_profile_id="user123",
@@ -119,7 +119,7 @@ from app.services.timeline_service import TimelineService
 @app.post("/my-endpoint")
 def my_endpoint(db: Session = Depends(get_database_session)):
     timeline_service = TimelineService(db)
-    
+
     # Use timeline service...
     event = timeline_service.create_event(...)
     return {"event_id": event.id}
@@ -143,7 +143,7 @@ The following event types are available:
 
 The timeline API uses the repository pattern with:
 - **DatabaseManager**: Handles database connections and sessions
-- **TimelineService**: Business logic for timeline operations  
+- **TimelineService**: Business logic for timeline operations
 - **get_database_session()**: FastAPI dependency for session injection
 
 All database operations are automatically handled with proper session management, transactions, and error handling.

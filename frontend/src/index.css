@@ -29,48 +29,48 @@
   .chat-message {
     @apply p-2 rounded-lg mb-2 max-w-[80%];
   }
-  
+
   .user-message {
     @apply bg-primary text-primary-content ml-auto;
   }
-  
+
   .assistant-message {
     @apply bg-base-200 border-l-4 border-l-primary;
   }
-  
+
   .progress-message {
     @apply bg-warning/20 border-l-4 border-l-warning text-warning-content;
   }
-  
+
   .activity-item {
     @apply p-2 mb-2 bg-base-100 rounded border-l-4 text-sm;
   }
-  
+
   .activity-item.tool {
     @apply border-l-success;
   }
-  
+
   .activity-item.error {
     @apply border-l-error bg-error/10;
   }
-  
+
   .activity-item.browser {
     @apply border-l-info;
   }
-  
+
   .scrollbar-thin {
     scrollbar-width: thin;
     scrollbar-color: rgb(163, 163, 163) transparent;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;
   }
-  
+
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background-color: rgb(163, 163, 163);
     border-radius: 2px;

@@ -36,7 +36,7 @@ const ActivityLog: Component<ActivityLogProps> = (props) => {
           <h2 class="card-title">Activity Log</h2>
         </div>
       </div>
-      
+
       <div class="flex-1 p-2 overflow-y-auto scrollbar-thin min-h-0" style="max-height: 300px;">
         {props.activities().length === 0 ? (
           <div class="text-center text-base-content/60 py-2">
@@ -68,7 +68,7 @@ const ActivityLog: Component<ActivityLogProps> = (props) => {
           </div>
         )}
       </div>
-      
+
       {props.activities().length > 0 && (
         <div class="p-2 border-t border-base-200">
           <div class="stats shadow w-full">

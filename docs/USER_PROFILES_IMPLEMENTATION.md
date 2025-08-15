@@ -166,7 +166,7 @@ The User Profiles backend is **production-ready**. Recommended next steps:
 
 ### New Files
 - `app/api/user_profiles.py` - API endpoints
-- `test_user_profiles.py` - Database tests  
+- `test_user_profiles.py` - Database tests
 - `test_user_profiles_api.py` - HTTP API tests
 - `docs/USER_PROFILES_IMPLEMENTATION.md` - This documentation
 

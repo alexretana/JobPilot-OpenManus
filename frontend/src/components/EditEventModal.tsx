@@ -36,13 +36,13 @@ export function EditEventModal(props: EditEventModalProps) {
     if (eventType() !== props.event.event_type) {
       const milestoneTypes: TimelineEventType[] = [
         TimelineEventType.APPLICATION_SUBMITTED,
-        TimelineEventType.INTERVIEW_SCHEDULED, 
+        TimelineEventType.INTERVIEW_SCHEDULED,
         TimelineEventType.INTERVIEW_COMPLETED,
         TimelineEventType.OFFER_RECEIVED,
         TimelineEventType.OFFER_ACCEPTED,
         TimelineEventType.OFFER_DECLINED
       ];
-      
+
       setIsMilestone(milestoneTypes.includes(eventType()));
     }
   });
@@ -64,7 +64,7 @@ export function EditEventModal(props: EditEventModalProps) {
 
   const handleSubmit = async (e: Event) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -128,9 +128,9 @@ export function EditEventModal(props: EditEventModalProps) {
                 Update your job search timeline event
               </p>
             </div>
-            <button 
-              type="button" 
-              class="btn btn-sm btn-circle btn-ghost" 
+            <button
+              type="button"
+              class="btn btn-sm btn-circle btn-ghost"
               onClick={handleClose}
               disabled={isSubmitting()}
             >
@@ -144,7 +144,7 @@ export function EditEventModal(props: EditEventModalProps) {
               <label class="label">
                 <span class="label-text font-medium">Event Type</span>
               </label>
-              <select 
+              <select
                 class="select select-bordered select-disabled"
                 value={eventType()}
                 disabled={true}
@@ -265,16 +265,16 @@ export function EditEventModal(props: EditEventModalProps) {
 
           {/* Footer */}
           <div class="modal-action">
-            <button 
-              type="button" 
-              class="btn btn-ghost" 
+            <button
+              type="button"
+              class="btn btn-ghost"
               onClick={handleClose}
               disabled={isSubmitting()}
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               class="btn btn-primary"
               disabled={isSubmitting() || !hasChanges()}
             >

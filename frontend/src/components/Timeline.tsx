@@ -107,7 +107,7 @@ export function Timeline(props: TimelineProps) {
           <h2 class="text-2xl font-bold text-base-content">Job Search Timeline</h2>
           <p class="text-sm text-base-content/70 mt-1">Track your job search progress and milestones</p>
         </div>
-        
+
         <div class="flex flex-col sm:flex-row gap-2">
           {/* Filter Controls */}
           <div class="dropdown dropdown-end">
@@ -122,7 +122,7 @@ export function Timeline(props: TimelineProps) {
                 <label class="label">
                   <span class="label-text">Time Range</span>
                 </label>
-                <select 
+                <select
                   class="select select-bordered select-sm"
                   value={filterDays()}
                   onChange={(e) => setFilterDays(parseInt(e.currentTarget.value))}
@@ -137,7 +137,7 @@ export function Timeline(props: TimelineProps) {
           </div>
 
           {/* Create Event Button */}
-          <button 
+          <button
             class="btn btn-primary btn-sm"
             onClick={() => setShowCreateModal(true)}
           >
@@ -151,7 +151,7 @@ export function Timeline(props: TimelineProps) {
 
       {/* Tabs */}
       <div class="tabs tabs-boxed mb-6">
-        <button 
+        <button
           class={`tab ${activeTab() === 'timeline' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('timeline')}
         >
@@ -160,7 +160,7 @@ export function Timeline(props: TimelineProps) {
           </svg>
           Timeline ({events().length})
         </button>
-        <button 
+        <button
           class={`tab ${activeTab() === 'milestones' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('milestones')}
         >
@@ -169,7 +169,7 @@ export function Timeline(props: TimelineProps) {
           </svg>
           Milestones ({milestones().length})
         </button>
-        <button 
+        <button
           class={`tab ${activeTab() === 'upcoming' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('upcoming')}
         >
@@ -202,21 +202,21 @@ export function Timeline(props: TimelineProps) {
       </Show>
 
       <Show when={!loading() && !error()}>
-        <Show 
+        <Show
           when={getCurrentEvents().length > 0}
           fallback={
             <div class="text-center py-12">
               <div class="text-6xl mb-4">📅</div>
               <h3 class="text-lg font-medium text-base-content/70 mb-2">{getEmptyMessage()}</h3>
               <p class="text-sm text-base-content/50 mb-4">
-                {activeTab() === 'timeline' 
+                {activeTab() === 'timeline'
                   ? 'Start tracking your job search by creating your first timeline event!'
                   : activeTab() === 'milestones'
                   ? 'Milestones will appear here as you reach important job search goals.'
                   : 'Upcoming interviews and events will be shown here.'}
               </p>
               <Show when={activeTab() === 'timeline'}>
-                <button 
+                <button
                   class="btn btn-primary btn-sm"
                   onClick={() => setShowCreateModal(true)}
                 >
@@ -229,7 +229,7 @@ export function Timeline(props: TimelineProps) {
           <div class="space-y-4">
             <For each={getCurrentEvents()}>
               {(event) => (
-                <TimelineEventCard 
+                <TimelineEventCard
                   event={event}
                   onDelete={handleEventDeleted}
                   onUpdate={loadTimelineData}

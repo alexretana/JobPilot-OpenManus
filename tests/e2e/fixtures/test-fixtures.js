@@ -102,11 +102,11 @@ const test = base.extend({
   loginPage: async ({ page }, use) => {
     await use(new LoginPage(page));
   },
-  
+
   dashboardPage: async ({ page }, use) => {
     await use(new DashboardPage(page));
   },
-  
+
   jobsPage: async ({ page }, use) => {
     await use(new JobsPage(page));
   },
@@ -147,7 +147,7 @@ async function createAuthenticatedContext(browser, userType = 'standard') {
   const context = await browser.newContext();
   const page = await context.newPage();
   const loginPage = new LoginPage(page);
-  
+
   try {
     await loginPage.login(user.email, user.password);
     return { context, page };
@@ -161,15 +161,15 @@ async function createAuthenticatedContext(browser, userType = 'standard') {
  * Helper function to seed test data
  */
 async function seedTestData(page, options = {}) {
-  const { 
-    createJobs = true, 
-    createApplications = true, 
-    jobCount = 5, 
-    applicationCount = 3 
+  const {
+    createJobs = true,
+    createApplications = true,
+    jobCount = 5,
+    applicationCount = 3
   } = options;
 
   const backendURL = process.env.BACKEND_URL || 'http://localhost:8000';
-  
+
   try {
     const seedResponse = await page.evaluate(async ({ backendURL, createJobs, createApplications, jobCount, applicationCount }) => {
       const response = await fetch(`${backendURL}/test/seed-data`, {
@@ -184,7 +184,7 @@ async function seedTestData(page, options = {}) {
       });
       return response.ok;
     }, { backendURL, createJobs, createApplications, jobCount, applicationCount });
-    
+
     return seedResponse;
   } catch (error) {
     console.warn('Failed to seed test data:', error.message);
@@ -197,7 +197,7 @@ async function seedTestData(page, options = {}) {
  */
 async function cleanTestData(page) {
   const backendURL = process.env.BACKEND_URL || 'http://localhost:8000';
-  
+
   try {
     const cleanResponse = await page.evaluate(async ({ backendURL }) => {
       const response = await fetch(`${backendURL}/test/cleanup`, {
@@ -206,7 +206,7 @@ async function cleanTestData(page) {
       });
       return response.ok;
     }, { backendURL });
-    
+
     return cleanResponse;
   } catch (error) {
     console.warn('Failed to clean test data:', error.message);

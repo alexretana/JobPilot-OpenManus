@@ -21,7 +21,7 @@
 - All timeline endpoints integrated:
   - Get events (with filtering)
   - Create events
-  - Update events  
+  - Update events
   - Delete events
   - Job-specific timeline
   - Application-specific timeline
@@ -51,7 +51,7 @@ frontend/src/
 │   ├── Timeline.tsx                 # Main timeline component
 │   ├── TimelineEventCard.tsx        # Individual event display
 │   ├── CreateEventModal.tsx         # Create event modal
-│   ├── EditEventModal.tsx           # Edit event modal  
+│   ├── EditEventModal.tsx           # Edit event modal
 │   ├── MiniTimelinePreview.tsx      # Compact timeline for job cards
 │   ├── ApplicationTimeline.tsx      # Application-specific timeline
 │   ├── JobDetailsModal.tsx          # Enhanced with timeline tab

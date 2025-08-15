@@ -10,7 +10,7 @@ This document outlines the comprehensive backend development plan for JobPilot-O
 
 **Strategic Approach**: **Data Storage First, Then Data Acquisition**
 - Build robust data architecture to handle real job board data
-- Implement vector store for semantic search capabilities  
+- Implement vector store for semantic search capabilities
 - Create scalable ingestion pipelines
 - Integrate multiple job board sources with deduplication
 
@@ -125,17 +125,17 @@ class JobDeduplication(BaseModel):
 ```python
 class JobListingBase(BaseModel):
     # ... existing fields ...
-    
+
     # NEW: Multi-source tracking
     canonical_id: Optional[UUID] = None  # If this is a duplicate, points to canonical
     source_count: int = 1  # How many sources have this job
     data_quality_score: Optional[float] = None  # 0.0-1.0 quality assessment
-    
+
     # NEW: Enhanced metadata
     scraped_at: Optional[datetime] = None
     last_verified: Optional[datetime] = None
     verification_status: str = "unverified"  # unverified, active, expired, invalid
-    
+
     # NEW: Enriched data
     company_size_category: Optional[str] = None  # startup, small, medium, large, enterprise
     seniority_level: Optional[str] = None  # individual_contributor, team_lead, manager, director, vp, c_level
@@ -152,35 +152,35 @@ class JobListingBase(BaseModel):
 
 class VectorStore:
     """Production-ready vector storage and retrieval"""
-    
-    def __init__(self, 
+
+    def __init__(self,
                  embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2",
                  storage_backend: str = "chroma"):  # chroma, pinecone, or simple
         self.embedding_model = SentenceTransformer(embedding_model)
         self.dimension = self.embedding_model.get_sentence_embedding_dimension()
         self.storage = self._initialize_storage(storage_backend)
-    
+
     async def store_job_embedding(self, job: JobListing) -> JobEmbedding:
         """Create and store embedding for a job"""
-        
+
     async def batch_store_embeddings(self, jobs: List[JobListing]) -> List[JobEmbedding]:
         """Efficiently embed and store multiple jobs"""
-        
-    async def find_similar_jobs(self, 
-                              query: str, 
+
+    async def find_similar_jobs(self,
+                              query: str,
                               filters: Optional[Dict[str, Any]] = None,
                               limit: int = 20) -> List[JobMatch]:
         """Find semantically similar jobs with optional filters"""
-        
-    async def hybrid_search(self, 
+
+    async def hybrid_search(self,
                            query: str,
                            keyword_weight: float = 0.3,
                            semantic_weight: float = 0.7) -> List[JobMatch]:
         """Combine keyword and semantic search"""
-        
+
     async def update_job_embedding(self, job_id: UUID) -> JobEmbedding:
         """Update embedding when job content changes"""
-        
+
     async def delete_job_embedding(self, job_id: UUID) -> bool:
         """Remove job from vector store"""
 ```
@@ -194,32 +194,32 @@ class VectorStore:
 
 class JobIngestionPipeline:
     """Orchestrate job data collection and processing"""
-    
+
     def __init__(self, db_manager, vector_store, scrapers: List[JobBoardScraper]):
         self.db = db_manager
         self.vector_store = vector_store
         self.scrapers = {scraper.name: scraper for scraper in scrapers}
         self.deduplicator = JobDeduplicator()
         self.enricher = JobEnricher()
-    
+
     async def run_full_ingestion(self, sources: List[str]):
         """Run complete data ingestion from multiple sources"""
-        
+
     async def ingest_from_source(self, source_name: str, search_params: Dict[str, Any]):
         """Ingest jobs from a specific source"""
-        
+
     async def process_raw_jobs(self, raw_jobs: List[RawJobData], source: JobSource):
         """Convert raw job data to standardized format"""
-        
+
     async def detect_and_merge_duplicates(self, jobs: List[JobListing]):
         """Identify and merge duplicate jobs across platforms"""
-        
+
     async def enrich_job_data(self, job: JobListing) -> JobListing:
         """Add company info, salary benchmarks, tech stack detection"""
-        
+
     async def queue_for_vectorization(self, jobs: List[JobListing]):
         """Add jobs to embedding generation queue"""
-        
+
     async def validate_job_quality(self, job: JobListing) -> float:
         """Score job data quality (0.0-1.0)"""
 ```
@@ -237,27 +237,27 @@ class JobIngestionPipeline:
 
 class JobBoardScraper(ABC):
     """Abstract base for all job board scrapers"""
-    
+
     def __init__(self, source: JobSource):
         self.source = source
         self.rate_limiter = RateLimiter(source.rate_limit_config)
         self.session = self._create_session()
-    
+
     @abstractmethod
     async def search_jobs(self, query: JobSearchQuery) -> List[RawJobData]:
         """Search for jobs on this platform"""
-        
-    @abstractmethod 
+
+    @abstractmethod
     async def parse_job_details(self, raw_job: RawJobData) -> JobListing:
         """Parse raw job data into standardized format"""
-        
+
     @abstractmethod
     async def get_job_details(self, job_url: str) -> RawJobData:
         """Fetch detailed job information"""
-        
+
     async def health_check(self) -> bool:
         """Check if the source is accessible and responsive"""
-        
+
     async def get_rate_limits(self) -> Dict[str, int]:
         """Return current rate limiting status"""
 ```
@@ -267,31 +267,31 @@ class JobBoardScraper(ABC):
 ```python
 class LinkedInScraper(JobBoardScraper):
     """LinkedIn Jobs scraper with API + web scraping hybrid"""
-    
+
     async def search_jobs(self, query: JobSearchQuery) -> List[RawJobData]:
         # Try LinkedIn API first, fallback to scraping
-        
+
     async def parse_linkedin_job(self, raw_job: Dict[str, Any]) -> JobListing:
         # LinkedIn-specific parsing logic
-        
+
     async def extract_company_info(self, company_url: str) -> Dict[str, Any]:
         # Enhanced company data extraction
 
 class IndeedScraper(JobBoardScraper):
     """Indeed Jobs scraper"""
-    
+
     async def search_jobs(self, query: JobSearchQuery) -> List[RawJobData]:
         # Indeed API + scraping implementation
-        
+
     async def parse_salary_info(self, salary_text: str) -> Dict[str, Any]:
         # Indeed-specific salary parsing
 
 class GlassdoorScraper(JobBoardScraper):
     """Glassdoor Jobs and company data scraper"""
-    
+
     async def get_company_reviews(self, company_name: str) -> Dict[str, Any]:
         # Company culture and review data
-        
+
     async def get_salary_estimates(self, job_title: str, location: str) -> Dict[str, Any]:
         # Salary benchmarking data
 ```
@@ -305,24 +305,24 @@ class GlassdoorScraper(JobBoardScraper):
 
 class JobDeduplicator:
     """Intelligent job deduplication across platforms"""
-    
+
     def __init__(self, similarity_threshold: float = 0.85):
         self.similarity_threshold = similarity_threshold
-        
-    async def find_duplicates(self, new_jobs: List[JobListing], 
+
+    async def find_duplicates(self, new_jobs: List[JobListing],
                             existing_jobs: List[JobListing]) -> List[JobDeduplication]:
         """Identify potential duplicates using multiple matching strategies"""
-        
+
     async def exact_match(self, job1: JobListing, job2: JobListing) -> float:
         """Check for exact title + company matches"""
-        
+
     async def fuzzy_match(self, job1: JobListing, job2: JobListing) -> float:
         """Fuzzy string matching for similar jobs"""
-        
+
     async def semantic_match(self, job1: JobListing, job2: JobListing) -> float:
         """Embedding-based similarity matching"""
-        
-    async def merge_duplicate_jobs(self, canonical: JobListing, 
+
+    async def merge_duplicate_jobs(self, canonical: JobListing,
                                  duplicate: JobListing) -> JobListing:
         """Merge information from duplicate job into canonical record"""
 ```
@@ -334,22 +334,22 @@ class JobDeduplicator:
 
 class JobEnricher:
     """Enhance job listings with additional data"""
-    
+
     async def enrich_company_data(self, job: JobListing) -> JobListing:
         """Add company size, industry, funding info"""
-        
+
     async def extract_tech_stack(self, job: JobListing) -> List[str]:
         """Identify technologies mentioned in job description"""
-        
+
     async def normalize_location(self, location: str) -> Dict[str, Any]:
         """Standardize location data (city, state, country, remote)"""
-        
+
     async def parse_salary_range(self, salary_text: str) -> Dict[str, Any]:
         """Extract and normalize salary information"""
-        
+
     async def classify_seniority(self, job: JobListing) -> str:
         """Determine seniority level from title and description"""
-        
+
     async def score_job_quality(self, job: JobListing) -> float:
         """Assess job listing completeness and quality"""
 ```
@@ -372,7 +372,7 @@ class JobEnricher:
 
 # Data Quality Focus:
 - Company verification and enrichment
-- Skill extraction from job descriptions  
+- Skill extraction from job descriptions
 - Seniority level classification
 - Location normalization
 - Salary range parsing
@@ -433,7 +433,7 @@ linkedin_config = {
 
 ## 🎯 **Implementation Timeline**
 
-### **Week 1: Database Foundation** 
+### **Week 1: Database Foundation**
 - [ ] **Day 1-2**: Extend database models (JobSource, JobSourceListing, JobEmbedding, etc.)
 - [ ] **Day 3-4**: Set up vector store infrastructure (choose between Chroma/Pinecone)
 - [ ] **Day 5**: Create migration scripts and update database schema
@@ -565,7 +565,7 @@ For questions during implementation:
 
 ---
 
-**Document Version**: 1.0  
-**Created**: August 14, 2025  
-**Next Review**: After Week 1 completion  
+**Document Version**: 1.0
+**Created**: August 14, 2025
+**Next Review**: After Week 1 completion
 **Status**: Ready for Implementation 🚀

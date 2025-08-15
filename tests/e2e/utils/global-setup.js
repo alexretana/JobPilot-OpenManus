@@ -9,7 +9,7 @@ const { spawn, execSync } = require('child_process');
 
 async function globalSetup(config) {
   console.log('🚀 Starting E2E test global setup...');
-  
+
   const baseURL = process.env.BASE_URL || 'http://localhost:3000';
   const backendURL = process.env.BACKEND_URL || 'http://localhost:8000';
 
@@ -29,7 +29,7 @@ async function globalSetup(config) {
     } catch (error) {
       // Server not ready yet
     }
-    
+
     if (!backendReady) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       attempts++;
@@ -55,7 +55,7 @@ async function globalSetup(config) {
     } catch (error) {
       // Server not ready yet
     }
-    
+
     if (!frontendReady) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       attempts++;
@@ -74,7 +74,7 @@ async function globalSetup(config) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     });
-    
+
     if (response.ok) {
       console.log('✅ Test database reset successful');
     } else {
@@ -96,7 +96,7 @@ async function globalSetup(config) {
         create_applications: true
       })
     });
-    
+
     if (seedResponse.ok) {
       console.log('✅ Test data seeded successfully');
     } else {
@@ -115,15 +115,15 @@ async function globalSetup(config) {
   try {
     // Go to login page
     await page.goto(`${baseURL}/login`);
-    
+
     // Fill in test user credentials
     await page.fill('[data-testid="email"]', 'testuser@example.com');
     await page.fill('[data-testid="password"]', 'testpassword');
     await page.click('[data-testid="login-button"]');
-    
+
     // Wait for successful login (redirect to dashboard)
     await page.waitForURL('**/dashboard', { timeout: 10000 });
-    
+
     // Save authenticated state
     await context.storageState({ path: 'tests/e2e/fixtures/auth-state.json' });
     console.log('✅ Authentication state saved');
