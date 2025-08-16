@@ -37,7 +37,7 @@ def check_environment():
     print(f"Python: {result.stdout.strip()}")
 
     # Check required tools
-    tools = ["black", "isort", "pre-commit"]
+    tools = ["black", "ruff", "pre-commit"]
     for tool in tools:
         try:
             result = subprocess.run([tool, "--version"], capture_output=True, text=True)
@@ -74,13 +74,13 @@ def main():
 
     all_passed = True
 
-    # Check each file with isort
+    # Check each file with ruff (import sorting)
     for file in problem_files:
         if Path(file).exists():
-            cmd = f"isort --profile black --check-only --diff {file}"
-            if not run_command(cmd, f"isort check on {file}"):
+            cmd = f"ruff check --select I {file}"
+            if not run_command(cmd, f"ruff import sorting check on {file}"):
                 all_passed = False
-                print(f"💡 To fix: isort --profile black {file}")
+                print(f"💡 To fix: ruff check --select I --fix {file}")
 
     # Check Black formatting
     black_cmd = "black --check --diff api_research/ scripts/"
