@@ -2,6 +2,7 @@
 # Black compatibility ignores
 ignore =
     E203,
+    E231,
     E501,
     W503,
     W504,
