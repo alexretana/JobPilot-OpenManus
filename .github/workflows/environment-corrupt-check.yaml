@@ -3,11 +3,11 @@ on:
   push:
     branches: ["main"]
     paths:
-      - requirements.txt
+      - requirements-ci.txt
   pull_request:
     branches: ["main"]
     paths:
-      - requirements.txt
+      - requirements-ci.txt
 concurrency:
   group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
@@ -30,4 +30,4 @@ jobs:
           python -m pip install --upgrade pip
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r requirements-ci.txt
