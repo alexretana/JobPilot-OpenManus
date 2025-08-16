@@ -82,7 +82,7 @@ def main():
                 all_passed = False
                 print(f"💡 To fix: ruff check --select I --fix {file}")
 
-    # Check Black formatting
+    # Check Black formatting (no line length limits)
     black_cmd = "black --check --diff api_research/ scripts/"
     if not run_command(black_cmd, "Black formatting check"):
         all_passed = False

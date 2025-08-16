@@ -12,8 +12,6 @@ repos:
       - id: ruff
         args: [--fix]
         files: \.py$
-      - id: ruff-format
-        files: \.py$
 
   # Frontend formatting (TypeScript/JavaScript)
   - repo: https://github.com/pre-commit/mirrors-prettier

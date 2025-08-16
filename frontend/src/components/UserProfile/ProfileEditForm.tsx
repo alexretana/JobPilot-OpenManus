@@ -171,17 +171,17 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
   };
 
   return (
-    <form onSubmit={handleSubmit} class="space-y-6">
+    <form onSubmit={handleSubmit} class='space-y-6'>
       {/* Header */}
-      <div class="flex justify-between items-center">
-        <h3 class="text-2xl font-bold">{props.profile ? 'Edit Profile' : 'Create Profile'}</h3>
-        <button type="button" class="btn btn-ghost btn-circle" onClick={props.onCancel}>
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div class='flex justify-between items-center'>
+        <h3 class='text-2xl font-bold'>{props.profile ? 'Edit Profile' : 'Create Profile'}</h3>
+        <button type='button' class='btn btn-ghost btn-circle' onClick={props.onCancel}>
+          <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              stroke-width='2'
+              d='M6 18L18 6M6 6l12 12'
             />
           </svg>
         </button>
@@ -189,18 +189,18 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
 
       {/* Error Display */}
       <Show when={errors.length > 0}>
-        <div class="alert alert-error">
-          <svg class="stroke-current shrink-0 w-6 h-6" fill="none" viewBox="0 0 24 24">
+        <div class='alert alert-error'>
+          <svg class='stroke-current shrink-0 w-6 h-6' fill='none' viewBox='0 0 24 24'>
             <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              stroke-width='2'
+              d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'
             />
           </svg>
           <div>
-            <h3 class="font-medium">Please fix the following errors:</h3>
-            <ul class="list-disc list-inside text-sm mt-1">
+            <h3 class='font-medium'>Please fix the following errors:</h3>
+            <ul class='list-disc list-inside text-sm mt-1'>
               <For each={errors}>{error => <li>{error}</li>}</For>
             </ul>
           </div>
@@ -208,23 +208,23 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
       </Show>
 
       {/* Tabs */}
-      <div class="tabs tabs-boxed">
+      <div class='tabs tabs-boxed'>
         <button
-          type="button"
+          type='button'
           class={`tab ${activeTab() === 'personal' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('personal')}
         >
           Personal Information
         </button>
         <button
-          type="button"
+          type='button'
           class={`tab ${activeTab() === 'professional' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('professional')}
         >
           Professional Details
         </button>
         <button
-          type="button"
+          type='button'
           class={`tab ${activeTab() === 'preferences' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('preferences')}
         >
@@ -234,58 +234,58 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
 
       {/* Personal Information Tab */}
       <Show when={activeTab() === 'personal'}>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">First Name</span>
+        <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>First Name</span>
             </label>
             <input
-              type="text"
-              class="input input-bordered"
+              type='text'
+              class='input input-bordered'
               value={formData.first_name}
               onInput={e => setFormData('first_name', e.currentTarget.value)}
-              placeholder="Your first name"
+              placeholder='Your first name'
             />
           </div>
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Last Name *</span>
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>Last Name *</span>
             </label>
             <input
-              type="text"
-              class="input input-bordered"
+              type='text'
+              class='input input-bordered'
               value={formData.last_name}
               onInput={e => setFormData('last_name', e.currentTarget.value)}
-              placeholder="Your last name"
+              placeholder='Your last name'
               required
             />
           </div>
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Email Address *</span>
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>Email Address *</span>
             </label>
             <input
-              type="email"
-              class="input input-bordered"
+              type='email'
+              class='input input-bordered'
               value={formData.email}
               onInput={e => setFormData('email', e.currentTarget.value)}
-              placeholder="your.email@example.com"
+              placeholder='your.email@example.com'
               required
             />
           </div>
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Phone Number</span>
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>Phone Number</span>
             </label>
             <input
-              type="tel"
-              class="input input-bordered"
+              type='tel'
+              class='input input-bordered'
               value={formData.phone}
               onInput={e => setFormData('phone', e.currentTarget.value)}
-              placeholder="+1 (555) 123-4567"
+              placeholder='+1 (555) 123-4567'
             />
           </div>
         </div>
@@ -293,28 +293,28 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
 
       {/* Professional Information Tab */}
       <Show when={activeTab() === 'professional'}>
-        <div class="space-y-4">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Current Job Title</span>
+        <div class='space-y-4'>
+          <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
+            <div class='form-control'>
+              <label class='label'>
+                <span class='label-text'>Current Job Title</span>
               </label>
               <input
-                type="text"
-                class="input input-bordered"
+                type='text'
+                class='input input-bordered'
                 value={formData.current_title}
                 onInput={e => setFormData('current_title', e.currentTarget.value)}
-                placeholder="e.g., Software Engineer"
+                placeholder='e.g., Software Engineer'
               />
             </div>
 
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text">Years of Experience</span>
+            <div class='form-control'>
+              <label class='label'>
+                <span class='label-text'>Years of Experience</span>
               </label>
               <input
-                type="number"
-                class="input input-bordered"
+                type='number'
+                class='input input-bordered'
                 value={formData.experience_years || ''}
                 onInput={e =>
                   setFormData(
@@ -322,20 +322,20 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
                     e.currentTarget.value ? parseInt(e.currentTarget.value) : undefined
                   )
                 }
-                placeholder="5"
-                min="0"
-                max="50"
+                placeholder='5'
+                min='0'
+                max='50'
               />
             </div>
           </div>
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Education</span>
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>Education</span>
             </label>
             <input
-              type="text"
-              class="input input-bordered"
+              type='text'
+              class='input input-bordered'
               value={formData.education}
               onInput={e => setFormData('education', e.currentTarget.value)}
               placeholder="e.g., Bachelor's in Computer Science"
@@ -343,24 +343,24 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
           </div>
 
           {/* Skills Management */}
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Skills *</span>
-              <span class="label-text-alt">{formData.skills.length} skills added</span>
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>Skills *</span>
+              <span class='label-text-alt'>{formData.skills.length} skills added</span>
             </label>
 
-            <div class="flex gap-2 mb-2">
+            <div class='flex gap-2 mb-2'>
               <input
-                type="text"
-                class="input input-bordered flex-1"
+                type='text'
+                class='input input-bordered flex-1'
                 value={skillInput()}
                 onInput={e => setSkillInput(e.currentTarget.value)}
                 onKeyPress={handleSkillKeyPress}
-                placeholder="Type a skill and press Enter"
+                placeholder='Type a skill and press Enter'
               />
               <button
-                type="button"
-                class="btn btn-primary"
+                type='button'
+                class='btn btn-primary'
                 onClick={handleAddSkill}
                 disabled={!skillInput().trim()}
               >
@@ -369,22 +369,22 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
             </div>
 
             <Show when={formData.skills.length > 0}>
-              <div class="flex flex-wrap gap-2">
+              <div class='flex flex-wrap gap-2'>
                 <For each={formData.skills}>
                   {skill => (
-                    <div class="badge badge-primary gap-2">
+                    <div class='badge badge-primary gap-2'>
                       {skill}
                       <button
-                        type="button"
-                        class="btn btn-ghost btn-circle btn-xs"
+                        type='button'
+                        class='btn btn-ghost btn-circle btn-xs'
                         onClick={() => handleRemoveSkill(skill)}
                       >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                           <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"
+                            stroke-linecap='round'
+                            stroke-linejoin='round'
+                            stroke-width='2'
+                            d='M6 18L18 6M6 6l12 12'
                           />
                         </svg>
                       </button>
@@ -395,18 +395,18 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
             </Show>
           </div>
 
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Professional Summary</span>
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>Professional Summary</span>
             </label>
             <textarea
-              class="textarea textarea-bordered h-24"
+              class='textarea textarea-bordered h-24'
               value={formData.bio}
               onInput={e => setFormData('bio', e.currentTarget.value)}
-              placeholder="Write a brief professional summary highlighting your experience and achievements..."
+              placeholder='Write a brief professional summary highlighting your experience and achievements...'
             />
-            <div class="label">
-              <span class="label-text-alt">{(formData.bio || '').length} characters</span>
+            <div class='label'>
+              <span class='label-text-alt'>{(formData.bio || '').length} characters</span>
             </div>
           </div>
         </div>
@@ -414,24 +414,24 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
 
       {/* Job Preferences Tab */}
       <Show when={activeTab() === 'preferences'}>
-        <div class="space-y-6">
+        <div class='space-y-6'>
           {/* Job Types */}
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Preferred Job Types *</span>
-              <span class="label-text-alt">{formData.preferred_job_types.length} selected</span>
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>Preferred Job Types *</span>
+              <span class='label-text-alt'>{formData.preferred_job_types.length} selected</span>
             </label>
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <div class='grid grid-cols-2 md:grid-cols-3 gap-2'>
               <For each={userProfileApi.getJobTypes()}>
                 {jobType => (
-                  <label class="label cursor-pointer justify-start gap-2">
+                  <label class='label cursor-pointer justify-start gap-2'>
                     <input
-                      type="checkbox"
-                      class="checkbox"
+                      type='checkbox'
+                      class='checkbox'
                       checked={formData.preferred_job_types.includes(jobType)}
                       onChange={() => handleJobTypeToggle(jobType)}
                     />
-                    <span class="label-text">{jobType}</span>
+                    <span class='label-text'>{jobType}</span>
                   </label>
                 )}
               </For>
@@ -439,22 +439,22 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
           </div>
 
           {/* Remote Types */}
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Remote Work Preferences *</span>
-              <span class="label-text-alt">{formData.preferred_remote_types.length} selected</span>
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>Remote Work Preferences *</span>
+              <span class='label-text-alt'>{formData.preferred_remote_types.length} selected</span>
             </label>
-            <div class="grid grid-cols-3 gap-2">
+            <div class='grid grid-cols-3 gap-2'>
               <For each={userProfileApi.getRemoteTypes()}>
                 {remoteType => (
-                  <label class="label cursor-pointer justify-start gap-2">
+                  <label class='label cursor-pointer justify-start gap-2'>
                     <input
-                      type="checkbox"
-                      class="checkbox"
+                      type='checkbox'
+                      class='checkbox'
                       checked={formData.preferred_remote_types.includes(remoteType)}
                       onChange={() => handleRemoteTypeToggle(remoteType)}
                     />
-                    <span class="label-text">{remoteType}</span>
+                    <span class='label-text'>{remoteType}</span>
                   </label>
                 )}
               </For>
@@ -462,24 +462,24 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
           </div>
 
           {/* Locations */}
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Preferred Locations</span>
-              <span class="label-text-alt">{formData.preferred_locations.length} locations</span>
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>Preferred Locations</span>
+              <span class='label-text-alt'>{formData.preferred_locations.length} locations</span>
             </label>
 
-            <div class="flex gap-2 mb-2">
+            <div class='flex gap-2 mb-2'>
               <input
-                type="text"
-                class="input input-bordered flex-1"
+                type='text'
+                class='input input-bordered flex-1'
                 value={locationInput()}
                 onInput={e => setLocationInput(e.currentTarget.value)}
                 onKeyPress={handleLocationKeyPress}
-                placeholder="Type a city/state and press Enter"
+                placeholder='Type a city/state and press Enter'
               />
               <button
-                type="button"
-                class="btn btn-secondary"
+                type='button'
+                class='btn btn-secondary'
                 onClick={handleAddLocation}
                 disabled={!locationInput().trim()}
               >
@@ -488,22 +488,22 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
             </div>
 
             <Show when={formData.preferred_locations.length > 0}>
-              <div class="flex flex-wrap gap-2">
+              <div class='flex flex-wrap gap-2'>
                 <For each={formData.preferred_locations}>
                   {location => (
-                    <div class="badge badge-info gap-2">
+                    <div class='badge badge-info gap-2'>
                       {location}
                       <button
-                        type="button"
-                        class="btn btn-ghost btn-circle btn-xs"
+                        type='button'
+                        class='btn btn-ghost btn-circle btn-xs'
                         onClick={() => handleRemoveLocation(location)}
                       >
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                           <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"
+                            stroke-linecap='round'
+                            stroke-linejoin='round'
+                            stroke-width='2'
+                            d='M6 18L18 6M6 6l12 12'
                           />
                         </svg>
                       </button>
@@ -515,15 +515,15 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
           </div>
 
           {/* Salary Range */}
-          <div class="form-control">
-            <label class="label">
-              <span class="label-text">Desired Salary Range (USD)</span>
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>Desired Salary Range (USD)</span>
             </label>
-            <div class="grid grid-cols-2 gap-4">
+            <div class='grid grid-cols-2 gap-4'>
               <div>
                 <input
-                  type="number"
-                  class="input input-bordered w-full"
+                  type='number'
+                  class='input input-bordered w-full'
                   value={formData.desired_salary_min || ''}
                   onInput={e =>
                     setFormData(
@@ -531,18 +531,18 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
                       e.currentTarget.value ? parseInt(e.currentTarget.value) : undefined
                     )
                   }
-                  placeholder="Minimum"
-                  min="0"
-                  step="1000"
+                  placeholder='Minimum'
+                  min='0'
+                  step='1000'
                 />
-                <div class="label">
-                  <span class="label-text-alt">Minimum salary</span>
+                <div class='label'>
+                  <span class='label-text-alt'>Minimum salary</span>
                 </div>
               </div>
               <div>
                 <input
-                  type="number"
-                  class="input input-bordered w-full"
+                  type='number'
+                  class='input input-bordered w-full'
                   value={formData.desired_salary_max || ''}
                   onInput={e =>
                     setFormData(
@@ -550,12 +550,12 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
                       e.currentTarget.value ? parseInt(e.currentTarget.value) : undefined
                     )
                   }
-                  placeholder="Maximum"
-                  min="0"
-                  step="1000"
+                  placeholder='Maximum'
+                  min='0'
+                  step='1000'
                 />
-                <div class="label">
-                  <span class="label-text-alt">Maximum salary</span>
+                <div class='label'>
+                  <span class='label-text-alt'>Maximum salary</span>
                 </div>
               </div>
             </div>
@@ -564,21 +564,21 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
       </Show>
 
       {/* Form Actions */}
-      <div class="flex justify-end gap-4 pt-4 border-t">
+      <div class='flex justify-end gap-4 pt-4 border-t'>
         <button
-          type="button"
-          class="btn btn-ghost"
+          type='button'
+          class='btn btn-ghost'
           onClick={props.onCancel}
           disabled={isSubmitting()}
         >
           Cancel
         </button>
-        <button type="submit" class="btn btn-primary" disabled={isSubmitting()}>
+        <button type='submit' class='btn btn-primary' disabled={isSubmitting()}>
           <Show
             when={isSubmitting()}
             fallback={props.profile ? 'Update Profile' : 'Create Profile'}
           >
-            <span class="loading loading-spinner loading-sm mr-2"></span>
+            <span class='loading loading-spinner loading-sm mr-2'></span>
             Saving...
           </Show>
         </button>

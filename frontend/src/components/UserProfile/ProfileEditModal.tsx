@@ -18,8 +18,8 @@ const ProfileEditModal: Component<ProfileEditModalProps> = props => {
 
   return (
     <Show when={props.isOpen}>
-      <div class="modal modal-open" onClick={handleBackdropClick}>
-        <div class="modal-box max-w-4xl w-full max-h-[90vh] overflow-auto">
+      <div class='modal modal-open' onClick={handleBackdropClick}>
+        <div class='modal-box max-w-4xl w-full max-h-[90vh] overflow-auto'>
           <ProfileEditForm
             profile={props.profile}
             onSave={profile => {

@@ -387,7 +387,7 @@ class PlanningFlow(BaseFlow):
             status_marks = PlanStepStatus.get_status_marks()
 
             for i, (step, status, notes) in enumerate(
-                zip(steps, step_statuses, step_notes)
+                zip(steps, step_statuses, step_notes, strict=False)
             ):
                 # Use status marks to indicate step status
                 status_mark = status_marks.get(

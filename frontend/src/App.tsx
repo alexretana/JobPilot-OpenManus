@@ -188,7 +188,7 @@ const App: Component = () => {
   });
 
   return (
-    <div class="min-h-screen bg-base-200">
+    <div class='min-h-screen bg-base-200'>
       <Header
         activities={activities}
         onShowActivityLog={() => setShowActivityModal(true)}
@@ -198,12 +198,12 @@ const App: Component = () => {
         onTabChange={setActiveTab}
       />
 
-      <main class="mx-auto p-2 h-[calc(100vh-64px)]">
+      <main class='mx-auto p-2 h-[calc(100vh-64px)]'>
         <Show when={activeTab() === 'chat'}>
-          <div class="flex flex-col lg:flex-row gap-2 h-full max-w-none">
+          <div class='flex flex-col lg:flex-row gap-2 h-full max-w-none'>
             {/* Chat Column */}
-            <div class="flex-1 flex flex-col min-h-0 max-w-[2560px]">
-              <div class="flex-1 min-h-0">
+            <div class='flex-1 flex flex-col min-h-0 max-w-[2560px]'>
+              <div class='flex-1 min-h-0'>
                 <Chat
                   messages={messages}
                   onMessageSend={handleMessageSend}
@@ -214,43 +214,43 @@ const App: Component = () => {
             </div>
 
             {/* Browser Viewport Column */}
-            <div class="flex-1 min-h-0 max-w-[2560px]">
+            <div class='flex-1 min-h-0 max-w-[2560px]'>
               <BrowserViewport browserState={browserState} />
             </div>
           </div>
         </Show>
 
         <Show when={activeTab() === 'jobs'}>
-          <div class="bg-base-100 rounded-lg p-2 h-full">
+          <div class='bg-base-100 rounded-lg p-2 h-full'>
             <JobsContainer onJobSelect={handleJobSelect} onJobSave={handleJobSave} />
           </div>
         </Show>
 
         <Show when={activeTab() === 'timeline'}>
-          <div class="bg-base-100 rounded-lg p-4 h-full overflow-y-auto">
+          <div class='bg-base-100 rounded-lg p-4 h-full overflow-y-auto'>
             <Timeline
-              userProfileId="demo-user-123" // TODO: Replace with actual user ID from auth
-              className="h-full"
+              userProfileId='demo-user-123' // TODO: Replace with actual user ID from auth
+              className='h-full'
             />
           </div>
         </Show>
 
         <Show when={activeTab() === 'applications'}>
-          <div class="bg-base-100 rounded-lg p-2 h-full overflow-y-auto">
+          <div class='bg-base-100 rounded-lg p-2 h-full overflow-y-auto'>
             <ApplicationsManager />
           </div>
         </Show>
 
         <Show when={activeTab() === 'leads'}>
-          <div class="bg-base-100 rounded-lg p-2 h-full overflow-y-auto">
+          <div class='bg-base-100 rounded-lg p-2 h-full overflow-y-auto'>
             <LeadsManager />
           </div>
         </Show>
 
         <Show when={activeTab() === 'profile'}>
-          <div class="bg-base-100 rounded-lg p-2 h-full overflow-y-auto">
+          <div class='bg-base-100 rounded-lg p-2 h-full overflow-y-auto'>
             <ProfileDashboard
-              userId="demo-user-123"
+              userId='demo-user-123'
               onProfileChange={profile => {
                 console.log('Profile updated in main app:', profile);
                 addActivity(
@@ -286,7 +286,7 @@ const App: Component = () => {
       />
 
       {/* Mobile responsive adjustments */}
-      <div class="lg:hidden">{/* On mobile, stack vertically with better spacing */}</div>
+      <div class='lg:hidden'>{/* On mobile, stack vertically with better spacing */}</div>
     </div>
   );
 };

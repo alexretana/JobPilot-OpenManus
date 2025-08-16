@@ -9,9 +9,19 @@ from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, EmailStr, Field, validator
-from sqlalchemy import JSON, Boolean, Column, DateTime
+from sqlalchemy import (
+    JSON,
+    Boolean,
+    Column,
+    DateTime,
+    Float,
+    ForeignKey,
+    Integer,
+    String,
+    Text,
+    create_engine,
+)
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy import Float, ForeignKey, Integer, String, Text, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 
@@ -509,7 +519,9 @@ class ETLOperationLog(BaseModel):
 
     id: UUID = Field(default_factory=uuid4)
     operation_type: ETLOperationType
-    operation_name: str  # Specific operation (e.g., "jsearch_collection", "embedding_generation")
+    operation_name: (
+        str  # Specific operation (e.g., "jsearch_collection", "embedding_generation")
+    )
     status: ETLProcessingStatus
     started_at: datetime = Field(default_factory=datetime.utcnow)
     completed_at: Optional[datetime] = None

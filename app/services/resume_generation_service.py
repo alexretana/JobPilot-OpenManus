@@ -33,7 +33,7 @@ class ResumeGenerationService:
         """Load a prompt template from external file."""
         template_path = self.prompts_dir / f"{template_name}.md"
         try:
-            with open(template_path, "r", encoding="utf-8") as f:
+            with open(template_path, encoding="utf-8") as f:
                 return f.read()
         except FileNotFoundError:
             logger.error(f"Prompt template not found: {template_path}")
@@ -337,7 +337,7 @@ class ResumeGenerationService:
         tech_text = ", ".join(technologies[:3])
         achievements = [
             f"Developed and maintained applications using {tech_text}",
-            f"Collaborated with team members to deliver high-quality software solutions",
+            "Collaborated with team members to deliver high-quality software solutions",
             f"Participated in code reviews and followed best practices for {position_title} role",
         ]
 

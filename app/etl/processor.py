@@ -770,12 +770,14 @@ class JobDataProcessor:
                     duration = (log_db.completed_at - log_db.started_at).total_seconds()
                     log_db.metrics = {
                         "duration_seconds": duration,
-                        "jobs_per_second": jobs_processed / duration
-                        if duration > 0
-                        else 0,
-                        "success_rate": jobs_processed / (jobs_processed + jobs_failed)
-                        if (jobs_processed + jobs_failed) > 0
-                        else 0,
+                        "jobs_per_second": (
+                            jobs_processed / duration if duration > 0 else 0
+                        ),
+                        "success_rate": (
+                            jobs_processed / (jobs_processed + jobs_failed)
+                            if (jobs_processed + jobs_failed) > 0
+                            else 0
+                        ),
                     }
 
                     session.flush()

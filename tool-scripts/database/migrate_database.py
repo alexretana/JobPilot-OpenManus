@@ -20,7 +20,9 @@ def migrate_database():
     db_path = "data/jobpilot.db"
 
     if not os.path.exists(db_path):
-        print("❌ Database not found. Run the application first to create the database.")
+        print(
+            "❌ Database not found. Run the application first to create the database."
+        )
         return False
 
     print("🔄 Starting database migration...")
@@ -87,9 +89,9 @@ def migrate_database():
         conn.commit()
         conn.close()
 
-        print(f"✅ Migration completed successfully!")
+        print("✅ Migration completed successfully!")
         print(f"   Added {columns_added} new columns")
-        print(f"   Database is now compatible with Phase 2 enhanced features")
+        print("   Database is now compatible with Phase 2 enhanced features")
 
         return True
 

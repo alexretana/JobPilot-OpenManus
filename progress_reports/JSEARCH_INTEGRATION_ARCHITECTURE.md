@@ -1,11 +1,13 @@
 # JSearch API Integration Architecture
-*Robust ETL Pipeline Design for JobPilot Phase 2*
+
+_Robust ETL Pipeline Design for JobPilot Phase 2_
 
 ---
 
 ## 🎯 **Architecture Philosophy**
 
 ### **Core Principles**
+
 1. **Separation of Concerns**: Extract, Transform, Load are independent processes
 2. **Fault Tolerance**: Each stage can fail and recover without affecting others
 3. **Data Persistence**: Raw data is preserved at every stage
@@ -14,6 +16,7 @@
 6. **Observability**: Full logging and monitoring at each stage
 
 ### **Benefits**
+
 - **Reduced API Costs**: Never lose data due to processing failures
 - **Independent Recovery**: Fix processing errors without re-fetching data
 - **Horizontal Scaling**: Each component can scale based on needs
@@ -50,12 +53,14 @@ graph TD
 ### **Component: JSearchDataCollector**
 
 #### **Responsibilities**
+
 - Fetch raw job data from JSearch API
 - Store raw responses without modification
 - Handle rate limiting and API errors
 - Track collection metadata (timestamps, query params, etc.)
 
 #### **Data Storage Structure**
+
 ```json
 {
   "collection_id": "uuid",
@@ -68,7 +73,9 @@ graph TD
   },
   "raw_response": {
     "status": "OK",
-    "data": [/* raw job objects */]
+    "data": [
+      /* raw job objects */
+    ]
   },
   "metadata": {
     "response_time_ms": 650,
@@ -82,17 +89,20 @@ graph TD
 ```
 
 #### **Storage Location**
+
 - **Primary**: `raw_job_data` database table
 - **Backup**: JSON files in `data/raw_collections/YYYY/MM/DD/`
 - **Indexing**: By timestamp, query_hash, processing_status
 
 #### **Collection Strategies**
+
 1. **Scheduled Collection**: Regular intervals (daily/hourly)
 2. **On-Demand Collection**: User-triggered searches
 3. **Batch Collection**: Multiple queries in sequence
 4. **Incremental Collection**: Only fetch new/updated jobs
 
 #### **Error Handling**
+
 - **API Rate Limits**: Exponential backoff with jitter
 - **Network Failures**: Retry with circuit breaker pattern
 - **Invalid Responses**: Log and continue (don't fail entire batch)
@@ -105,6 +115,7 @@ graph TD
 ### **Component: JobDataProcessor**
 
 #### **Responsibilities**
+
 - Transform raw API data to JobPilot schema
 - Extract and normalize job requirements
 - Generate semantic embeddings
@@ -112,6 +123,7 @@ graph TD
 - Validate data quality
 
 #### **Processing Pipeline**
+
 ```python
 class JobDataProcessor:
     async def process_collection(self, collection_id: str):
@@ -138,6 +150,7 @@ class JobDataProcessor:
 ```
 
 #### **Transformation Logic**
+
 1. **Schema Mapping**: Raw API fields → JobPilot fields
 2. **Data Cleaning**: Normalize text, validate URLs, parse dates
 3. **Requirements Extraction**: Parse job descriptions for skills/experience
@@ -146,6 +159,7 @@ class JobDataProcessor:
 6. **Salary Parsing**: Extract salary ranges from various formats
 
 #### **Processing Status Tracking**
+
 ```json
 {
   "processing_id": "uuid",
@@ -172,6 +186,7 @@ class JobDataProcessor:
 ```
 
 #### **Error Handling**
+
 - **Individual Job Failures**: Skip failed jobs, continue processing others
 - **Schema Validation Errors**: Log and attempt data recovery
 - **Embedding Generation Failures**: Retry with exponential backoff
@@ -184,12 +199,14 @@ class JobDataProcessor:
 ### **Component: JobDataLoader**
 
 #### **Responsibilities**
+
 - Load processed jobs into main database
 - Apply deduplication rules
 - Update vector search indexes
 - Trigger downstream processes (notifications, recommendations)
 
 #### **Loading Pipeline**
+
 ```python
 class JobDataLoader:
     async def load_processed_data(self, processing_id: str):
@@ -211,12 +228,14 @@ class JobDataLoader:
 ```
 
 #### **Deduplication Strategy**
+
 1. **Exact Match**: Same title + company + location
 2. **Fuzzy Match**: Similar job descriptions (cosine similarity > 0.95)
 3. **URL Match**: Same application URL from different sources
 4. **Temporal Deduplication**: Same job posted within 7 days
 
 #### **Database Schema Integration**
+
 - **Jobs Table**: Main job records
 - **Job Sources Table**: Track which API/source each job came from
 - **Vector Embeddings**: Semantic search vectors
@@ -229,6 +248,7 @@ class JobDataLoader:
 ### **Database Tables**
 
 #### **raw_job_collections**
+
 ```sql
 CREATE TABLE raw_job_collections (
     collection_id UUID PRIMARY KEY,
@@ -246,6 +266,7 @@ CREATE INDEX idx_raw_collections_timestamp ON raw_job_collections(timestamp);
 ```
 
 #### **job_processing_log**
+
 ```sql
 CREATE TABLE job_processing_log (
     processing_id UUID PRIMARY KEY,
@@ -262,6 +283,7 @@ CREATE TABLE job_processing_log (
 ```
 
 #### **processed_job_data**
+
 ```sql
 CREATE TABLE processed_job_data (
     processing_id UUID REFERENCES job_processing_log(processing_id),
@@ -277,6 +299,7 @@ CREATE TABLE processed_job_data (
 ```
 
 ### **File System Structure**
+
 ```
 data/
 ├── raw_collections/           # Backup of raw API responses
@@ -302,35 +325,38 @@ data/
 ### **Component: ETLScheduler**
 
 #### **Scheduling Strategies**
+
 1. **Time-based**: Cron-like schedules
 2. **Event-based**: Triggered by user actions
 3. **Queue-based**: Process jobs from message queue
 4. **Conditional**: Based on data freshness or API rate limits
 
 #### **Example Schedule Configuration**
+
 ```yaml
 schedules:
   daily_collection:
-    trigger: "cron(0 9 * * *)"  # 9 AM daily
+    trigger: 'cron(0 9 * * *)' # 9 AM daily
     queries:
-      - "software engineer"
-      - "data scientist"
-      - "product manager"
+      - 'software engineer'
+      - 'data scientist'
+      - 'product manager'
     locations:
-      - "San Francisco, CA"
-      - "New York, NY"
-      - "Seattle, WA"
+      - 'San Francisco, CA'
+      - 'New York, NY'
+      - 'Seattle, WA'
 
   processing_batch:
-    trigger: "after_collection"
+    trigger: 'after_collection'
     delay_minutes: 5
 
   loading_batch:
-    trigger: "after_processing"
+    trigger: 'after_processing'
     delay_minutes: 2
 ```
 
 ### **Queue-Based Processing**
+
 ```python
 # Message Queue Topics
 TOPICS = {
@@ -357,23 +383,27 @@ collection_request = {
 ### **Recovery Strategies**
 
 #### **Collection Failures**
+
 - **Rate Limit Exceeded**: Wait and retry with exponential backoff
 - **API Unavailable**: Switch to backup data source or pause collection
 - **Network Issues**: Retry with circuit breaker pattern
 - **Storage Failures**: Fall back to file system, alert administrators
 
 #### **Processing Failures**
+
 - **Individual Job Errors**: Skip and continue (don't fail entire batch)
 - **Schema Changes**: Version processing logic and handle gracefully
 - **Embedding API Failures**: Retry with different model or skip embeddings
 - **Partial Processing**: Save successful results, retry failed items
 
 #### **Loading Failures**
+
 - **Database Constraints**: Handle duplicates gracefully
 - **Transaction Failures**: Rollback and retry with smaller batches
 - **Index Update Failures**: Queue for later retry, don't block main flow
 
 ### **Retry Logic**
+
 ```python
 class RetryableOperation:
     async def execute_with_retry(self, operation, max_retries=3):
@@ -394,18 +424,21 @@ class RetryableOperation:
 ## 📊 **Monitoring and Observability**
 
 ### **Key Metrics**
+
 - **Collection Metrics**: API calls/hour, success rate, response times
 - **Processing Metrics**: Jobs processed/hour, error rates, processing times
 - **Loading Metrics**: Jobs loaded/hour, duplicate rates, index update times
 - **Data Quality Metrics**: Field completeness, validation error rates
 
 ### **Alerting Rules**
+
 - **API Rate Limit Approaching**: 80% of monthly quota used
 - **High Error Rate**: >5% of jobs failing processing
 - **Processing Delays**: Jobs waiting >1 hour for processing
 - **Data Quality Issues**: >10% of jobs failing validation
 
 ### **Health Checks**
+
 ```python
 class ETLHealthCheck:
     async def check_system_health(self):
@@ -423,12 +456,14 @@ class ETLHealthCheck:
 ## 🔄 **Integration with Existing JobPilot Systems**
 
 ### **Phase 2 API Integration**
+
 - **Enhanced Jobs API**: Load processed jobs into existing enhanced jobs tables
 - **Job Sources API**: Create job source records for JSearch
 - **Vector Search**: Use processed embeddings for semantic search
 - **Deduplication API**: Integrate with existing deduplication logic
 
 ### **Database Schema Updates**
+
 ```sql
 -- Add source tracking to existing jobs
 ALTER TABLE enhanced_jobs ADD COLUMN source_collection_id UUID;
@@ -443,6 +478,7 @@ REFERENCES raw_job_collections(collection_id);
 ```
 
 ### **API Endpoint Updates**
+
 - **GET /api/jobs**: Include ETL metadata in responses
 - **POST /api/jobs/collect**: Trigger on-demand collection
 - **GET /api/jobs/processing-status**: Check ETL pipeline status
@@ -453,24 +489,28 @@ REFERENCES raw_job_collections(collection_id);
 ## 🚀 **Implementation Phases**
 
 ### **Phase 1: Core ETL Pipeline (Week 1-2)**
+
 1. **Data Collector**: JSearch API integration
 2. **Raw Data Storage**: Database tables and file backup
 3. **Basic Processing**: Schema transformation
 4. **Simple Loading**: Insert into existing jobs table
 
 ### **Phase 2: Advanced Processing (Week 3)**
+
 1. **Embedding Generation**: Integrate with vector search
 2. **Duplicate Detection**: Advanced deduplication logic
 3. **Data Validation**: Quality checks and error handling
 4. **Processing Recovery**: Failed job retry mechanisms
 
 ### **Phase 3: Production Ready (Week 4)**
+
 1. **Scheduling System**: Automated job collection
 2. **Monitoring Dashboard**: ETL pipeline visibility
 3. **Error Recovery**: Comprehensive failure handling
 4. **Performance Optimization**: Batch processing, caching
 
 ### **Phase 4: Scale and Extend (Future)**
+
 1. **Multi-API Support**: Add other job sources
 2. **Real-time Processing**: Event-driven ETL
 3. **Advanced Analytics**: Job market insights
@@ -481,24 +521,28 @@ REFERENCES raw_job_collections(collection_id);
 ## 📋 **Implementation Checklist**
 
 ### **Infrastructure**
+
 - [ ] Database tables for ETL pipeline
 - [ ] File system storage structure
 - [ ] Message queue setup (optional)
 - [ ] Logging and monitoring setup
 
 ### **Core Components**
+
 - [ ] JSearchDataCollector class
 - [ ] JobDataProcessor class
 - [ ] JobDataLoader class
 - [ ] ETLScheduler class
 
 ### **Integration**
+
 - [ ] Update existing Phase 2 APIs
 - [ ] Database schema migrations
 - [ ] Error handling integration
 - [ ] Monitoring dashboard
 
 ### **Testing**
+
 - [ ] Unit tests for each component
 - [ ] Integration tests for full pipeline
 - [ ] Error scenario testing
@@ -509,6 +553,7 @@ REFERENCES raw_job_collections(collection_id);
 ## 💡 **Key Architectural Decisions**
 
 ### **Why This Architecture?**
+
 1. **Fault Isolation**: Each stage can fail independently
 2. **Data Preservation**: Raw data never lost due to processing errors
 3. **API Efficiency**: Minimize external API calls through persistence
@@ -517,12 +562,14 @@ REFERENCES raw_job_collections(collection_id);
 6. **Flexibility**: Easy to add new data sources or processing steps
 
 ### **Trade-offs**
+
 - **Storage Overhead**: Storing raw + processed + final data
 - **Complexity**: More components to manage and monitor
 - **Processing Delay**: Multiple stages add latency
 - **Initial Development**: More upfront complexity vs simple direct integration
 
 ### **Why These Trade-offs Are Worth It**
+
 - **Reliability**: Critical for production system
 - **Cost Savings**: Avoid unnecessary API calls
 - **Development Speed**: Test processing without API calls
@@ -530,6 +577,8 @@ REFERENCES raw_job_collections(collection_id);
 
 ---
 
-This architecture ensures **robust, scalable, and cost-effective** integration of JSearch API while maintaining **data integrity** and **system reliability**. The separation of concerns allows each component to be developed, tested, and scaled independently.
+This architecture ensures **robust, scalable, and cost-effective** integration of JSearch API while maintaining **data
+integrity** and **system reliability**. The separation of concerns allows each component to be developed, tested, and
+scaled independently.
 
 Ready to start implementing this architecture! 🚀

@@ -81,9 +81,11 @@ def create_application(request: CreateApplicationRequest):
             job_id=UUID(request.job_id),
             user_profile_id=UUID(request.user_profile_id),
             status=request.status,
-            applied_date=datetime.utcnow()
-            if request.status == ApplicationStatus.APPLIED
-            else None,
+            applied_date=(
+                datetime.utcnow()
+                if request.status == ApplicationStatus.APPLIED
+                else None
+            ),
             notes=request.notes,
         )
 

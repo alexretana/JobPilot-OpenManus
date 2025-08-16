@@ -30,7 +30,6 @@ export function EditEventModal(props: EditEventModalProps) {
     setEventDate(`${year}-${month}-${day}T${hours}:${minutes}`);
   });
 
-
   // Auto-set milestone for certain event types
   createEffect(() => {
     if (eventType() !== props.event.event_type) {
@@ -40,7 +39,7 @@ export function EditEventModal(props: EditEventModalProps) {
         TimelineEventType.INTERVIEW_COMPLETED,
         TimelineEventType.OFFER_RECEIVED,
         TimelineEventType.OFFER_ACCEPTED,
-        TimelineEventType.OFFER_DECLINED
+        TimelineEventType.OFFER_DECLINED,
       ];
 
       setIsMilestone(milestoneTypes.includes(eventType()));
@@ -83,7 +82,9 @@ export function EditEventModal(props: EditEventModalProps) {
 
       props.onEventUpdated();
     } catch (error) {
-      alert('Failed to update event: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      alert(
+        'Failed to update event: ' + (error instanceof Error ? error.message : 'Unknown error')
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -117,20 +118,18 @@ export function EditEventModal(props: EditEventModalProps) {
   };
 
   return (
-    <div class="modal modal-open">
-      <div class="modal-box w-11/12 max-w-2xl">
+    <div class='modal modal-open'>
+      <div class='modal-box w-11/12 max-w-2xl'>
         <form onSubmit={handleSubmit}>
           {/* Header */}
-          <div class="flex justify-between items-start mb-6">
+          <div class='flex justify-between items-start mb-6'>
             <div>
-              <h3 class="font-bold text-lg">Edit Timeline Event</h3>
-              <p class="text-sm text-base-content/70 mt-1">
-                Update your job search timeline event
-              </p>
+              <h3 class='font-bold text-lg'>Edit Timeline Event</h3>
+              <p class='text-sm text-base-content/70 mt-1'>Update your job search timeline event</p>
             </div>
             <button
-              type="button"
-              class="btn btn-sm btn-circle btn-ghost"
+              type='button'
+              class='btn btn-sm btn-circle btn-ghost'
               onClick={handleClose}
               disabled={isSubmitting()}
             >
@@ -138,14 +137,14 @@ export function EditEventModal(props: EditEventModalProps) {
             </button>
           </div>
 
-          <div class="space-y-4">
+          <div class='space-y-4'>
             {/* Event Type - Disabled for editing to maintain data integrity */}
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text font-medium">Event Type</span>
+            <div class='form-control'>
+              <label class='label'>
+                <span class='label-text font-medium'>Event Type</span>
               </label>
               <select
-                class="select select-bordered select-disabled"
+                class='select select-bordered select-disabled'
                 value={eventType()}
                 disabled={true}
               >
@@ -155,108 +154,120 @@ export function EditEventModal(props: EditEventModalProps) {
                   </option>
                 ))}
               </select>
-              <label class="label">
-                <span class="label-text-alt">Event type cannot be changed after creation</span>
+              <label class='label'>
+                <span class='label-text-alt'>Event type cannot be changed after creation</span>
               </label>
             </div>
 
             {/* Title */}
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text font-medium">Title*</span>
+            <div class='form-control'>
+              <label class='label'>
+                <span class='label-text font-medium'>Title*</span>
               </label>
               <input
-                type="text"
+                type='text'
                 class={`input input-bordered ${errors().title ? 'input-error' : ''}`}
                 value={title()}
-                onInput={(e) => setTitle(e.currentTarget.value)}
-                placeholder="Enter event title..."
+                onInput={e => setTitle(e.currentTarget.value)}
+                placeholder='Enter event title...'
                 disabled={isSubmitting()}
               />
               <Show when={errors().title}>
-                <label class="label">
-                  <span class="label-text-alt text-error">{errors().title}</span>
+                <label class='label'>
+                  <span class='label-text-alt text-error'>{errors().title}</span>
                 </label>
               </Show>
             </div>
 
             {/* Description */}
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text font-medium">Description</span>
+            <div class='form-control'>
+              <label class='label'>
+                <span class='label-text font-medium'>Description</span>
               </label>
               <textarea
-                class="textarea textarea-bordered h-20"
+                class='textarea textarea-bordered h-20'
                 value={description()}
-                onInput={(e) => setDescription(e.currentTarget.value)}
-                placeholder="Optional description or notes..."
+                onInput={e => setDescription(e.currentTarget.value)}
+                placeholder='Optional description or notes...'
                 disabled={isSubmitting()}
               />
             </div>
 
             {/* Event Date */}
-            <div class="form-control">
-              <label class="label">
-                <span class="label-text font-medium">Event Date*</span>
+            <div class='form-control'>
+              <label class='label'>
+                <span class='label-text font-medium'>Event Date*</span>
               </label>
               <input
-                type="datetime-local"
+                type='datetime-local'
                 class={`input input-bordered ${errors().eventDate ? 'input-error' : ''}`}
                 value={eventDate()}
-                onInput={(e) => setEventDate(e.currentTarget.value)}
+                onInput={e => setEventDate(e.currentTarget.value)}
                 disabled={isSubmitting()}
               />
               <Show when={errors().eventDate}>
-                <label class="label">
-                  <span class="label-text-alt text-error">{errors().eventDate}</span>
+                <label class='label'>
+                  <span class='label-text-alt text-error'>{errors().eventDate}</span>
                 </label>
               </Show>
             </div>
 
             {/* Job ID and Application ID - Show as read-only info */}
             <Show when={props.event.job_id || props.event.application_id}>
-              <div class="bg-base-200 rounded-lg p-4">
-                <h4 class="text-sm font-medium text-base-content/80 mb-2">Linked Resources</h4>
-                <div class="space-y-2 text-xs">
+              <div class='bg-base-200 rounded-lg p-4'>
+                <h4 class='text-sm font-medium text-base-content/80 mb-2'>Linked Resources</h4>
+                <div class='space-y-2 text-xs'>
                   <Show when={props.event.job_id}>
                     <div>
-                      <span class="font-medium">Job ID:</span> {props.event.job_id}
+                      <span class='font-medium'>Job ID:</span> {props.event.job_id}
                     </div>
                   </Show>
                   <Show when={props.event.application_id}>
                     <div>
-                      <span class="font-medium">Application ID:</span> {props.event.application_id}
+                      <span class='font-medium'>Application ID:</span> {props.event.application_id}
                     </div>
                   </Show>
                 </div>
-                <div class="text-xs text-base-content/60 mt-2">
+                <div class='text-xs text-base-content/60 mt-2'>
                   Linked resources cannot be changed after event creation
                 </div>
               </div>
             </Show>
 
             {/* Milestone Toggle */}
-            <div class="form-control">
-              <label class="label cursor-pointer justify-start gap-3">
+            <div class='form-control'>
+              <label class='label cursor-pointer justify-start gap-3'>
                 <input
-                  type="checkbox"
-                  class="checkbox checkbox-primary"
+                  type='checkbox'
+                  class='checkbox checkbox-primary'
                   checked={isMilestone()}
-                  onChange={(e) => setIsMilestone(e.currentTarget.checked)}
+                  onChange={e => setIsMilestone(e.currentTarget.checked)}
                   disabled={isSubmitting()}
                 />
                 <div>
-                  <div class="label-text font-medium">Mark as milestone</div>
-                  <div class="label-text-alt">Important events that represent significant progress</div>
+                  <div class='label-text font-medium'>Mark as milestone</div>
+                  <div class='label-text-alt'>
+                    Important events that represent significant progress
+                  </div>
                 </div>
               </label>
             </div>
 
             {/* Show changes indicator */}
             <Show when={hasChanges()}>
-              <div class="alert alert-info">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <div class='alert alert-info'>
+                <svg
+                  xmlns='http://www.w3.org/2000/svg'
+                  fill='none'
+                  viewBox='0 0 24 24'
+                  class='stroke-current shrink-0 w-6 h-6'
+                >
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+                  ></path>
                 </svg>
                 <span>You have unsaved changes</span>
               </div>
@@ -264,22 +275,22 @@ export function EditEventModal(props: EditEventModalProps) {
           </div>
 
           {/* Footer */}
-          <div class="modal-action">
+          <div class='modal-action'>
             <button
-              type="button"
-              class="btn btn-ghost"
+              type='button'
+              class='btn btn-ghost'
               onClick={handleClose}
               disabled={isSubmitting()}
             >
               Cancel
             </button>
             <button
-              type="submit"
-              class="btn btn-primary"
+              type='submit'
+              class='btn btn-primary'
               disabled={isSubmitting() || !hasChanges()}
             >
               <Show when={isSubmitting()}>
-                <span class="loading loading-spinner loading-sm"></span>
+                <span class='loading loading-spinner loading-sm'></span>
               </Show>
               {isSubmitting() ? 'Updating...' : 'Update Event'}
             </button>

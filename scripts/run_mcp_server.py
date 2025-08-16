@@ -1,4 +1,3 @@
-# coding: utf-8
 # A shortcut to launch OpenManus MCP server, where its introduction also solves other import issues.
 from app.mcp.server import MCPServer, parse_args
 

@@ -455,9 +455,9 @@ class ResumeOrchestratorService:
                 "total_projects": len(resume.projects),
                 "total_certifications": len(resume.certifications),
                 "has_summary": bool(resume.summary),
-                "summary_word_count": len(resume.summary.split())
-                if resume.summary
-                else 0,
+                "summary_word_count": (
+                    len(resume.summary.split()) if resume.summary else 0
+                ),
                 "featured_skills": len([s for s in resume.skills if s.is_featured]),
             }
 

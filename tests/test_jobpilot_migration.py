@@ -239,7 +239,7 @@ class JobPilotMigrationTester:
 
             return (
                 True,
-                f"Semantic search test passed - Found results with both queries",
+                "Semantic search test passed - Found results with both queries",
             )
 
         except Exception as e:

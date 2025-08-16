@@ -202,7 +202,7 @@ Outputs:
     ) -> str:
         try:
             logger.info(f"📈 data_visualization with {json_path} in: {tool_type} ")
-            with open(json_path, "r", encoding="utf-8") as file:
+            with open(json_path, encoding="utf-8") as file:
                 json_info = json.load(file)
             if tool_type == "visualization":
                 return await self.data_visualization(json_info, output_type, language)

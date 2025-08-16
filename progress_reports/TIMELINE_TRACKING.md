@@ -4,7 +4,9 @@ This document describes the timeline tracking functionality implemented for JobP
 
 ## Overview
 
-The timeline tracking system provides comprehensive event logging for job application activities, enabling users to track their job search progress over time. It captures key events like saving jobs, submitting applications, scheduling interviews, and status changes.
+The timeline tracking system provides comprehensive event logging for job application activities, enabling users to
+track their job search progress over time. It captures key events like saving jobs, submitting applications, scheduling
+interviews, and status changes.
 
 ## Features
 
@@ -35,6 +37,7 @@ Each timeline event contains:
 ### Milestone Tracking
 
 Important events can be marked as milestones for easy identification:
+
 - Application submissions
 - Interview scheduling
 - Status changes to interviewing, offered, accepted, or rejected
@@ -54,6 +57,7 @@ Important events can be marked as milestones for easy identification:
 The `TimelineService` class provides comprehensive timeline management:
 
 **Core Methods:**
+
 - `create_event()` - Create new timeline events
 - `get_user_timeline()` - Retrieve user's timeline with filtering
 - `get_job_timeline()` - Get events for a specific job
@@ -62,6 +66,7 @@ The `TimelineService` class provides comprehensive timeline management:
 - `delete_event()` - Remove events
 
 **Convenience Methods:**
+
 - `log_job_saved()` - Automatically log job save events
 - `log_application_submitted()` - Log application submissions
 - `log_interview_scheduled()` - Log interview scheduling
@@ -69,6 +74,7 @@ The `TimelineService` class provides comprehensive timeline management:
 - `log_custom_event()` - Create custom user-defined events
 
 **Query Methods:**
+
 - `get_milestones()` - Retrieve milestone events
 - `get_upcoming_events()` - Get future scheduled events
 
@@ -77,6 +83,7 @@ The `TimelineService` class provides comprehensive timeline management:
 RESTful API endpoints for timeline access:
 
 **Timeline Retrieval:**
+
 - `GET /api/timeline/user/{user_profile_id}` - User timeline
 - `GET /api/timeline/job/{job_id}` - Job-specific timeline
 - `GET /api/timeline/application/{application_id}` - Application timeline
@@ -84,12 +91,14 @@ RESTful API endpoints for timeline access:
 - `GET /api/timeline/user/{user_profile_id}/upcoming` - Upcoming events
 
 **Event Management:**
+
 - `POST /api/timeline/user/{user_profile_id}/event` - Create events
 - `POST /api/timeline/user/{user_profile_id}/custom-event` - Create custom events
 - `PUT /api/timeline/event/{event_id}` - Update events
 - `DELETE /api/timeline/event/{event_id}` - Delete events
 
 **Convenience Endpoints:**
+
 - `POST /api/timeline/user/{user_profile_id}/job/{job_id}/saved` - Log job saves
 - `POST /api/timeline/user/{user_profile_id}/application/{application_id}/submitted` - Log applications
 - `POST /api/timeline/user/{user_profile_id}/application/{application_id}/interview-scheduled` - Log interviews
@@ -269,4 +278,5 @@ Potential improvements and extensions:
 - **Type Safety**: Full type hints and Pydantic models for data validation
 - **Testing**: Complete test suite covering all major functionality
 
-The timeline tracking system provides a solid foundation for comprehensive job application tracking and can be easily extended to meet evolving user needs.
+The timeline tracking system provides a solid foundation for comprehensive job application tracking and can be easily
+extended to meet evolving user needs.

@@ -24,7 +24,7 @@ class WebSocketService {
       this.reconnectAttempts = 0;
     };
 
-    this.ws.onmessage = (event) => {
+    this.ws.onmessage = event => {
       try {
         const message: WebSocketMessage = JSON.parse(event.data);
         this.handlers.forEach(handler => handler(message));
@@ -39,7 +39,7 @@ class WebSocketService {
       this.attemptReconnect();
     };
 
-    this.ws.onerror = (error) => {
+    this.ws.onerror = error => {
       console.error('WebSocket error:', error);
       this.isConnectedSignal[1](false);
     };
@@ -52,7 +52,9 @@ class WebSocketService {
     }
 
     this.reconnectAttempts++;
-    console.log(`Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+    console.log(
+      `Attempting to reconnect... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`
+    );
 
     setTimeout(() => {
       this.connect();
@@ -69,10 +71,12 @@ class WebSocketService {
 
   sendMessage(message: string) {
     if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.send(JSON.stringify({
-        type: 'message',
-        content: message
-      }));
+      this.ws.send(
+        JSON.stringify({
+          type: 'message',
+          content: message,
+        })
+      );
     } else {
       console.error('WebSocket is not connected');
     }

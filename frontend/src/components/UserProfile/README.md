@@ -1,10 +1,13 @@
 # User Profile Management System
 
-A complete user profile management system built with SolidJS and DaisyUI, designed for the JobPilot-OpenManus project. This system provides comprehensive profile creation, editing, and management capabilities with real-time completeness tracking.
+A complete user profile management system built with SolidJS and DaisyUI, designed for the JobPilot-OpenManus project.
+This system provides comprehensive profile creation, editing, and management capabilities with real-time completeness
+tracking.
 
 ## Overview
 
-The User Profile Management System consists of several interconnected components that work together to provide a seamless user experience:
+The User Profile Management System consists of several interconnected components that work together to provide a
+seamless user experience:
 
 - **ProfileDashboard**: Main dashboard displaying user profile information
 - **ProfileEditForm**: Comprehensive form for editing all profile fields
@@ -126,12 +129,7 @@ The service layer handles all API interactions and business logic:
 import { ProfileDashboard } from '../components/UserProfile';
 
 const MyComponent = () => {
-  return (
-    <ProfileDashboard
-      userId="user-123"
-      onProfileChange={profile => console.log('Updated:', profile)}
-    />
-  );
+  return <ProfileDashboard userId='user-123' onProfileChange={profile => console.log('Updated:', profile)} />;
 };
 ```
 
@@ -172,12 +170,7 @@ import { userProfileApi } from '../services/userProfileApi';
 const MyComponent = () => {
   const completeness = userProfileApi.calculateCompleteness(profile());
 
-  return (
-    <ProfileCompleteness
-      completeness={completeness}
-      onSectionFocus={section => focusSection(section)}
-    />
-  );
+  return <ProfileCompleteness completeness={completeness} onSectionFocus={section => focusSection(section)} />;
 };
 ```
 
@@ -334,4 +327,5 @@ Planned improvements for the system:
 7. **Profile Export**: Download profile data
 8. **Bulk Import**: Import from LinkedIn/resume
 
-This system provides a solid foundation for user profile management and can be easily extended to meet future requirements.
+This system provides a solid foundation for user profile management and can be easily extended to meet future
+requirements.

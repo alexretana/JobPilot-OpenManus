@@ -1,24 +1,24 @@
-import path from "path";
-import fs from "fs";
-import puppeteer from "puppeteer";
-import VMind, { ChartType, DataTable } from "@visactor/vmind";
-import { isString } from "@visactor/vutils";
+import path from 'path';
+import fs from 'fs';
+import puppeteer from 'puppeteer';
+import VMind, { ChartType, DataTable } from '@visactor/vmind';
+import { isString } from '@visactor/vutils';
 
 enum AlgorithmType {
-  OverallTrending = "overallTrend",
-  AbnormalTrend = "abnormalTrend",
-  PearsonCorrelation = "pearsonCorrelation",
-  SpearmanCorrelation = "spearmanCorrelation",
-  ExtremeValue = "extremeValue",
-  MajorityValue = "majorityValue",
-  StatisticsAbnormal = "statisticsAbnormal",
-  StatisticsBase = "statisticsBase",
-  DbscanOutlier = "dbscanOutlier",
-  LOFOutlier = "lofOutlier",
-  TurningPoint = "turningPoint",
-  PageHinkley = "pageHinkley",
-  DifferenceOutlier = "differenceOutlier",
-  Volatility = "volatility",
+  OverallTrending = 'overallTrend',
+  AbnormalTrend = 'abnormalTrend',
+  PearsonCorrelation = 'pearsonCorrelation',
+  SpearmanCorrelation = 'spearmanCorrelation',
+  ExtremeValue = 'extremeValue',
+  MajorityValue = 'majorityValue',
+  StatisticsAbnormal = 'statisticsAbnormal',
+  StatisticsBase = 'statisticsBase',
+  DbscanOutlier = 'dbscanOutlier',
+  LOFOutlier = 'lofOutlier',
+  TurningPoint = 'turningPoint',
+  PageHinkley = 'pageHinkley',
+  DifferenceOutlier = 'differenceOutlier',
+  Volatility = 'volatility',
 }
 
 const getBase64 = async (spec: any, width?: number, height?: number) => {
@@ -30,24 +30,22 @@ const getBase64 = async (spec: any, width?: number, height?: number) => {
   await page.setContent(getHtmlVChart(spec, width, height));
 
   const dataUrl = await page.evaluate(() => {
-    const canvas: any = document
-      .getElementById("chart-container")
-      ?.querySelector("canvas");
-    return canvas?.toDataURL("image/png");
+    const canvas: any = document.getElementById('chart-container')?.querySelector('canvas');
+    return canvas?.toDataURL('image/png');
   });
 
-  const base64Data = dataUrl.replace(/^data:image\/png;base64,/, "");
+  const base64Data = dataUrl.replace(/^data:image\/png;base64,/, '');
   await browser.close();
-  return Buffer.from(base64Data, "base64");
+  return Buffer.from(base64Data, 'base64');
 };
 
 const serializeSpec = (spec: any) => {
   return JSON.stringify(spec, (key, value) => {
-    if (typeof value === "function") {
+    if (typeof value === 'function') {
       const funcStr = value
         .toString()
-        .replace(/(\r\n|\n|\r)/gm, "")
-        .replace(/\s+/g, " ");
+        .replace(/(\r\n|\n|\r)/gm, '')
+        .replace(/\s+/g, ' ');
 
       return `__FUNCTION__${funcStr}`;
     }
@@ -63,9 +61,9 @@ function getHtmlVChart(spec: any, width?: number, height?: number) {
     <script src="https://unpkg.com/@visactor/vchart/build/index.min.js"></script>
 </head>
 <body>
-    <div id="chart-container" style="width: ${
-      width ? `${width}px` : "100%"
-    }; height: ${height ? `${height}px` : "100%"};"></div>
+    <div id="chart-container" style="width: ${width ? `${width}px` : '100%'}; height: ${
+      height ? `${height}px` : '100%'
+    };"></div>
     <script>
       // parse spec with function
       function parseSpec(stringSpec) {
@@ -100,37 +98,31 @@ function getHtmlVChart(spec: any, width?: number, height?: number) {
 function getSavedPathName(
   directory: string,
   fileName: string,
-  outputType: "html" | "png" | "json" | "md",
+  outputType: 'html' | 'png' | 'json' | 'md',
   isUpdate: boolean = false
 ) {
   let newFileName = fileName;
   while (
     !isUpdate &&
-    fs.existsSync(
-      path.join(directory, "visualization", `${newFileName}.${outputType}`)
-    )
+    fs.existsSync(path.join(directory, 'visualization', `${newFileName}.${outputType}`))
   ) {
-    newFileName += "_new";
+    newFileName += '_new';
   }
-  return path.join(directory, "visualization", `${newFileName}.${outputType}`);
+  return path.join(directory, 'visualization', `${newFileName}.${outputType}`);
 }
 
 const readStdin = (): Promise<string> => {
-  return new Promise((resolve) => {
-    let input = "";
-    process.stdin.setEncoding("utf-8"); // 确保编码与 Python 端一致
-    process.stdin.on("data", (chunk) => (input += chunk));
-    process.stdin.on("end", () => resolve(input));
+  return new Promise(resolve => {
+    let input = '';
+    process.stdin.setEncoding('utf-8'); // 确保编码与 Python 端一致
+    process.stdin.on('data', chunk => (input += chunk));
+    process.stdin.on('end', () => resolve(input));
   });
 };
 
 /** Save insights markdown in local, and return content && path */
-const setInsightTemplate = (
-  path: string,
-  title: string,
-  insights: string[]
-) => {
-  let res = "";
+const setInsightTemplate = (path: string, title: string, insights: string[]) => {
+  let res = '';
   if (insights.length) {
     res += `## ${title} Insights`;
     insights.forEach((insight, index) => {
@@ -138,7 +130,7 @@ const setInsightTemplate = (
     });
   }
   if (res) {
-    fs.writeFileSync(path, res, "utf-8");
+    fs.writeFileSync(path, res, 'utf-8');
     return { insight_path: path, insight_md: res };
   }
   return {};
@@ -148,23 +140,22 @@ const setInsightTemplate = (
 async function saveChartRes(options: {
   spec: any;
   directory: string;
-  outputType: "png" | "html";
+  outputType: 'png' | 'html';
   fileName: string;
   width?: number;
   height?: number;
   isUpdate?: boolean;
 }) {
-  const { directory, fileName, spec, outputType, width, height, isUpdate } =
-    options;
-  const specPath = getSavedPathName(directory, fileName, "json", isUpdate);
+  const { directory, fileName, spec, outputType, width, height, isUpdate } = options;
+  const specPath = getSavedPathName(directory, fileName, 'json', isUpdate);
   fs.writeFileSync(specPath, JSON.stringify(spec, null, 2));
   const savedPath = getSavedPathName(directory, fileName, outputType, isUpdate);
-  if (outputType === "png") {
+  if (outputType === 'png') {
     const base64 = await getBase64(spec, width, height);
     fs.writeFileSync(savedPath, base64);
   } else {
     const html = getHtmlVChart(spec, width, height);
-    fs.writeFileSync(savedPath, html, "utf-8");
+    fs.writeFileSync(savedPath, html, 'utf-8');
   }
   return savedPath;
 }
@@ -175,11 +166,11 @@ async function generateChart(
     dataset: string | DataTable;
     userPrompt: string;
     directory: string;
-    outputType: "png" | "html";
+    outputType: 'png' | 'html';
     fileName: string;
     width?: number;
     height?: number;
-    language?: "en" | "zh";
+    language?: 'en' | 'zh';
   }
 ) {
   let res: {
@@ -188,16 +179,7 @@ async function generateChart(
     insight_path?: string;
     insight_md?: string;
   } = {};
-  const {
-    dataset,
-    userPrompt,
-    directory,
-    width,
-    height,
-    outputType,
-    fileName,
-    language,
-  } = options;
+  const { dataset, userPrompt, directory, width, height, outputType, fileName, language } = options;
   try {
     // Get chart spec and save in local file
     const jsonDataset = isString(dataset) ? JSON.parse(dataset) : dataset;
@@ -207,22 +189,22 @@ async function generateChart(
       jsonDataset,
       {
         enableDataQuery: false,
-        theme: "light",
+        theme: 'light',
       }
     );
     if (error || !spec) {
       return {
-        error: error || "Spec of Chart was Empty!",
+        error: error || 'Spec of Chart was Empty!',
       };
     }
 
     spec.title = {
       text: userPrompt,
     };
-    if (!fs.existsSync(path.join(directory, "visualization"))) {
-      fs.mkdirSync(path.join(directory, "visualization"));
+    if (!fs.existsSync(path.join(directory, 'visualization'))) {
+      fs.mkdirSync(path.join(directory, 'visualization'));
     }
-    const specPath = getSavedPathName(directory, fileName, "json");
+    const specPath = getSavedPathName(directory, fileName, 'json');
     res.chart_path = await saveChartRes({
       directory,
       spec,
@@ -261,22 +243,18 @@ async function generateChart(
           AlgorithmType.Volatility,
         ],
         usePolish: false,
-        language: language === "en" ? "english" : "chinese",
+        language: language === 'en' ? 'english' : 'chinese',
       });
       insights.push(...vmindInsights);
     }
     const insightsText = insights
-      .map((insight) => insight.textContent?.plainText)
-      .filter((insight) => !!insight) as string[];
+      .map(insight => insight.textContent?.plainText)
+      .filter(insight => !!insight) as string[];
     spec.insights = insights;
     fs.writeFileSync(specPath, JSON.stringify(spec, null, 2));
     res = {
       ...res,
-      ...setInsightTemplate(
-        getSavedPathName(directory, fileName, "md"),
-        userPrompt,
-        insightsText
-      ),
+      ...setInsightTemplate(getSavedPathName(directory, fileName, 'md'), userPrompt, insightsText),
     };
   } catch (error: any) {
     res.error = error.toString();
@@ -289,7 +267,7 @@ async function updateChartWithInsight(
   vmind: VMind,
   options: {
     directory: string;
-    outputType: "png" | "html";
+    outputType: 'png' | 'html';
     fileName: string;
     insightsId: number[];
   }
@@ -297,11 +275,11 @@ async function updateChartWithInsight(
   const { directory, outputType, fileName, insightsId } = options;
   let res: { error?: string; chart_path?: string } = {};
   try {
-    const specPath = getSavedPathName(directory, fileName, "json", true);
-    const spec = JSON.parse(fs.readFileSync(specPath, "utf8"));
+    const specPath = getSavedPathName(directory, fileName, 'json', true);
+    const spec = JSON.parse(fs.readFileSync(specPath, 'utf8'));
     // llm select index from 1
-    const insights = (spec.insights || []).filter(
-      (_insight: any, index: number) => insightsId.includes(index + 1)
+    const insights = (spec.insights || []).filter((_insight: any, index: number) =>
+      insightsId.includes(index + 1)
     );
     const { newSpec, error } = await vmind.updateSpecByInsights(spec, insights);
     if (error) {
@@ -332,22 +310,22 @@ async function executeVMind() {
     height,
     directory,
     user_prompt: userPrompt,
-    output_type: outputType = "png",
+    output_type: outputType = 'png',
     file_name: fileName,
-    task_type: taskType = "visualization",
+    task_type: taskType = 'visualization',
     insights_id: insightsId = [],
-    language = "en",
+    language = 'en',
   } = inputData;
   const { base_url: baseUrl, model, api_key: apiKey } = llm_config;
   const vmind = new VMind({
     url: `${baseUrl}/chat/completions`,
     model,
     headers: {
-      "api-key": apiKey,
+      'api-key': apiKey,
       Authorization: `Bearer ${apiKey}`,
     },
   });
-  if (taskType === "visualization") {
+  if (taskType === 'visualization') {
     res = await generateChart(vmind, {
       dataset,
       userPrompt,
@@ -358,7 +336,7 @@ async function executeVMind() {
       height,
       language,
     });
-  } else if (taskType === "insight" && insightsId.length) {
+  } else if (taskType === 'insight' && insightsId.length) {
     res = await updateChartWithInsight(vmind, {
       directory,
       fileName,

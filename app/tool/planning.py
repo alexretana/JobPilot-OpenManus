@@ -346,7 +346,7 @@ class PlanningTool(BaseTool):
 
         # Add each step with its status and notes
         for i, (step, status, notes) in enumerate(
-            zip(plan["steps"], plan["step_statuses"], plan["step_notes"])
+            zip(plan["steps"], plan["step_statuses"], plan["step_notes"], strict=False)
         ):
             status_symbol = {
                 "not_started": "[ ]",

@@ -296,9 +296,11 @@ class JobScraperTool(BaseTool):
                 f"• Mentor junior team members\n"
                 f"• Participate in code reviews and technical discussions",
                 "job_type": job_type,
-                "remote_type": RemoteType.REMOTE
-                if location == "Remote"
-                else random.choice([RemoteType.ON_SITE, RemoteType.HYBRID]),
+                "remote_type": (
+                    RemoteType.REMOTE
+                    if location == "Remote"
+                    else random.choice([RemoteType.ON_SITE, RemoteType.HYBRID])
+                ),
                 "experience_level": random.choice(list(ExperienceLevel)),
                 "salary_min": base_salary,
                 "salary_max": base_salary + random.randint(20000, 50000),

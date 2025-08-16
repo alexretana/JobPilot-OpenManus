@@ -202,7 +202,7 @@ class JSearchDataCollector:
                 elif response.status == 429:
                     # Rate limited
                     logger.warning(
-                        f"Rate limited by API (status 429). Will retry after delay."
+                        "Rate limited by API (status 429). Will retry after delay."
                     )
                     await asyncio.sleep(60)  # Wait 1 minute
                     return await self._fetch_page(query, location, page)  # Retry

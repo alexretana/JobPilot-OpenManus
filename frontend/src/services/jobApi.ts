@@ -192,10 +192,10 @@ class JobApiService {
     const labels: Record<string, string> = {
       'Full-time': 'Full-time',
       'Part-time': 'Part-time',
-      'Contract': 'Contract',
-      'Temporary': 'Temporary',
-      'Internship': 'Internship',
-      'Volunteer': 'Volunteer'
+      Contract: 'Contract',
+      Temporary: 'Temporary',
+      Internship: 'Internship',
+      Volunteer: 'Volunteer',
     };
 
     return labels[jobType] || jobType;
@@ -208,9 +208,9 @@ class JobApiService {
     if (!remoteType) return 'Not specified';
 
     const labels: Record<string, string> = {
-      'Remote': 'Remote',
+      Remote: 'Remote',
       'On-site': 'On-site',
-      'Hybrid': 'Hybrid'
+      Hybrid: 'Hybrid',
     };
 
     return labels[remoteType] || remoteType;
@@ -221,9 +221,9 @@ class JobApiService {
    */
   getRemoteTypeIcon(remoteType: string | null): string {
     const icons: Record<string, string> = {
-      'Remote': '🏠',
+      Remote: '🏠',
       'On-site': '🏢',
-      'Hybrid': '🔄'
+      Hybrid: '🔄',
     };
 
     return icons[remoteType || ''] || '📍';

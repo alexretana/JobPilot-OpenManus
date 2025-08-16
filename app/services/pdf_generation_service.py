@@ -121,7 +121,7 @@ class PDFGenerationService:
             from rendercv.data_models import CurriculumVitae
 
             # Load the YAML file
-            with open(yaml_file, "r", encoding="utf-8") as f:
+            with open(yaml_file, encoding="utf-8") as f:
                 data = yaml.safe_load(f)
 
             # Create CV object
@@ -206,12 +206,12 @@ class PDFGenerationService:
                     "company": exp.company,
                     "position": exp.position,
                     "location": exp.location or "",
-                    "start_date": exp.start_date.strftime("%Y-%m")
-                    if exp.start_date
-                    else "",
-                    "end_date": exp.end_date.strftime("%Y-%m")
-                    if exp.end_date
-                    else "present",
+                    "start_date": (
+                        exp.start_date.strftime("%Y-%m") if exp.start_date else ""
+                    ),
+                    "end_date": (
+                        exp.end_date.strftime("%Y-%m") if exp.end_date else "present"
+                    ),
                     "highlights": exp.achievements or [],
                 }
                 cv_data["cv"]["experience"].append(exp_data)
@@ -225,9 +225,9 @@ class PDFGenerationService:
                     "area": edu.field_of_study or edu.degree,
                     "degree": edu.degree,
                     "location": edu.location or "",
-                    "start_date": edu.start_date.strftime("%Y-%m")
-                    if edu.start_date
-                    else "",
+                    "start_date": (
+                        edu.start_date.strftime("%Y-%m") if edu.start_date else ""
+                    ),
                     "end_date": edu.end_date.strftime("%Y-%m") if edu.end_date else "",
                     "highlights": edu.honors or [],
                 }
@@ -257,9 +257,9 @@ class PDFGenerationService:
             for project in resume.projects:
                 proj_data = {
                     "name": project.name,
-                    "date": project.end_date.strftime("%Y-%m")
-                    if project.end_date
-                    else "",
+                    "date": (
+                        project.end_date.strftime("%Y-%m") if project.end_date else ""
+                    ),
                     "highlights": project.achievements or [project.description],
                     "url": project.url or project.github_url or "",
                 }
@@ -271,9 +271,9 @@ class PDFGenerationService:
             for cert in resume.certifications:
                 cert_data = {
                     "name": cert.name,
-                    "date": cert.issue_date.strftime("%Y-%m")
-                    if cert.issue_date
-                    else "",
+                    "date": (
+                        cert.issue_date.strftime("%Y-%m") if cert.issue_date else ""
+                    ),
                     "url": cert.url or "",
                 }
                 cv_data["cv"]["certificates"].append(cert_data)

@@ -49,7 +49,7 @@ pre-commit run --files api_research/tests/test_jsearch.py
 
 #### Black Configuration
 
-- Line length: 88 (default)
+- Line length: No limit (developer discretion)
 - Version: 24.3.0 (specified in pre-commit config)
 - Target version: Python 3.11 compatibility
 

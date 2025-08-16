@@ -6,9 +6,11 @@
 
 ## 📋 **Overview**
 
-This document outlines the comprehensive backend development plan for JobPilot-OpenManus Phase 2, focusing on real job board integration, enhanced data architecture, and scalable data acquisition pipelines.
+This document outlines the comprehensive backend development plan for JobPilot-OpenManus Phase 2, focusing on real job
+board integration, enhanced data architecture, and scalable data acquisition pipelines.
 
 **Strategic Approach**: **Data Storage First, Then Data Acquisition**
+
 - Build robust data architecture to handle real job board data
 - Implement vector store for semantic search capabilities
 - Create scalable ingestion pipelines
@@ -19,6 +21,7 @@ This document outlines the comprehensive backend development plan for JobPilot-O
 ## 🎯 **Current State Analysis**
 
 ### ✅ **What We Have (Working Foundation)**
+
 - **Complete Data Models**: JobListing, UserProfile, JobApplication
 - **Demo Job Generation**: Realistic test data for development
 - **Semantic Search**: Basic embedding-based job matching
@@ -27,6 +30,7 @@ This document outlines the comprehensive backend development plan for JobPilot-O
 - **Testing Suite**: Comprehensive test coverage
 
 ### 🔄 **What We're Building (Phase 2 Goals)**
+
 - **Real Job Board Integration**: LinkedIn, Indeed, Glassdoor
 - **Enhanced Vector Storage**: Production-ready semantic search
 - **Data Pipeline**: Scalable ingestion, deduplication, enrichment
@@ -38,6 +42,7 @@ This document outlines the comprehensive backend development plan for JobPilot-O
 ## 🏗️ **High-Level Architecture Plan**
 
 ### **Phase 2A: Data Architecture Foundation** (Week 1-2)
+
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   Job Sources   │    │  Data Pipeline   │    │ Enhanced Storage│
@@ -50,6 +55,7 @@ This document outlines the comprehensive backend development plan for JobPilot-O
 ```
 
 ### **Phase 2B: Data Acquisition Strategy** (Week 3-4)
+
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │ Scraping Layer  │    │ Processing Layer │    │ Integration     │
@@ -361,6 +367,7 @@ class JobEnricher:
 ### **Priority 1: LinkedIn Jobs Integration**
 
 #### **Implementation Details:**
+
 ```python
 # Most reliable, highest quality data source
 - Official LinkedIn API integration (where available)
@@ -379,6 +386,7 @@ class JobEnricher:
 ```
 
 #### **Rate Limiting Strategy:**
+
 ```python
 linkedin_config = {
     "requests_per_minute": 30,
@@ -394,6 +402,7 @@ linkedin_config = {
 ### **Priority 2: Indeed Integration**
 
 #### **Implementation Details:**
+
 ```python
 # Largest volume, broadest coverage
 - Indeed API (limited but useful for official data)
@@ -413,6 +422,7 @@ linkedin_config = {
 ### **Priority 3: Glassdoor Integration**
 
 #### **Implementation Details:**
+
 ```python
 # Company insights and salary benchmarking
 - Focus on company reviews and salary data to complement LinkedIn/Indeed
@@ -434,23 +444,27 @@ linkedin_config = {
 ## 🎯 **Implementation Timeline**
 
 ### **Week 1: Database Foundation**
+
 - [ ] **Day 1-2**: Extend database models (JobSource, JobSourceListing, JobEmbedding, etc.)
 - [ ] **Day 3-4**: Set up vector store infrastructure (choose between Chroma/Pinecone)
 - [ ] **Day 5**: Create migration scripts and update database schema
 - [ ] **Day 6-7**: Testing infrastructure for new models and vector operations
 
 ### **Week 2: Pipeline Architecture**
+
 - [ ] **Day 1-3**: Implement JobIngestionPipeline and data processing components
 - [ ] **Day 4-5**: Create job deduplication system with multiple matching strategies
 - [ ] **Day 6-7**: Build job enrichment pipeline and quality scoring system
 
 ### **Week 3: LinkedIn Integration**
+
 - [ ] **Day 1-2**: Implement LinkedInScraper with rate limiting and error handling
 - [ ] **Day 3-4**: Create LinkedIn-specific data parsing and normalization
 - [ ] **Day 5-6**: Integration testing and quality assurance
 - [ ] **Day 7**: Performance optimization and monitoring setup
 
 ### **Week 4: Indeed + Polish**
+
 - [ ] **Day 1-3**: Implement IndeedScraper with comprehensive data extraction
 - [ ] **Day 4**: Cross-platform deduplication testing with LinkedIn + Indeed data
 - [ ] **Day 5**: Glassdoor integration (company data focus)
@@ -461,6 +475,7 @@ linkedin_config = {
 ## 💡 **Technical Decisions & Architecture Choices**
 
 ### **1. Vector Store Selection**
+
 ```python
 # Recommendation: Start with Chroma for development, plan for Pinecone in production
 
@@ -478,6 +493,7 @@ Production: Pinecone (future)
 ```
 
 ### **2. Scraping vs API Strategy**
+
 ```python
 Hybrid Approach:
 1. Official APIs first (LinkedIn, Indeed limited APIs)
@@ -488,6 +504,7 @@ Hybrid Approach:
 ```
 
 ### **3. Data Storage Strategy**
+
 ```python
 Hybrid Architecture:
 - SQL Database (PostgreSQL): Structured job data, relationships, transactions
@@ -497,6 +514,7 @@ Hybrid Architecture:
 ```
 
 ### **4. Data Quality & Monitoring**
+
 ```python
 Quality Assurance:
 - Data quality scoring (0.0-1.0) for each job listing
@@ -511,18 +529,21 @@ Quality Assurance:
 ## 🚀 **Success Metrics & Monitoring**
 
 ### **Data Quality Metrics**
+
 - **Job Accuracy**: % of jobs that are still active when verified
 - **Duplicate Rate**: % of jobs identified as duplicates across platforms
 - **Enrichment Success**: % of jobs successfully enriched with additional data
 - **Parse Success Rate**: % of scraped jobs successfully parsed and stored
 
 ### **Performance Metrics**
+
 - **Ingestion Throughput**: Jobs processed per hour/day
 - **Search Latency**: Average response time for job search queries
 - **Vector Search Performance**: Embedding similarity search response times
 - **System Uptime**: Scraping pipeline availability and reliability
 
 ### **Business Metrics**
+
 - **Job Coverage**: Number of unique jobs from each source
 - **Search Relevance**: User engagement with search results
 - **Platform Diversity**: Balance of jobs across different sources
@@ -533,6 +554,7 @@ Quality Assurance:
 ## 🔄 **Future Enhancements (Post-Week 4)**
 
 ### **Additional Job Sources**
+
 - AngelList/Wellfound (startup focus)
 - RemoteOK (remote work specialist)
 - Stack Overflow Jobs (developer focus)
@@ -540,6 +562,7 @@ Quality Assurance:
 - Company career pages (direct integration)
 
 ### **Advanced Features**
+
 - Real-time job alerts and notifications
 - Salary prediction modeling using market data
 - Company culture scoring and matching
@@ -547,6 +570,7 @@ Quality Assurance:
 - Career progression path analysis
 
 ### **Enterprise Features**
+
 - Multi-tenant job data management
 - Custom job source integration APIs
 - Advanced analytics and reporting dashboards
@@ -558,6 +582,7 @@ Quality Assurance:
 ## 📞 **Implementation Support**
 
 For questions during implementation:
+
 - **Architecture decisions**: Reference this document and ROADMAP.md
 - **Technical issues**: Check existing code patterns in `app/data/` and `app/tool/`
 - **Testing approach**: Follow patterns in `tests/test_core_components.py`
@@ -565,7 +590,5 @@ For questions during implementation:
 
 ---
 
-**Document Version**: 1.0
-**Created**: August 14, 2025
-**Next Review**: After Week 1 completion
-**Status**: Ready for Implementation 🚀
+**Document Version**: 1.0 **Created**: August 14, 2025 **Next Review**: After Week 1 completion **Status**: Ready for
+Implementation 🚀

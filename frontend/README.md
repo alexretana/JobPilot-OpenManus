@@ -25,6 +25,7 @@ A modern, responsive web interface for the JobPilot-OpenManus AI job hunting ass
 ## 📦 Installation
 
 1. **Navigate to the frontend directory:**
+
    ```bash
    cd frontend
    ```
@@ -37,10 +38,13 @@ A modern, responsive web interface for the JobPilot-OpenManus AI job hunting ass
 ## 🛠️ Development
 
 1. **Start the development server:**
+
    ```bash
    npm run dev
    ```
+
    This will start the dev server at `http://localhost:3000` with:
+
    - Hot module replacement
    - Proxy to backend API at `http://localhost:8080`
    - WebSocket proxy for real-time communication
@@ -53,9 +57,11 @@ A modern, responsive web interface for the JobPilot-OpenManus AI job hunting ass
 ## 🏗️ Build
 
 1. **Build for production:**
+
    ```bash
    npm run build
    ```
+
    Outputs to `dist/` directory
 
 2. **Preview production build:**
@@ -85,6 +91,7 @@ src/
 ## 🎨 Styling
 
 The project uses:
+
 - **TailwindCSS** for utility-first styling
 - **DaisyUI** for pre-built components and themes
 - **Custom CSS classes** for specific JobPilot functionality
@@ -92,6 +99,7 @@ The project uses:
 ### Available Themes
 
 DaisyUI provides 29 themes including:
+
 - light, dark, cupcake, bumblebee, emerald, corporate
 - synthwave, retro, cyberpunk, valentine, halloween
 - And many more!
@@ -103,11 +111,13 @@ Switch themes using the theme dropdown in the header.
 The frontend communicates with the FastAPI backend through:
 
 ### REST API (`/api/*`)
+
 - Health checks
 - Job search requests
 - Chat history
 
 ### WebSocket (`/ws`)
+
 - Real-time chat messages
 - Progress updates
 - Tool usage notifications
@@ -116,24 +126,28 @@ The frontend communicates with the FastAPI backend through:
 ## 📱 Component Structure
 
 ### Chat Component
+
 - Message history with user/assistant/progress types
 - Real-time message formatting
 - Quick action buttons
 - Progress indicator integration
 
 ### BrowserViewport Component
+
 - Live browser status display
 - URL tracking
 - Content preview with truncation
 - Visual status indicators
 
 ### ActivityLog Component
+
 - Chronological activity tracking
 - Different activity types (tool, error, browser, info)
 - Automatic activity pruning (last 20 entries)
 - Statistics summary
 
 ### StatusPanel Component
+
 - System health monitoring
 - WebSocket connection status
 - Quick action shortcuts
@@ -159,15 +173,18 @@ The frontend communicates with the FastAPI backend through:
 ## 🐛 Common Issues
 
 **WebSocket Connection Failed**
+
 - Ensure the backend is running on port 8080
 - Check firewall/proxy settings
 - Verify WebSocket endpoint is accessible
 
 **Build Errors**
+
 - Clear node_modules and reinstall: `rm -rf node_modules package-lock.json && npm install`
 - Check TypeScript errors: `npm run type-check`
 
 **Styling Issues**
+
 - Verify TailwindCSS classes are valid
 - Check DaisyUI component documentation
 - Ensure PostCSS is processing styles correctly

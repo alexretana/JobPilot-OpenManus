@@ -16,7 +16,9 @@ export function Timeline(props: TimelineProps) {
   const [upcomingEvents, setUpcomingEvents] = createSignal<TimelineEvent[]>([]);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal<string | null>(null);
-  const [activeTab, setActiveTab] = createSignal<'timeline' | 'milestones' | 'upcoming'>('timeline');
+  const [activeTab, setActiveTab] = createSignal<'timeline' | 'milestones' | 'upcoming'>(
+    'timeline'
+  );
   const [showCreateModal, setShowCreateModal] = createSignal(false);
   const [filterDays, setFilterDays] = createSignal<number>(30);
   const [selectedEventTypes] = createSignal<TimelineEventType[]>([]);
@@ -40,7 +42,7 @@ export function Timeline(props: TimelineProps) {
         timelineApi.getUpcomingEvents(props.userProfileId, {
           days_ahead: 14,
           limit: 10,
-        })
+        }),
       ]);
 
       setEvents(timelineEvents);
@@ -102,30 +104,46 @@ export function Timeline(props: TimelineProps) {
   return (
     <div class={`timeline-container ${props.className || ''}`}>
       {/* Header */}
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+      <div class='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6'>
         <div>
-          <h2 class="text-2xl font-bold text-base-content">Job Search Timeline</h2>
-          <p class="text-sm text-base-content/70 mt-1">Track your job search progress and milestones</p>
+          <h2 class='text-2xl font-bold text-base-content'>Job Search Timeline</h2>
+          <p class='text-sm text-base-content/70 mt-1'>
+            Track your job search progress and milestones
+          </p>
         </div>
 
-        <div class="flex flex-col sm:flex-row gap-2">
+        <div class='flex flex-col sm:flex-row gap-2'>
           {/* Filter Controls */}
-          <div class="dropdown dropdown-end">
-            <div tabindex={0} role="button" class="btn btn-outline btn-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707v4.586l-4-2v-2.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          <div class='dropdown dropdown-end'>
+            <div tabindex={0} role='button' class='btn btn-outline btn-sm'>
+              <svg
+                xmlns='http://www.w3.org/2000/svg'
+                class='h-4 w-4'
+                fill='none'
+                viewBox='0 0 24 24'
+                stroke='currentColor'
+              >
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707v4.586l-4-2v-2.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z'
+                />
               </svg>
               Filters
             </div>
-            <div tabindex={0} class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-80">
-              <div class="form-control">
-                <label class="label">
-                  <span class="label-text">Time Range</span>
+            <div
+              tabindex={0}
+              class='dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-80'
+            >
+              <div class='form-control'>
+                <label class='label'>
+                  <span class='label-text'>Time Range</span>
                 </label>
                 <select
-                  class="select select-bordered select-sm"
+                  class='select select-bordered select-sm'
                   value={filterDays()}
-                  onChange={(e) => setFilterDays(parseInt(e.currentTarget.value))}
+                  onChange={e => setFilterDays(parseInt(e.currentTarget.value))}
                 >
                   <option value={7}>Last 7 days</option>
                   <option value={30}>Last 30 days</option>
@@ -137,12 +155,20 @@ export function Timeline(props: TimelineProps) {
           </div>
 
           {/* Create Event Button */}
-          <button
-            class="btn btn-primary btn-sm"
-            onClick={() => setShowCreateModal(true)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          <button class='btn btn-primary btn-sm' onClick={() => setShowCreateModal(true)}>
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              class='h-4 w-4'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M12 4v16m8-8H4'
+              />
             </svg>
             Add Event
           </button>
@@ -150,13 +176,24 @@ export function Timeline(props: TimelineProps) {
       </div>
 
       {/* Tabs */}
-      <div class="tabs tabs-boxed mb-6">
+      <div class='tabs tabs-boxed mb-6'>
         <button
           class={`tab ${activeTab() === 'timeline' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('timeline')}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            class='h-4 w-4 mr-2'
+            fill='none'
+            viewBox='0 0 24 24'
+            stroke='currentColor'
+          >
+            <path
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              stroke-width='2'
+              d='M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'
+            />
           </svg>
           Timeline ({events().length})
         </button>
@@ -164,8 +201,19 @@ export function Timeline(props: TimelineProps) {
           class={`tab ${activeTab() === 'milestones' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('milestones')}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" />
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            class='h-4 w-4 mr-2'
+            fill='none'
+            viewBox='0 0 24 24'
+            stroke='currentColor'
+          >
+            <path
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              stroke-width='2'
+              d='M5 3l14 9-14 9V3z'
+            />
           </svg>
           Milestones ({milestones().length})
         </button>
@@ -173,8 +221,19 @@ export function Timeline(props: TimelineProps) {
           class={`tab ${activeTab() === 'upcoming' ? 'tab-active' : ''}`}
           onClick={() => setActiveTab('upcoming')}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            class='h-4 w-4 mr-2'
+            fill='none'
+            viewBox='0 0 24 24'
+            stroke='currentColor'
+          >
+            <path
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              stroke-width='2'
+              d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
+            />
           </svg>
           Upcoming ({upcomingEvents().length})
         </button>
@@ -182,19 +241,29 @@ export function Timeline(props: TimelineProps) {
 
       {/* Content */}
       <Show when={loading()}>
-        <div class="flex justify-center py-12">
-          <span class="loading loading-spinner loading-lg"></span>
+        <div class='flex justify-center py-12'>
+          <span class='loading loading-spinner loading-lg'></span>
         </div>
       </Show>
 
       <Show when={error()}>
-        <div class="alert alert-error mb-6">
-          <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        <div class='alert alert-error mb-6'>
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            class='stroke-current shrink-0 h-6 w-6'
+            fill='none'
+            viewBox='0 0 24 24'
+          >
+            <path
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              stroke-width='2'
+              d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'
+            />
           </svg>
           <span>{error()}</span>
           <div>
-            <button class="btn btn-sm btn-outline" onClick={loadTimelineData}>
+            <button class='btn btn-sm btn-outline' onClick={loadTimelineData}>
               Retry
             </button>
           </div>
@@ -205,10 +274,10 @@ export function Timeline(props: TimelineProps) {
         <Show
           when={getCurrentEvents().length > 0}
           fallback={
-            <div class="text-center py-12">
-              <div class="text-6xl mb-4">📅</div>
-              <h3 class="text-lg font-medium text-base-content/70 mb-2">{getEmptyMessage()}</h3>
-              <p class="text-sm text-base-content/50 mb-4">
+            <div class='text-center py-12'>
+              <div class='text-6xl mb-4'>📅</div>
+              <h3 class='text-lg font-medium text-base-content/70 mb-2'>{getEmptyMessage()}</h3>
+              <p class='text-sm text-base-content/50 mb-4'>
                 {activeTab() === 'timeline'
                   ? 'Start tracking your job search by creating your first timeline event!'
                   : activeTab() === 'milestones'
@@ -216,19 +285,16 @@ export function Timeline(props: TimelineProps) {
                   : 'Upcoming interviews and events will be shown here.'}
               </p>
               <Show when={activeTab() === 'timeline'}>
-                <button
-                  class="btn btn-primary btn-sm"
-                  onClick={() => setShowCreateModal(true)}
-                >
+                <button class='btn btn-primary btn-sm' onClick={() => setShowCreateModal(true)}>
                   Create First Event
                 </button>
               </Show>
             </div>
           }
         >
-          <div class="space-y-4">
+          <div class='space-y-4'>
             <For each={getCurrentEvents()}>
-              {(event) => (
+              {event => (
                 <TimelineEventCard
                   event={event}
                   onDelete={handleEventDeleted}

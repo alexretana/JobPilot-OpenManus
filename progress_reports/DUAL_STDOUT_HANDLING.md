@@ -72,13 +72,13 @@ while True:
 
 All output is formatted with clear prefixes using emojis:
 
-| Stream Source | Prefix | Example |
-|---------------|--------|---------|
-| Backend Info | `🔌 Backend:` | `🔌 Backend: Starting server...` |
-| Frontend Info | `🌐 Frontend:` | `🌐 Frontend: Building for development...` |
-| Frontend Ready | `✅ Frontend:` | `✅ Frontend: Local server ready at http://localhost:3000` |
-| Frontend Error | `🔴 Frontend:` | `🔴 Frontend: Failed to compile` |
-| Frontend Warning | `⚠️ Frontend:` | `⚠️ Frontend: Deprecated API usage` |
+| Stream Source    | Prefix         | Example                                                    |
+| ---------------- | -------------- | ---------------------------------------------------------- |
+| Backend Info     | `🔌 Backend:`  | `🔌 Backend: Starting server...`                           |
+| Frontend Info    | `🌐 Frontend:` | `🌐 Frontend: Building for development...`                 |
+| Frontend Ready   | `✅ Frontend:` | `✅ Frontend: Local server ready at http://localhost:3000` |
+| Frontend Error   | `🔴 Frontend:` | `🔴 Frontend: Failed to compile`                           |
+| Frontend Warning | `⚠️ Frontend:` | `⚠️ Frontend: Deprecated API usage`                        |
 
 ### 4. **Custom Log Formatter**
 
@@ -139,4 +139,5 @@ When you run `python web_server.py --dev`, you'll see output like:
 - **Process Management** - Proper cleanup and termination
 - **Log Interleaving** - Maintaining chronological order of mixed logs
 
-This approach gives developers a seamless experience where they can see both frontend and backend activity in real-time, with clear visual distinction between the two systems.
+This approach gives developers a seamless experience where they can see both frontend and backend activity in real-time,
+with clear visual distinction between the two systems.

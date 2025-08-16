@@ -31,12 +31,12 @@ class JobSearchQuery:
     page: int = 1
     num_pages: int = 1
     date_posted: Optional[str] = None  # all, today, 3days, week, month
-    employment_types: Optional[
-        List[str]
-    ] = None  # FULLTIME, PARTTIME, CONTRACTOR, INTERN
-    job_requirements: Optional[
-        List[str]
-    ] = None  # under_3_years_experience, more_than_3_years_experience, no_experience, no_degree
+    employment_types: Optional[List[str]] = (
+        None  # FULLTIME, PARTTIME, CONTRACTOR, INTERN
+    )
+    job_requirements: Optional[List[str]] = (
+        None  # under_3_years_experience, more_than_3_years_experience, no_experience, no_degree
+    )
     company_types: Optional[List[str]] = None
     radius: Optional[int] = None
 
@@ -178,9 +178,9 @@ class JobAPIClient(ABC):
         return {
             "requests_made": self._request_count,
             "elapsed_time_seconds": elapsed_time,
-            "requests_per_minute": (self._request_count / elapsed_time) * 60
-            if elapsed_time > 0
-            else 0,
+            "requests_per_minute": (
+                (self._request_count / elapsed_time) * 60 if elapsed_time > 0 else 0
+            ),
         }
 
     async def test_connection(
@@ -258,5 +258,5 @@ def save_response_sample(
 
 def load_response_sample(filename: str) -> Dict:
     """Load saved API response sample"""
-    with open(filename, "r", encoding="utf-8") as f:
+    with open(filename, encoding="utf-8") as f:
         return json.load(f)

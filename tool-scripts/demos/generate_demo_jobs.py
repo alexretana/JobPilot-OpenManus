@@ -64,7 +64,7 @@ async def generate_demo_jobs():
     recent_jobs = job_repo.get_recent_jobs(limit=100)
     actual_jobs = len(recent_jobs)
 
-    logger.info(f"🎉 Demo job generation complete!")
+    logger.info("🎉 Demo job generation complete!")
     logger.info(f"📊 Total jobs in database: {actual_jobs}")
 
     if actual_jobs > 0:

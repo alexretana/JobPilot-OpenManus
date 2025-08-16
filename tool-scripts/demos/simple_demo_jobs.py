@@ -6,7 +6,7 @@ Directly creates demo job data in the database for testing the job cards.
 
 import os
 import sys
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 # Add project root to path
@@ -201,7 +201,7 @@ def create_demo_jobs():
             # Add timestamp and ID
             job_data.update(
                 {
-                    "posted_date": datetime.now(timezone.utc),
+                    "posted_date": datetime.now(UTC),
                     "job_url": f"https://demo-jobs.example.com/job/{str(uuid4())[:8]}",
                     "status": "active",
                 }

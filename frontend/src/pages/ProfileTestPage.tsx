@@ -7,8 +7,8 @@ const ProfileTestPage: Component = () => {
   };
 
   return (
-    <div class="min-h-screen bg-base-200">
-      <ProfileDashboard userId="demo-user-123" onProfileChange={handleProfileChange} />
+    <div class='min-h-screen bg-base-200'>
+      <ProfileDashboard userId='demo-user-123' onProfileChange={handleProfileChange} />
     </div>
   );
 };

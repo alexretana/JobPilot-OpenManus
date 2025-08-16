@@ -167,7 +167,9 @@ class ComprehensiveE2ETestSuite:
                 async with self.session.get(f"{self.base_url}/api/stats") as response:
                     if response.status == 200:
                         stats = await response.json()
-                        print(f"   📈 Database stats: {stats.get('total_jobs', 0)} jobs")
+                        print(
+                            f"   📈 Database stats: {stats.get('total_jobs', 0)} jobs"
+                        )
             except Exception:
                 print("   ℹ️ Stats endpoint not accessible")
 
@@ -312,7 +314,9 @@ class ComprehensiveE2ETestSuite:
                 ) as response:
                     if response.status == 200:
                         created_job = await response.json()
-                        print(f"   ✅ ETL simulation successful: {created_job['title']}")
+                        print(
+                            f"   ✅ ETL simulation successful: {created_job['title']}"
+                        )
                         self.test_data.setdefault("test_jobs", []).append(created_job)
                         return True
 
@@ -724,9 +728,9 @@ class ComprehensiveE2ETestSuite:
             "total_tests": len(self.results),
             "passed": len(passed_tests),
             "failed": len(failed_tests),
-            "pass_rate": len(passed_tests) / len(self.results) * 100
-            if self.results
-            else 0,
+            "pass_rate": (
+                len(passed_tests) / len(self.results) * 100 if self.results else 0
+            ),
             "total_time": total_time,
             "average_time": avg_time,
             "results": self.results,

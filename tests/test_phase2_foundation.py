@@ -367,7 +367,9 @@ async def main():
     ]
 
     passed_tests = 0
-    for i, (test_name, result) in enumerate(zip(test_names, test_results)):
+    for i, (test_name, result) in enumerate(
+        zip(test_names, test_results, strict=False)
+    ):
         status = "✅ PASS" if result else "❌ FAIL"
         print(f"   {status} - {test_name}")
         if result:

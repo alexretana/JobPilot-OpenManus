@@ -372,7 +372,7 @@ def main():
     ]
 
     passed_tests = 0
-    for test_name, result in zip(test_names, test_results):
+    for test_name, result in zip(test_names, test_results, strict=False):
         status = "✅ PASS" if result else "❌ FAIL"
         print(f"   {status} - {test_name}")
         if result:

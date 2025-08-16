@@ -49,12 +49,17 @@ ignore = [
     "E501",  # line too long, handled by black
     "B008",  # do not perform function calls in argument defaults
     "B904",  # raise from exceptions - can be addressed later
+    "B007",  # loop control variable not used - often intentional
+    "B017",  # pytest.raises(Exception) - sometimes needed for testing
     "C901",  # too complex
     "W191",  # indentation contains tabs
     "E203",  # whitespace before ':' (conflicts with black)
-    "UP007", # Use X | Y for type annotations - modernize later
-    "UP006", # Use list instead of List - modernize later
-    "UP035", # typing.List is deprecated - modernize later
+    "E402",  # module level import not at top - often needed
+    "UP",    # pyupgrade rules - modernize later
+    "PTH",   # pathlib modernization - can be addressed later
+    "ARG",   # unused arguments - often intentional in interfaces
+    "SIM",   # simplify code - can conflict with readability
+    "C4",    # comprehension rules - can conflict with readability
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

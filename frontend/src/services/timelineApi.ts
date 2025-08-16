@@ -2,7 +2,7 @@ import type {
   TimelineEvent,
   CreateTimelineEventRequest,
   CreateCustomEventRequest,
-  UpdateTimelineEventRequest
+  UpdateTimelineEventRequest,
 } from '../types';
 import { TimelineEventType } from '../types';
 
@@ -169,9 +169,12 @@ export class TimelineApiService {
       options.tags.forEach(tag => params.append('tags', tag));
     }
 
-    return this.fetchApi<TimelineEvent>(`/user/${userProfileId}/job/${jobId}/saved?${params.toString()}`, {
-      method: 'POST',
-    });
+    return this.fetchApi<TimelineEvent>(
+      `/user/${userProfileId}/job/${jobId}/saved?${params.toString()}`,
+      {
+        method: 'POST',
+      }
+    );
   }
 
   async logApplicationSubmitted(
@@ -190,9 +193,12 @@ export class TimelineApiService {
     params.set('company_name', options.company_name);
     if (options.application_method) params.set('application_method', options.application_method);
 
-    return this.fetchApi<TimelineEvent>(`/user/${userProfileId}/application/${applicationId}/submitted?${params.toString()}`, {
-      method: 'POST',
-    });
+    return this.fetchApi<TimelineEvent>(
+      `/user/${userProfileId}/application/${applicationId}/submitted?${params.toString()}`,
+      {
+        method: 'POST',
+      }
+    );
   }
 
   async logInterviewScheduled(
@@ -215,9 +221,12 @@ export class TimelineApiService {
     if (options.interview_type) params.set('interview_type', options.interview_type);
     if (options.interviewer) params.set('interviewer', options.interviewer);
 
-    return this.fetchApi<TimelineEvent>(`/user/${userProfileId}/application/${applicationId}/interview-scheduled?${params.toString()}`, {
-      method: 'POST',
-    });
+    return this.fetchApi<TimelineEvent>(
+      `/user/${userProfileId}/application/${applicationId}/interview-scheduled?${params.toString()}`,
+      {
+        method: 'POST',
+      }
+    );
   }
 
   async logStatusChange(
@@ -240,9 +249,12 @@ export class TimelineApiService {
     params.set('new_status', options.new_status);
     if (options.notes) params.set('notes', options.notes);
 
-    return this.fetchApi<TimelineEvent>(`/user/${userProfileId}/application/${applicationId}/status-changed?${params.toString()}`, {
-      method: 'POST',
-    });
+    return this.fetchApi<TimelineEvent>(
+      `/user/${userProfileId}/application/${applicationId}/status-changed?${params.toString()}`,
+      {
+        method: 'POST',
+      }
+    );
   }
 
   // Utility

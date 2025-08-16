@@ -484,7 +484,7 @@ class ETLSettingsManager:
         jobs_config_file = self.config_path / "scheduler_jobs.yaml"
         if jobs_config_file.exists():
             try:
-                with open(jobs_config_file, "r", encoding="utf-8") as f:
+                with open(jobs_config_file, encoding="utf-8") as f:
                     jobs_config = yaml.safe_load(f)
 
                 if jobs_config and "jobs" in jobs_config:

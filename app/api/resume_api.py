@@ -180,12 +180,12 @@ async def get_user_resumes(
                     title=resume.title,
                     status=resume.status,
                     resume_type=resume.resume_type,
-                    created_at=resume.created_at.isoformat()
-                    if resume.created_at
-                    else "",
-                    updated_at=resume.updated_at.isoformat()
-                    if resume.updated_at
-                    else "",
+                    created_at=(
+                        resume.created_at.isoformat() if resume.created_at else ""
+                    ),
+                    updated_at=(
+                        resume.updated_at.isoformat() if resume.updated_at else ""
+                    ),
                     version=resume.version,
                     completeness_score=completeness,
                 )
@@ -574,15 +574,21 @@ async def get_resume_analytics(
                 "certifications_count": len(resume.certifications),
             },
             "recommendations": [
-                "Add more specific achievements to work experience"
-                if not any(exp.achievements for exp in resume.work_experience)
-                else None,
-                f"Consider adding more skills (currently {len(resume.skills)})"
-                if len(resume.skills) < 8
-                else None,
-                "Add projects to showcase practical experience"
-                if len(resume.projects) == 0
-                else None,
+                (
+                    "Add more specific achievements to work experience"
+                    if not any(exp.achievements for exp in resume.work_experience)
+                    else None
+                ),
+                (
+                    f"Consider adding more skills (currently {len(resume.skills)})"
+                    if len(resume.skills) < 8
+                    else None
+                ),
+                (
+                    "Add projects to showcase practical experience"
+                    if len(resume.projects) == 0
+                    else None
+                ),
             ],
         }
 
@@ -629,9 +635,9 @@ async def get_resume_versions(
             "versions": [
                 {
                     "version": resume.version,
-                    "created_at": resume.updated_at.isoformat()
-                    if resume.updated_at
-                    else "",
+                    "created_at": (
+                        resume.updated_at.isoformat() if resume.updated_at else ""
+                    ),
                     "is_current": True,
                 }
             ],

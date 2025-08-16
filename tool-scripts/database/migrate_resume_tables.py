@@ -229,7 +229,7 @@ def verify_migration(engine):
         template_count = session.query(ResumeTemplateDB).count()
         skill_bank_count = session.query(SkillBankDB).count()
 
-        logger.info(f"Migration verification:")
+        logger.info("Migration verification:")
         logger.info(f"  - Resumes table: {resume_count} records")
         logger.info(f"  - Templates table: {template_count} records")
         logger.info(f"  - Skill banks table: {skill_bank_count} records")
@@ -460,7 +460,7 @@ def main():
             engine
         )
 
-        logger.info(f"Database status:")
+        logger.info("Database status:")
         logger.info(f"  - Total existing tables: {len(existing_tables)}")
         logger.info(f"  - Missing resume tables: {missing_tables}")
         logger.info(f"  - Existing resume tables: {existing_resume_tables}")

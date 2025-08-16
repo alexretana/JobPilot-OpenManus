@@ -20,7 +20,9 @@ class JobDiscoveryAgent(BaseAgent):
     """Agent specialized in discovering and extracting job listings."""
 
     name: str = "JobDiscovery"
-    description: str = "Specialized agent for finding and extracting job listings from job boards and company websites"
+    description: str = (
+        "Specialized agent for finding and extracting job listings from job boards and company websites"
+    )
 
     system_prompt: str = """You are JobDiscovery, an AI agent specialized in finding and extracting job listings.
 
@@ -111,9 +113,11 @@ When scraping jobs:
                         "title": job.title,
                         "company": job.company,
                         "location": job.location,
-                        "salary_range": f"${job.salary_min:,}-${job.salary_max:,}"
-                        if job.salary_min and job.salary_max
-                        else "Not specified",
+                        "salary_range": (
+                            f"${job.salary_min:,}-${job.salary_max:,}"
+                            if job.salary_min and job.salary_max
+                            else "Not specified"
+                        ),
                     }
                     for job in recent_jobs[:5]
                 ],
@@ -255,9 +259,9 @@ When scraping jobs:
                     "salary_min": job.salary_min,
                     "salary_max": job.salary_max,
                     "skills_required": job.skills_required,
-                    "posted_date": job.posted_date.isoformat()
-                    if job.posted_date
-                    else None,
+                    "posted_date": (
+                        job.posted_date.isoformat() if job.posted_date else None
+                    ),
                     "job_url": job.job_url,
                 }
                 for job in jobs

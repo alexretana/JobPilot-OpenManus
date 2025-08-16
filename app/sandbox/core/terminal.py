@@ -86,13 +86,13 @@ class DockerSession:
                     self.socket.sendall(b"exit\n")
                     # Allow time for command execution
                     await asyncio.sleep(0.1)
-                except (socket.error, OSError):
+                except OSError:
                     pass  # Ignore sending errors, continue cleanup
 
                 # Close socket connection
                 try:
                     self.socket.shutdown(socket.SHUT_RDWR)
-                except (socket.error, OSError):
+                except OSError:
                     pass  # Some platforms may not support shutdown
 
                 self.socket.close()
@@ -129,7 +129,7 @@ class DockerSession:
                 chunk = self.socket.recv(4096)
                 if chunk:
                     buffer += chunk
-            except socket.error as e:
+            except OSError as e:
                 if e.errno == socket.EWOULDBLOCK:
                     await asyncio.sleep(0.1)
                     continue
@@ -192,7 +192,7 @@ class DockerSession:
                         if buffer.endswith(b"$ "):
                             break
 
-                    except socket.error as e:
+                    except OSError as e:
                         if e.errno == socket.EWOULDBLOCK:
                             await asyncio.sleep(0.1)
                             continue

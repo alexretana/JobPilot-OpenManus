@@ -25,7 +25,7 @@ export function MiniTimelinePreview(props: MiniTimelinePreviewProps) {
 
       const jobEvents = await timelineApi.getJobTimeline(props.jobId, {
         user_profile_id: props.userProfileId,
-        limit: maxEvents()
+        limit: maxEvents(),
       });
 
       setEvents(jobEvents);
@@ -115,8 +115,8 @@ export function MiniTimelinePreview(props: MiniTimelinePreviewProps) {
   if (loading()) {
     return (
       <div class={`mini-timeline-preview ${props.className || ''}`}>
-        <div class="flex items-center gap-2 text-xs text-base-content/60">
-          <span class="loading loading-spinner loading-xs"></span>
+        <div class='flex items-center gap-2 text-xs text-base-content/60'>
+          <span class='loading loading-spinner loading-xs'></span>
           <span>Loading timeline...</span>
         </div>
       </div>
@@ -126,7 +126,7 @@ export function MiniTimelinePreview(props: MiniTimelinePreviewProps) {
   if (error()) {
     return (
       <div class={`mini-timeline-preview ${props.className || ''}`}>
-        <div class="text-xs text-error">Timeline unavailable</div>
+        <div class='text-xs text-error'>Timeline unavailable</div>
       </div>
     );
   }
@@ -134,37 +134,33 @@ export function MiniTimelinePreview(props: MiniTimelinePreviewProps) {
   if (events().length === 0) {
     return (
       <div class={`mini-timeline-preview ${props.className || ''}`}>
-        <div class="text-xs text-base-content/50">No timeline events</div>
+        <div class='text-xs text-base-content/50'>No timeline events</div>
       </div>
     );
   }
 
   return (
     <div class={`mini-timeline-preview ${props.className || ''}`}>
-      <div class="space-y-1">
+      <div class='space-y-1'>
         <For each={events().slice(0, maxEvents())}>
-          {(event) => (
-            <div class="flex items-center gap-2 text-xs">
+          {event => (
+            <div class='flex items-center gap-2 text-xs'>
               {/* Event icon */}
-              <span class="text-sm flex-shrink-0">
-                {getEventTypeIcon(event.event_type)}
-              </span>
+              <span class='text-sm flex-shrink-0'>{getEventTypeIcon(event.event_type)}</span>
 
               {/* Event details */}
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-1">
-                  <span class="truncate">{event.title}</span>
+              <div class='flex-1 min-w-0'>
+                <div class='flex items-center gap-1'>
+                  <span class='truncate'>{event.title}</span>
                   <Show when={event.is_milestone}>
-                    <div class="badge badge-primary badge-xs">★</div>
+                    <div class='badge badge-primary badge-xs'>★</div>
                   </Show>
                 </div>
               </div>
 
               {/* Time and status */}
-              <div class="flex-shrink-0 flex items-center gap-1">
-                <span class="text-base-content/60">
-                  {formatRelativeTime(event.event_date)}
-                </span>
+              <div class='flex-shrink-0 flex items-center gap-1'>
+                <span class='text-base-content/60'>{formatRelativeTime(event.event_date)}</span>
                 <div class={`badge ${getEventTypeStyle(event.event_type)} badge-xs`}></div>
               </div>
             </div>
@@ -173,7 +169,7 @@ export function MiniTimelinePreview(props: MiniTimelinePreviewProps) {
 
         {/* Show count if there are more events */}
         <Show when={events().length > maxEvents()}>
-          <div class="text-xs text-base-content/50 pt-1 border-t border-base-300">
+          <div class='text-xs text-base-content/50 pt-1 border-t border-base-300'>
             +{events().length - maxEvents()} more events
           </div>
         </Show>

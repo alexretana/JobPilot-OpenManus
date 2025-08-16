@@ -71,18 +71,18 @@ const ProfileSystemDemo: Component = () => {
   ] as const;
 
   return (
-    <div class="min-h-screen bg-base-200">
+    <div class='min-h-screen bg-base-200'>
       {/* Header */}
-      <div class="bg-base-100 shadow-sm border-b">
-        <div class="container mx-auto p-4">
-          <h1 class="text-3xl font-bold mb-4">User Profile Management System Demo</h1>
-          <p class="text-base-content/70 mb-6">
+      <div class='bg-base-100 shadow-sm border-b'>
+        <div class='container mx-auto p-4'>
+          <h1 class='text-3xl font-bold mb-4'>User Profile Management System Demo</h1>
+          <p class='text-base-content/70 mb-6'>
             This demo showcases the complete user profile management system including dashboard,
             editing forms, completeness tracking, and modal interactions.
           </p>
 
           {/* View Selector */}
-          <div class="tabs tabs-boxed bg-base-200">
+          <div class='tabs tabs-boxed bg-base-200'>
             <For each={viewOptions}>
               {option => (
                 <button
@@ -96,8 +96,8 @@ const ProfileSystemDemo: Component = () => {
           </div>
 
           {/* Current View Description */}
-          <div class="mt-4 p-4 bg-info/10 rounded-lg">
-            <p class="text-sm text-info-content/80">
+          <div class='mt-4 p-4 bg-info/10 rounded-lg'>
+            <p class='text-sm text-info-content/80'>
               {viewOptions.find(v => v.key === currentView())?.description}
             </p>
           </div>
@@ -105,12 +105,12 @@ const ProfileSystemDemo: Component = () => {
       </div>
 
       {/* Content */}
-      <div class="container mx-auto p-4">
+      <div class='container mx-auto p-4'>
         <Show when={currentView() === 'dashboard'}>
           <div>
-            <h2 class="text-2xl font-semibold mb-4">Complete Profile Dashboard</h2>
+            <h2 class='text-2xl font-semibold mb-4'>Complete Profile Dashboard</h2>
             <ProfileDashboard
-              userId="demo-user-123"
+              userId='demo-user-123'
               onProfileChange={profile => {
                 console.log('Profile changed in dashboard:', profile);
                 setMockProfile(profile);
@@ -121,13 +121,13 @@ const ProfileSystemDemo: Component = () => {
 
         <Show when={currentView() === 'modal-test'}>
           <div>
-            <h2 class="text-2xl font-semibold mb-4">Edit Modal Testing</h2>
+            <h2 class='text-2xl font-semibold mb-4'>Edit Modal Testing</h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                  <h3 class="card-title">Current Profile Data</h3>
-                  <div class="space-y-2 text-sm">
+            <div class='grid grid-cols-1 md:grid-cols-2 gap-6 mb-6'>
+              <div class='card bg-base-100 shadow-xl'>
+                <div class='card-body'>
+                  <h3 class='card-title'>Current Profile Data</h3>
+                  <div class='space-y-2 text-sm'>
                     <div>
                       <strong>Name:</strong> {mockProfile().first_name} {mockProfile().last_name}
                     </div>
@@ -150,9 +150,9 @@ const ProfileSystemDemo: Component = () => {
                 </div>
               </div>
 
-              <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                  <h3 class="card-title">Profile Completeness</h3>
+              <div class='card bg-base-100 shadow-xl'>
+                <div class='card-body'>
+                  <h3 class='card-title'>Profile Completeness</h3>
                   <ProfileCompleteness
                     completeness={completenessData()}
                     onSectionFocus={section => console.log('Focus on:', section)}
@@ -161,21 +161,21 @@ const ProfileSystemDemo: Component = () => {
               </div>
             </div>
 
-            <div class="flex gap-4">
-              <button class="btn btn-primary" onClick={() => setShowEditModal(true)}>
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class='flex gap-4'>
+              <button class='btn btn-primary' onClick={() => setShowEditModal(true)}>
+                <svg class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
                   <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
                   />
                 </svg>
                 Open Edit Modal
               </button>
 
               <button
-                class="btn btn-outline"
+                class='btn btn-outline'
                 onClick={() => {
                   // Reset to incomplete profile for testing
                   setMockProfile({
@@ -188,7 +188,7 @@ const ProfileSystemDemo: Component = () => {
               </button>
 
               <button
-                class="btn btn-outline"
+                class='btn btn-outline'
                 onClick={() => {
                   // Reset to complete profile
                   setMockProfile({
@@ -220,22 +220,22 @@ const ProfileSystemDemo: Component = () => {
 
         <Show when={currentView() === 'completeness-test'}>
           <div>
-            <h2 class="text-2xl font-semibold mb-4">Profile Completeness Comparison</h2>
+            <h2 class='text-2xl font-semibold mb-4'>Profile Completeness Comparison</h2>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class='grid grid-cols-1 lg:grid-cols-2 gap-6'>
               {/* Complete Profile */}
-              <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                  <h3 class="card-title text-success">Complete Profile Example</h3>
+              <div class='card bg-base-100 shadow-xl'>
+                <div class='card-body'>
+                  <h3 class='card-title text-success'>Complete Profile Example</h3>
                   <ProfileCompleteness
                     completeness={completenessData()}
                     onSectionFocus={section => console.log('Complete profile focus:', section)}
                   />
 
-                  <div class="divider"></div>
+                  <div class='divider'></div>
 
-                  <div class="space-y-2 text-sm">
-                    <h4 class="font-semibold">Profile Data:</h4>
+                  <div class='space-y-2 text-sm'>
+                    <h4 class='font-semibold'>Profile Data:</h4>
                     <div>
                       <strong>Name:</strong> John Doe
                     </div>
@@ -277,52 +277,52 @@ const ProfileSystemDemo: Component = () => {
               </div>
 
               {/* Incomplete Profile */}
-              <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                  <h3 class="card-title text-warning">Incomplete Profile Example</h3>
+              <div class='card bg-base-100 shadow-xl'>
+                <div class='card-body'>
+                  <h3 class='card-title text-warning'>Incomplete Profile Example</h3>
                   <ProfileCompleteness
                     completeness={incompleteData()}
                     onSectionFocus={section => console.log('Incomplete profile focus:', section)}
                   />
 
-                  <div class="divider"></div>
+                  <div class='divider'></div>
 
-                  <div class="space-y-2 text-sm">
-                    <h4 class="font-semibold">Profile Data:</h4>
+                  <div class='space-y-2 text-sm'>
+                    <h4 class='font-semibold'>Profile Data:</h4>
                     <div>
                       <strong>Name:</strong> Jane (No last name)
                     </div>
-                    <div class="text-error">
+                    <div class='text-error'>
                       <strong>Email:</strong> Missing
                     </div>
-                    <div class="text-error">
+                    <div class='text-error'>
                       <strong>Phone:</strong> Missing
                     </div>
-                    <div class="text-error">
+                    <div class='text-error'>
                       <strong>Title:</strong> Missing
                     </div>
-                    <div class="text-error">
+                    <div class='text-error'>
                       <strong>Experience:</strong> Missing
                     </div>
-                    <div class="text-error">
+                    <div class='text-error'>
                       <strong>Skills:</strong> None added
                     </div>
-                    <div class="text-error">
+                    <div class='text-error'>
                       <strong>Education:</strong> Missing
                     </div>
-                    <div class="text-error">
+                    <div class='text-error'>
                       <strong>Bio:</strong> Missing
                     </div>
-                    <div class="text-error">
+                    <div class='text-error'>
                       <strong>Locations:</strong> None specified
                     </div>
-                    <div class="text-error">
+                    <div class='text-error'>
                       <strong>Job Types:</strong> None selected
                     </div>
-                    <div class="text-error">
+                    <div class='text-error'>
                       <strong>Remote:</strong> None selected
                     </div>
-                    <div class="text-error">
+                    <div class='text-error'>
                       <strong>Salary:</strong> Not specified
                     </div>
                   </div>
@@ -330,11 +330,11 @@ const ProfileSystemDemo: Component = () => {
               </div>
             </div>
 
-            <div class="mt-6 card bg-base-100 shadow-xl">
-              <div class="card-body">
-                <h3 class="card-title">Completeness Analysis</h3>
-                <div class="overflow-x-auto">
-                  <table class="table">
+            <div class='mt-6 card bg-base-100 shadow-xl'>
+              <div class='card-body'>
+                <h3 class='card-title'>Completeness Analysis</h3>
+                <div class='overflow-x-auto'>
+                  <table class='table'>
                     <thead>
                       <tr>
                         <th>Metric</th>
@@ -345,18 +345,18 @@ const ProfileSystemDemo: Component = () => {
                     </thead>
                     <tbody>
                       <tr>
-                        <td class="font-semibold">Overall Score</td>
-                        <td class="text-success">{completenessData().overall_score}%</td>
-                        <td class="text-error">{incompleteData().overall_score}%</td>
-                        <td class="text-info">
+                        <td class='font-semibold'>Overall Score</td>
+                        <td class='text-success'>{completenessData().overall_score}%</td>
+                        <td class='text-error'>{incompleteData().overall_score}%</td>
+                        <td class='text-info'>
                           +{completenessData().overall_score - incompleteData().overall_score}%
                         </td>
                       </tr>
                       <tr>
-                        <td class="font-semibold">Personal Section</td>
-                        <td class="text-success">{completenessData().sections.personal}%</td>
-                        <td class="text-error">{incompleteData().sections.personal}%</td>
-                        <td class="text-info">
+                        <td class='font-semibold'>Personal Section</td>
+                        <td class='text-success'>{completenessData().sections.personal}%</td>
+                        <td class='text-error'>{incompleteData().sections.personal}%</td>
+                        <td class='text-info'>
                           +
                           {completenessData().sections.personal -
                             incompleteData().sections.personal}
@@ -364,10 +364,10 @@ const ProfileSystemDemo: Component = () => {
                         </td>
                       </tr>
                       <tr>
-                        <td class="font-semibold">Professional Section</td>
-                        <td class="text-success">{completenessData().sections.professional}%</td>
-                        <td class="text-error">{incompleteData().sections.professional}%</td>
-                        <td class="text-info">
+                        <td class='font-semibold'>Professional Section</td>
+                        <td class='text-success'>{completenessData().sections.professional}%</td>
+                        <td class='text-error'>{incompleteData().sections.professional}%</td>
+                        <td class='text-info'>
                           +
                           {completenessData().sections.professional -
                             incompleteData().sections.professional}
@@ -375,10 +375,10 @@ const ProfileSystemDemo: Component = () => {
                         </td>
                       </tr>
                       <tr>
-                        <td class="font-semibold">Preferences Section</td>
-                        <td class="text-success">{completenessData().sections.preferences}%</td>
-                        <td class="text-error">{incompleteData().sections.preferences}%</td>
-                        <td class="text-info">
+                        <td class='font-semibold'>Preferences Section</td>
+                        <td class='text-success'>{completenessData().sections.preferences}%</td>
+                        <td class='text-error'>{incompleteData().sections.preferences}%</td>
+                        <td class='text-info'>
                           +
                           {completenessData().sections.preferences -
                             incompleteData().sections.preferences}
@@ -386,20 +386,20 @@ const ProfileSystemDemo: Component = () => {
                         </td>
                       </tr>
                       <tr>
-                        <td class="font-semibold">Missing Fields</td>
-                        <td class="text-success">{completenessData().missing_fields.length}</td>
-                        <td class="text-error">{incompleteData().missing_fields.length}</td>
-                        <td class="text-warning">
+                        <td class='font-semibold'>Missing Fields</td>
+                        <td class='text-success'>{completenessData().missing_fields.length}</td>
+                        <td class='text-error'>{incompleteData().missing_fields.length}</td>
+                        <td class='text-warning'>
                           {incompleteData().missing_fields.length -
                             completenessData().missing_fields.length}{' '}
                           more
                         </td>
                       </tr>
                       <tr>
-                        <td class="font-semibold">Suggestions</td>
-                        <td class="text-success">{completenessData().suggestions.length}</td>
-                        <td class="text-error">{incompleteData().suggestions.length}</td>
-                        <td class="text-warning">
+                        <td class='font-semibold'>Suggestions</td>
+                        <td class='text-success'>{completenessData().suggestions.length}</td>
+                        <td class='text-error'>{incompleteData().suggestions.length}</td>
+                        <td class='text-warning'>
                           {incompleteData().suggestions.length -
                             completenessData().suggestions.length}{' '}
                           more

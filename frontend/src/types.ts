@@ -65,7 +65,7 @@ export enum TimelineEventType {
   OFFER_RECEIVED = 'OFFER_RECEIVED',
   OFFER_ACCEPTED = 'OFFER_ACCEPTED',
   OFFER_DECLINED = 'OFFER_DECLINED',
-  CUSTOM_EVENT = 'CUSTOM_EVENT'
+  CUSTOM_EVENT = 'CUSTOM_EVENT',
 }
 
 export interface TimelineEvent {

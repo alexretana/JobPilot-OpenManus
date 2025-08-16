@@ -9,7 +9,7 @@ for the JobPilot-OpenManus application.
 import os
 import sys
 import tempfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 import pytest
@@ -411,7 +411,7 @@ class TestModelRelationships:
             "status": "applied",
             "cover_letter": "I am very interested in this position...",
             "notes": "Applied through company website",
-            "applied_at": datetime.now(timezone.utc),
+            "applied_at": datetime.now(UTC),
         }
 
         application = ApplicationDB(**application_data)

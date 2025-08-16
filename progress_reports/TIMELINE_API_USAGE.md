@@ -1,6 +1,7 @@
 # JobPilot Timeline API - Usage Guide
 
-The Timeline API is now fully integrated and ready to use! This guide shows you how to interact with the timeline functionality.
+The Timeline API is now fully integrated and ready to use! This guide shows you how to interact with the timeline
+functionality.
 
 ## 🚀 Quick Start
 
@@ -15,27 +16,33 @@ The API will be available at: `http://localhost:8000/api/timeline`
 ## 📋 Available Endpoints
 
 ### User Timeline
+
 - **GET** `/api/timeline/user/{user_profile_id}` - Get timeline events for a user
 - **GET** `/api/timeline/user/{user_profile_id}/milestones` - Get milestone events
 - **GET** `/api/timeline/user/{user_profile_id}/upcoming` - Get upcoming events
 
 ### Job & Application Timeline
+
 - **GET** `/api/timeline/job/{job_id}` - Get timeline for a specific job
 - **GET** `/api/timeline/application/{application_id}` - Get timeline for a specific application
 
 ### Event Management
+
 - **POST** `/api/timeline/user/{user_profile_id}/event` - Create a timeline event
 - **POST** `/api/timeline/user/{user_profile_id}/custom-event` - Create a custom event
 - **PUT** `/api/timeline/event/{event_id}` - Update an event
 - **DELETE** `/api/timeline/event/{event_id}` - Delete an event
 
 ### Convenience Endpoints
+
 - **POST** `/api/timeline/user/{user_profile_id}/job/{job_id}/saved` - Log job saved
 - **POST** `/api/timeline/user/{user_profile_id}/application/{application_id}/submitted` - Log application submitted
-- **POST** `/api/timeline/user/{user_profile_id}/application/{application_id}/interview-scheduled` - Log interview scheduled
+- **POST** `/api/timeline/user/{user_profile_id}/application/{application_id}/interview-scheduled` - Log interview
+  scheduled
 - **POST** `/api/timeline/user/{user_profile_id}/application/{application_id}/status-changed` - Log status change
 
 ### Utility
+
 - **GET** `/api/timeline/event-types` - Get all available event types
 
 ## 📝 Example Usage
@@ -142,6 +149,7 @@ The following event types are available:
 ## ✅ Database Integration
 
 The timeline API uses the repository pattern with:
+
 - **DatabaseManager**: Handles database connections and sessions
 - **TimelineService**: Business logic for timeline operations
 - **get_database_session()**: FastAPI dependency for session injection
@@ -157,6 +165,7 @@ python tests/test_integration.py
 ```
 
 This will test:
+
 - ✅ All imports work correctly
 - ✅ Database connections function
 - ✅ API endpoints are registered

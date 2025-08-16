@@ -39,11 +39,11 @@ async def test_scraper_health_checks():
                 if accessible:
                     print(f"   ✅ Status: {status}")
                     print(f"   ✅ Response time: {response_time:.2f}s")
-                    print(f"   ✅ Base URL accessible")
+                    print("   ✅ Base URL accessible")
                 else:
                     print(f"   ❌ Status: {status}")
                     print(f"   ❌ Response time: {response_time:.2f}s")
-                    print(f"   ❌ Base URL not accessible")
+                    print("   ❌ Base URL not accessible")
                     if "error" in health:
                         print(f"   ❌ Error: {health['error']}")
 
@@ -143,7 +143,7 @@ async def test_scraper_statistics():
                 print(f"   📈 Jobs scraped: {stats['stats']['jobs_scraped']}")
 
                 rate_limits = stats["rate_limits"]
-                print(f"   🚦 Rate limits:")
+                print("   🚦 Rate limits:")
                 print(f"      Per minute: {rate_limits['requests_per_minute']}")
                 print(f"      Per hour: {rate_limits['requests_per_hour']}")
                 print(f"      Current minute: {rate_limits['current_minute_requests']}")

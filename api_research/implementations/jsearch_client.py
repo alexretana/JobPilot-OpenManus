@@ -264,7 +264,7 @@ async def test_jsearch_api(
             # Display first job as sample
             if jobs:
                 job = jobs[0]
-                print(f"\nSample Job:")
+                print("\nSample Job:")
                 print(f"  Title: {job.title}")
                 print(f"  Company: {job.company}")
                 print(f"  Location: {job.location}")
@@ -280,7 +280,7 @@ async def test_jsearch_api(
             stats = client.get_usage_stats()
             rate_limits = client.get_rate_limits()
 
-            print(f"\nUsage Stats:")
+            print("\nUsage Stats:")
             print(f"  Requests made: {stats['requests_made']}")
             print(
                 f"  Rate limit: {rate_limits.requests_used}/{rate_limits.requests_per_month}"

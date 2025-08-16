@@ -318,7 +318,9 @@ class BackendAPITester:
                     listings = await response.json()
                     print(f"   ✅ Retrieved {len(listings)} source listings for job")
                 else:
-                    print(f"   ❌ Failed to retrieve source listings: {response.status}")
+                    print(
+                        f"   ❌ Failed to retrieve source listings: {response.status}"
+                    )
                     return False
 
             print("   🎉 Job Source Listings API tests passed!")
@@ -352,12 +354,14 @@ class BackendAPITester:
                 ) as response:
                     if response.status == 200:
                         results = await response.json()
-                        print(f"   ✅ Semantic search '{query}': {len(results)} results")
+                        print(
+                            f"   ✅ Semantic search '{query}': {len(results)} results"
+                        )
 
                         # Verify search results have similarity scores
                         for result in results:
                             if "similarity_score" not in result:
-                                print(f"   ❌ Missing similarity_score in search result")
+                                print("   ❌ Missing similarity_score in search result")
                                 return False
                     else:
                         print(
@@ -486,9 +490,9 @@ class BackendAPITester:
 
                     if dedup_result.get("is_duplicate", False):
                         self.test_data["dedup_result"] = dedup_result
-                        print(f"   ℹ️ Jobs identified as duplicates")
+                        print("   ℹ️ Jobs identified as duplicates")
                     else:
-                        print(f"   ℹ️ Jobs identified as unique")
+                        print("   ℹ️ Jobs identified as unique")
                 else:
                     error_text = await response.text()
                     print(
@@ -602,7 +606,7 @@ class BackendAPITester:
                 if response.status == 200:
                     await response.json()
                     print(
-                        f"   ✅ Enhanced stats retrieved with quality and source metrics"
+                        "   ✅ Enhanced stats retrieved with quality and source metrics"
                     )
                 elif response.status == 404:
                     print("   ℹ️ Enhanced stats endpoint not yet implemented")
@@ -615,7 +619,7 @@ class BackendAPITester:
             ) as response:
                 if response.status == 200:
                     await response.json()
-                    print(f"   ✅ Source distribution stats retrieved")
+                    print("   ✅ Source distribution stats retrieved")
                 elif response.status == 404:
                     print("   ℹ️ Source stats endpoint not yet implemented")
                 else:

@@ -3,10 +3,9 @@
 这是一个将A2A协议(https://google.github.io/A2A/#/documentation)与OpenManus结合的一个尝试,当前仅支持非流式
 
 ## Prerequisites
+
 - conda activate 'Your OpenManus python env'
 - pip install a2a-sdk==0.2.5
-
-
 
 ## Setup & Running
 
@@ -17,7 +16,8 @@
    python -m protocol.a2a.app.main
    ```
 
-2. 拉取A2A官方库并运行A2A Client，有两种使用A2A客户端的方式——CLI以及在前端页面注册Agent服务。（详情参考https://github.com/google/A2A）:
+2. 拉取A2A官方库并运行A2A Client，有两种使用A2A客户端的方式——CLI以及在前端页面注册Agent服务。（详情参
+   考https://github.com/google/A2A）:
 
    ```bash
    git clone https://github.com/google-a2a/a2a-samples.git
@@ -29,7 +29,6 @@
 
 3. 通过A2A Client的命令行向OpenManus发送任务或者在A2A前端页面上将其注册
 
-
 ## Examples
 
 **获得Agent Card**
@@ -40,7 +39,6 @@ Request:
 curl http://localhost:10000/.well-known/agent.json
 
 ```
-
 
 ```
 Response:
@@ -187,7 +185,6 @@ Response:
     }
 }
 ```
-
 
 ## Learn More
 

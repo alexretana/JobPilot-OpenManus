@@ -1,47 +1,50 @@
 # ![JobPilot Icon](assets/JobPilotIcon-Alpha.png) JobPilot-OpenManus
 
-**AI-Powered Job Hunting Copilot** - An intelligent agent framework that automates job discovery, analysis, and application processes using OpenManus architecture.
+**AI-Powered Job Hunting Copilot** - An intelligent agent framework that automates job discovery, analysis, and
+application processes using OpenManus architecture.
 
-JobPilot-OpenManus combines the power of OpenManus's agent framework with specialized job hunting capabilities, providing a comprehensive solution for modern job seekers.
+JobPilot-OpenManus combines the power of OpenManus's agent framework with specialized job hunting capabilities,
+providing a comprehensive solution for modern job seekers.
 
 [![GitHub stars](https://img.shields.io/github/stars/alexretana/JobPilot-OpenManus?style=social)](https://github.com/alexretana/JobPilot-OpenManus/stargazers)
-&ensp;
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+&ensp; [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 &ensp;
 [![Based on OpenManus](https://img.shields.io/badge/Based%20on-OpenManus-blue)](https://github.com/FoundationAgents/OpenManus)
 
 ## 🚧 **Development Status**
 
-| Component | Status | Description |
-|-----------|---------|-------------|
-| **🏗️ Core Foundation** | ✅ **Complete** | Data models, database layer, type safety |
-|| **💾 Data Management** | ✅ **Complete** | Job listings, user profiles, applications, companies |
-|| **👤 User Profiles** | ✅ **Complete** | Full CRUD API, database integration, resume workflow ready |
-| **🔍 Job Discovery** | ✅ **Complete** | RapidAPI JSearch integration, job extraction, market analysis |
-| **🧠 Semantic Search** | ✅ **Complete** | AI-powered matching, embeddings, filtering |
-| **🤖 Basic Agents** | ✅ **Complete** | Job discovery agent with market analysis |
-| **🧪 Testing Suite** | ✅ **Complete** | FastAPI TestClient, Playwright E2E, pytest integration |
-| **🌐 Modern Web UI** | ✅ **Complete** | Real-time chat, activity tracking, responsive design |
-| **🎯 AI Integration** | ✅ **Complete** | JobPilot prompts, transparent AI reasoning |
-| **📅 Timeline System** | ✅ **Complete** | Job search activity tracking, milestones, events |
-| **📊 Job Analytics** | ✅ **Complete** | Statistics, insights, progress tracking |
-| **🔧 Full API Suite** | ✅ **Complete** | REST + WebSocket APIs, health monitoring |
-| **🔄 ETL Pipeline** | ✅ **Complete** | JSearch API integration, data processing, automated loading |
-| **🤖 AI Resume Generation** | ✅ **Complete** | LLM-powered content, RenderCV PDFs, multi-format export (94.1% success rate) |
-| **📊 Additional Job Boards** | ⏳ **Planned** | LinkedIn, Indeed, Glassdoor direct integration |
-| **📝 Application Tools** | ⏳ **Planned** | Automated form filling and submission |
-| **📈 Advanced Analytics** | ⏳ **Planned** | Predictive modeling, market trends |
+| Component                    | Status                 | Description                                                                  |
+| ---------------------------- | ---------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **🏗️ Core Foundation**       | ✅ **Complete**        | Data models, database layer, type safety                                     |
+|                              | **💾 Data Management** | ✅ **Complete**                                                              | Job listings, user profiles, applications, companies       |
+|                              | **👤 User Profiles**   | ✅ **Complete**                                                              | Full CRUD API, database integration, resume workflow ready |
+| **🔍 Job Discovery**         | ✅ **Complete**        | RapidAPI JSearch integration, job extraction, market analysis                |
+| **🧠 Semantic Search**       | ✅ **Complete**        | AI-powered matching, embeddings, filtering                                   |
+| **🤖 Basic Agents**          | ✅ **Complete**        | Job discovery agent with market analysis                                     |
+| **🧪 Testing Suite**         | ✅ **Complete**        | FastAPI TestClient, Playwright E2E, pytest integration                       |
+| **🌐 Modern Web UI**         | ✅ **Complete**        | Real-time chat, activity tracking, responsive design                         |
+| **🎯 AI Integration**        | ✅ **Complete**        | JobPilot prompts, transparent AI reasoning                                   |
+| **📅 Timeline System**       | ✅ **Complete**        | Job search activity tracking, milestones, events                             |
+| **📊 Job Analytics**         | ✅ **Complete**        | Statistics, insights, progress tracking                                      |
+| **🔧 Full API Suite**        | ✅ **Complete**        | REST + WebSocket APIs, health monitoring                                     |
+| **🔄 ETL Pipeline**          | ✅ **Complete**        | JSearch API integration, data processing, automated loading                  |
+| **🤖 AI Resume Generation**  | ✅ **Complete**        | LLM-powered content, RenderCV PDFs, multi-format export (94.1% success rate) |
+| **📊 Additional Job Boards** | ⏳ **Planned**         | LinkedIn, Indeed, Glassdoor direct integration                               |
+| **📝 Application Tools**     | ⏳ **Planned**         | Automated form filling and submission                                        |
+| **📈 Advanced Analytics**    | ⏳ **Planned**         | Predictive modeling, market trends                                           |
 
-**Current Status**: ✅ **Phase 1 Complete + Phase 2 Bonus Features** - Advanced system ready for production
-**Next Phase**: 🔄 **Real Job Board Integration** - See [ROADMAP.md](ROADMAP.md) for details
+**Current Status**: ✅ **Phase 1 Complete + Phase 2 Bonus Features** - Advanced system ready for production **Next
+Phase**: 🔄 **Real Job Board Integration** - See [ROADMAP.md](ROADMAP.md) for details
 
 ## 🎯 Vision
 
-JobPilot revolutionizes job hunting by automating tedious tasks while enhancing strategic decision-making. It acts as your personal AI job hunting assistant that works 24/7 to find, analyze, and help you apply to relevant opportunities.
+JobPilot revolutionizes job hunting by automating tedious tasks while enhancing strategic decision-making. It acts as
+your personal AI job hunting assistant that works 24/7 to find, analyze, and help you apply to relevant opportunities.
 
 ## ✅ **Currently Implemented Features**
 
 ### 💾 **Complete Data Management System**
+
 - **Job Listings**: Full CRUD operations with advanced search and filtering
 - **User Profiles**: Professional information, skills, preferences, and job criteria
 - **Applications**: Track application status, materials, and follow-ups
@@ -49,6 +52,7 @@ JobPilot revolutionizes job hunting by automating tedious tasks while enhancing 
 - **Robust Database**: SQLAlchemy ORM with SQLite/PostgreSQL support
 
 ### 🔍 **AI-Powered Job Discovery**
+
 - **Real Job Integration**: RapidAPI JSearch integration for live job market data
 - **ETL Pipeline**: Complete Extract-Transform-Load system for automated data processing
 - **Semantic Search**: AI understands job requirements beyond keywords using sentence transformers
@@ -58,6 +62,7 @@ JobPilot revolutionizes job hunting by automating tedious tasks while enhancing 
 - **Demo Mode**: Fallback demo job generation for testing and development
 
 ### 🤖 **AI-Powered Resume Generation** 🆕
+
 - **Intelligent Content Creation**: AI-powered professional summaries and achievement bullets
 - **Multi-Provider LLM Support**: OpenAI, Anthropic, AWS Bedrock, and Mock providers
 - **Professional PDF Export**: LaTeX-quality resumes via RenderCV integration
@@ -68,11 +73,13 @@ JobPilot revolutionizes job hunting by automating tedious tasks while enhancing 
 - **REST API Integration**: Complete FastAPI endpoints for frontend integration
 
 ### 🤖 **Intelligent Agent System**
+
 - **JobDiscoveryAgent**: Specialized agent for job hunting workflows
 - **Market Analysis**: Automated job market trend reporting
 - **Integration Ready**: Built on OpenManus agent framework for extensibility
 
 ### 🔧 **Developer-Friendly Architecture**
+
 - **Type Safety**: Full Pydantic validation throughout
 - **Repository Pattern**: Clean separation of data access logic
 - **Comprehensive Testing**: All core components tested and validated
@@ -135,18 +142,21 @@ JobPilot-OpenManus/
 ## 🚐 Quick Start
 
 ### Prerequisites
+
 - Python 3.12+
 - Local LLM (Ollama recommended) or OpenAI/Claude API access
 
 ### Installation
 
 1. **Clone the repository:**
+
 ```bash
 git clone https://github.com/alexretana/JobPilot-OpenManus.git
 cd JobPilot-OpenManus
 ```
 
 2. **Create virtual environment:**
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Unix/macOS
@@ -155,6 +165,7 @@ source venv/bin/activate  # On Unix/macOS
 ```
 
 3. **Install dependencies:**
+
 ```bash
 pip install -r requirements.txt
 playwright install  # For browser automation
@@ -195,7 +206,8 @@ api_key = "sk-..."  # Replace with your actual API key
 RAPIDAPI_KEY=your_rapidapi_key_here
 ```
 
-> **Note**: Without the RapidAPI key, the system will use demo job data for testing. Get your key from [RapidAPI JSearch](https://rapidapi.com/letscrape-6bz/api/jsearch/).
+> **Note**: Without the RapidAPI key, the system will use demo job data for testing. Get your key from
+> [RapidAPI JSearch](https://rapidapi.com/letscrape-6bz/api/jsearch/).
 
 ## Quick Start
 
@@ -208,6 +220,7 @@ python main.py
 Then input your idea via terminal!
 
 For MCP tool version, you can run:
+
 ```bash
 python run_mcp.py
 ```
@@ -220,34 +233,41 @@ python run_flow.py
 
 ### Custom Adding Multiple Agents
 
-Currently, besides the general OpenManus Agent, we have also integrated the DataAnalysis Agent, which is suitable for data analysis and data visualization tasks. You can add this agent to `run_flow` in `config.toml`.
+Currently, besides the general OpenManus Agent, we have also integrated the DataAnalysis Agent, which is suitable for
+data analysis and data visualization tasks. You can add this agent to `run_flow` in `config.toml`.
 
 ```toml
 # Optional configuration for run-flow
 [runflow]
 use_data_analysis_agent = true     # Disabled by default, change to true to activate
 ```
-In addition, you need to install the relevant dependencies to ensure the agent runs properly: [Detailed Installation Guide](app/tool/chart_visualization/README.md##Installation)
+
+In addition, you need to install the relevant dependencies to ensure the agent runs properly:
+[Detailed Installation Guide](app/tool/chart_visualization/README.md##Installation)
 
 ## 🌐 Modern Web Interface
 
-JobPilot-OpenManus features a modern, responsive web interface built with Solid.js, TailwindCSS, and DaisyUI for seamless interaction with the job hunting agent.
+JobPilot-OpenManus features a modern, responsive web interface built with Solid.js, TailwindCSS, and DaisyUI for
+seamless interaction with the job hunting agent.
 
 ### Quick Start
 
 **🚀 Easy Development Mode (Recommended)**
 
 **Windows:**
+
 ```cmd
 start.bat
 ```
 
 **Linux/macOS:**
+
 ```bash
 ./start.sh
 ```
 
 The startup scripts will:
+
 - ✅ Validate all dependencies (Node.js, npm, Python)
 - ✅ Install frontend dependencies if needed
 - ✅ Build the frontend for production if not already built
@@ -258,6 +278,7 @@ The startup scripts will:
 **Manual Setup:**
 
 1. **Build the frontend** (first time only):
+
    ```bash
    cd frontend
    npm install
@@ -266,6 +287,7 @@ The startup scripts will:
    ```
 
 2. **Start the web server:**
+
    ```bash
    python web_server.py
    ```
@@ -303,7 +325,8 @@ See [frontend/README.md](frontend/README.md) for detailed frontend documentation
 
 ## 🧪 **Comprehensive Testing Suite**
 
-JobPilot-OpenManus includes a professional-grade testing infrastructure that provides confidence in code changes and catches regressions early.
+JobPilot-OpenManus includes a professional-grade testing infrastructure that provides confidence in code changes and
+catches regressions early.
 
 ### **Testing Architecture**
 
@@ -317,6 +340,7 @@ JobPilot-OpenManus includes a professional-grade testing infrastructure that pro
 ### **Quick Testing**
 
 **Run Fast Backend Tests** (Recommended for daily development):
+
 ```bash
 python run_tests.py --backend          # Fast API tests (~4s)
 python run_tests.py --backend -v       # Verbose output
@@ -324,12 +348,14 @@ python run_tests.py -k test_health     # Specific tests
 ```
 
 **Run Comprehensive E2E Tests** (Before major releases):
+
 ```bash
 python run_tests.py --e2e               # Full E2E suite with Playwright
 python run_tests.py --e2e --rapidapi-key YOUR_KEY  # With real API testing
 ```
 
 **Targeted Testing**:
+
 ```bash
 python run_tests.py --performance      # Performance tests only
 python run_tests.py --integration      # Integration tests only
@@ -339,13 +365,13 @@ python run_tests.py --backend --cov    # With coverage report
 
 ### **Test Categories**
 
-| Test Type | Purpose | Speed | Coverage |
-|-----------|---------|--------|---------|
-| **Backend API** | FastAPI endpoints, CRUD operations | ⚡ Fast (3-5s) | Core API functionality |
-| **Integration** | Multi-component workflows | 🚀 Medium (10-30s) | Component interactions |
-| **End-to-End** | Full user journeys with UI | 🎭 Comprehensive (1-3min) | Complete workflows |
-| **Performance** | Response times, load testing | ⚡ Fast (5-10s) | System performance |
-| **Security** | Input validation, injection protection | 🔒 Medium (5-15s) | Security vulnerabilities |
+| Test Type       | Purpose                                | Speed                     | Coverage                 |
+| --------------- | -------------------------------------- | ------------------------- | ------------------------ |
+| **Backend API** | FastAPI endpoints, CRUD operations     | ⚡ Fast (3-5s)            | Core API functionality   |
+| **Integration** | Multi-component workflows              | 🚀 Medium (10-30s)        | Component interactions   |
+| **End-to-End**  | Full user journeys with UI             | 🎭 Comprehensive (1-3min) | Complete workflows       |
+| **Performance** | Response times, load testing           | ⚡ Fast (5-10s)           | System performance       |
+| **Security**    | Input validation, injection protection | 🔒 Medium (5-15s)         | Security vulnerabilities |
 
 ### **Testing Features**
 
@@ -367,6 +393,7 @@ python run_tests.py --backend --cov    # With coverage report
 ```
 
 **Test Coverage**: 13 core API tests passing, comprehensive validation of:
+
 - Health endpoints and basic API functionality
 - Job CRUD operations (Create, Read, Update, Delete)
 - Error handling and security protection
@@ -380,22 +407,24 @@ We welcome any friendly suggestions and helpful contributions! Just create issue
 
 Or contact @mannaandpoem via 📧email: mannaandpoem@gmail.com
 
-**Note**: Before submitting a pull request, please use the pre-commit tool to check your changes. Run `pre-commit run --all-files` to execute the checks.
-
-
+**Note**: Before submitting a pull request, please use the pre-commit tool to check your changes. Run
+`pre-commit run --all-files` to execute the checks.
 
 ## Acknowledgement
 
-Thanks to [anthropic-computer-use](https://github.com/anthropics/anthropic-quickstarts/tree/main/computer-use-demo)
-and [browser-use](https://github.com/browser-use/browser-use) for providing basic support for this project!
+Thanks to [anthropic-computer-use](https://github.com/anthropics/anthropic-quickstarts/tree/main/computer-use-demo) and
+[browser-use](https://github.com/browser-use/browser-use) for providing basic support for this project!
 
-Additionally, we are grateful to [AAAJ](https://github.com/metauto-ai/agent-as-a-judge), [MetaGPT](https://github.com/geekan/MetaGPT), [OpenHands](https://github.com/All-Hands-AI/OpenHands) and [SWE-agent](https://github.com/SWE-agent/SWE-agent).
+Additionally, we are grateful to [AAAJ](https://github.com/metauto-ai/agent-as-a-judge),
+[MetaGPT](https://github.com/geekan/MetaGPT), [OpenHands](https://github.com/All-Hands-AI/OpenHands) and
+[SWE-agent](https://github.com/SWE-agent/SWE-agent).
 
 We also thank stepfun(阶跃星辰) for supporting our Hugging Face demo space.
 
 OpenManus is built by contributors from MetaGPT. Huge thanks to this agent community!
 
 ## Cite
+
 ```bibtex
 @misc{openmanus2025,
   author = {Xinbin Liang and Jinyu Xiang and Zhaoyang Yu and Jiayi Zhang and Sirui Hong and Sheng Fan and Xiao Tang},
