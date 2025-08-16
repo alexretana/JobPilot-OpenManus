@@ -8,6 +8,7 @@ import os
 import platform
 import subprocess
 import sys
+from pathlib import Path
 
 
 def detect_encoding_support():
@@ -49,7 +50,7 @@ def run_user_profiles_test():
     is_ci = is_ci_environment()
     is_windows = platform.system() == "Windows"
 
-    print(f"Environment Detection:")
+    print("Environment Detection:")
     print(f"  Platform: {platform.system()} {platform.release()}")
     print(f"  Python: {sys.version.split()[0]}")
     print(f"  Encoding: {sys.stdout.encoding}")
@@ -62,7 +63,7 @@ def run_user_profiles_test():
         test_script = "test_user_profiles.py"
         print("Using Unicode-enabled test script (with emojis)")
     else:
-        test_script = "test_user_profiles_ci.py"
+        test_script = "tests/backend/test_user_profiles_ci.py"
         print("Using CI-friendly test script (ASCII only)")
         if is_windows:
             print("  Reason: Windows encoding compatibility")
@@ -76,7 +77,7 @@ def run_user_profiles_test():
     print()
 
     # Check if test file exists
-    if not os.path.exists(test_script):
+    if not Path(test_script).exists():
         print(f"ERROR: Test script '{test_script}' not found!")
         print("Please ensure the test file exists in the current directory.")
         return False
@@ -100,7 +101,7 @@ def run_api_test():
 
     api_test_script = "test_user_profiles_api.py"
 
-    if not os.path.exists(api_test_script):
+    if not Path(api_test_script).exists():
         print(f"WARNING: API test script '{api_test_script}' not found!")
         print("Skipping API tests.")
         return True
