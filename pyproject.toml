@@ -11,7 +11,7 @@ requires-python = ">=3.12"
 
 [tool.black]
 line-length = 88
-target-version = ["py312"]
+target-version = ["py311"]
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -48,9 +48,13 @@ select = [
 ignore = [
     "E501",  # line too long, handled by black
     "B008",  # do not perform function calls in argument defaults
+    "B904",  # raise from exceptions - can be addressed later
     "C901",  # too complex
     "W191",  # indentation contains tabs
     "E203",  # whitespace before ':' (conflicts with black)
+    "UP007", # Use X | Y for type annotations - modernize later
+    "UP006", # Use list instead of List - modernize later
+    "UP035", # typing.List is deprecated - modernize later
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

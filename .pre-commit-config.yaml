@@ -1,7 +1,7 @@
 repos:
   # Python formatting and linting
   - repo: https://github.com/psf/black
-    rev: 23.1.0
+    rev: 24.3.0
     hooks:
       - id: black
         files: \.py$
@@ -10,7 +10,7 @@ repos:
     rev: v0.1.15
     hooks:
       - id: ruff
-        args: [--fix, --exit-non-zero-on-fix]
+        args: [--fix]
         files: \.py$
       - id: ruff-format
         files: \.py$

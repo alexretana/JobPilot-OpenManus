@@ -106,6 +106,6 @@ xxhash==3.5.0
 yarl==1.20.1
 zstandard==0.23.0
 # Code quality and development tools
-black==23.1.0
+black==24.3.0
 ruff==0.1.15
 pre-commit==4.3.0
