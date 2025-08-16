@@ -378,11 +378,11 @@ jobs:
     - name: Check code formatting with Black
       run: black --check --diff --line-length 88 .
 
-    - name: Check import sorting with isort
-      run: isort --profile black --check-only --diff .
+    - name: Lint and check imports with Ruff
+      run: ruff check app tests
 
-    - name: Lint with flake8
-      run: flake8 app tests
+    - name: Check Ruff formatting
+      run: ruff format --check app tests
 
     - name: Type check with mypy
       run: mypy app --ignore-missing-imports
