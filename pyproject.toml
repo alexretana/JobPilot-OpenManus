@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 
 [tool.black]
-line-length = 88
+# No line length limit - let developers decide
 target-version = ["py311"]
 include = '\.pyi?$'
 extend-exclude = '''
@@ -87,8 +87,8 @@ exclude = [
     "migrations",
 ]
 
-# Same as Black.
-line-length = 88
+# No line length limit - consistency with Black
+# line-length = unlimited
 indent-width = 4
 
 # Assume Python 3.12
