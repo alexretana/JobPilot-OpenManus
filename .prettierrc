@@ -6,6 +6,29 @@
   "tabWidth": 2,
   "useTabs": false,
   "endOfLine": "lf",
+  "arrowParens": "avoid",
   "bracketSpacing": true,
-  "arrowParens": "avoid"
+  "jsxSingleQuote": true,
+  "quoteProps": "as-needed",
+  "overrides": [
+    {
+      "files": "*.md",
+      "options": {
+        "printWidth": 120,
+        "proseWrap": "always"
+      }
+    },
+    {
+      "files": "*.json",
+      "options": {
+        "printWidth": 120
+      }
+    },
+    {
+      "files": "*.{ts,tsx}",
+      "options": {
+        "parser": "typescript"
+      }
+    }
+  ]
 }
