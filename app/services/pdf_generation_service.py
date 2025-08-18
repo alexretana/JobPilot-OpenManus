@@ -158,7 +158,7 @@ class PDFGenerationService:
                 "location": resume.contact_info.location or "",
                 "email": resume.contact_info.email,
                 "phone": resume.contact_info.phone or "",
-                "website": resume.contact_info.website or "",
+                "website": resume.contact_info.website_url or "",
                 "social_networks": [],
             },
             "design": {
@@ -174,21 +174,21 @@ class PDFGenerationService:
 
         # Add social networks
         social_networks = []
-        if resume.contact_info.linkedin:
+        if resume.contact_info.linkedin_url:
             social_networks.append(
                 {
                     "network": "LinkedIn",
                     "username": self._extract_username_from_url(
-                        resume.contact_info.linkedin, "linkedin"
+                        resume.contact_info.linkedin_url, "linkedin"
                     ),
                 }
             )
-        if resume.contact_info.github:
+        if resume.contact_info.github_url:
             social_networks.append(
                 {
                     "network": "GitHub",
                     "username": self._extract_username_from_url(
-                        resume.contact_info.github, "github"
+                        resume.contact_info.github_url, "github"
                     ),
                 }
             )
@@ -551,10 +551,10 @@ class ResumeExportService:
             lines.append(f"Phone: {resume.contact_info.phone}")
         if resume.contact_info.location:
             lines.append(f"Location: {resume.contact_info.location}")
-        if resume.contact_info.linkedin:
-            lines.append(f"LinkedIn: {resume.contact_info.linkedin}")
-        if resume.contact_info.github:
-            lines.append(f"GitHub: {resume.contact_info.github}")
+        if resume.contact_info.linkedin_url:
+            lines.append(f"LinkedIn: {resume.contact_info.linkedin_url}")
+        if resume.contact_info.github_url:
+            lines.append(f"GitHub: {resume.contact_info.github_url}")
         lines.append("")
 
         # Summary

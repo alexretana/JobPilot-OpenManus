@@ -83,9 +83,9 @@ class ContactInfo(BaseModel):
     email: str
     phone: Optional[str] = None
     location: Optional[str] = None
-    linkedin: Optional[str] = None
-    github: Optional[str] = None
-    website: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    github_url: Optional[str] = None
+    website_url: Optional[str] = None
     portfolio: Optional[str] = None
 
 
@@ -539,9 +539,9 @@ def create_resume_from_profile(user_profile_data: Dict[str, Any]) -> Resume:
         full_name=f"{user_profile_data.get('first_name', '')} {user_profile_data.get('last_name', '')}".strip(),
         email=user_profile_data.get("email", ""),
         phone=user_profile_data.get("phone"),
-        linkedin=user_profile_data.get("linkedin_url"),
-        github=user_profile_data.get("github_url"),
-        website=user_profile_data.get("website_url"),
+        linkedin_url=user_profile_data.get("linkedin_url"),
+        github_url=user_profile_data.get("github_url"),
+        website_url=user_profile_data.get("website_url"),
     )
 
     # Convert profile skills to resume skills
@@ -585,7 +585,7 @@ def calculate_resume_completeness(resume: Resume) -> float:
         score += 1
     if len(resume.projects) > 0 or len(resume.certifications) > 0:
         score += 1
-    if resume.contact_info.linkedin or resume.contact_info.github:
+    if resume.contact_info.linkedin_url or resume.contact_info.github_url:
         score += 1
     if any(exp.achievements for exp in resume.work_experience):
         score += 1
