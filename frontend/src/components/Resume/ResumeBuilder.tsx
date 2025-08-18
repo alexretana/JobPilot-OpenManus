@@ -1,4 +1,4 @@
-import { Component, createSignal, onMount } from 'solid-js';
+import { Component, createSignal, onMount, For, Show } from 'solid-js';
 import { ResumeService, CreateResumeRequest } from '../../services/resumeService';
 
 interface ResumeBuilderProps {
@@ -95,6 +95,116 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
         ...prev.contact_info,
         [field]: value,
       },
+    }));
+  };
+
+  // Work Experience Management Functions
+  const addWorkExperience = () => {
+    const newExperience = {
+      company: '',
+      position: '',
+      location: '',
+      start_date: '',
+      end_date: '',
+      is_current: false,
+      description: '',
+      achievements: [],
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      work_experience: [...prev.work_experience, newExperience],
+    }));
+  };
+
+  const removeWorkExperience = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      work_experience: prev.work_experience.filter((_, i) => i !== index),
+    }));
+  };
+
+  const moveWorkExperienceUp = (index: number) => {
+    if (index === 0) return;
+
+    setFormData(prev => {
+      const newExperiences = [...prev.work_experience];
+      [newExperiences[index - 1], newExperiences[index]] = [
+        newExperiences[index],
+        newExperiences[index - 1],
+      ];
+      return {
+        ...prev,
+        work_experience: newExperiences,
+      };
+    });
+  };
+
+  const moveWorkExperienceDown = (index: number) => {
+    setFormData(prev => {
+      if (index === prev.work_experience.length - 1) return prev;
+
+      const newExperiences = [...prev.work_experience];
+      [newExperiences[index], newExperiences[index + 1]] = [
+        newExperiences[index + 1],
+        newExperiences[index],
+      ];
+      return {
+        ...prev,
+        work_experience: newExperiences,
+      };
+    });
+  };
+
+  const updateWorkExperience = (index: number, field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      work_experience: prev.work_experience.map((exp, i) =>
+        i === index ? { ...exp, [field]: value } : exp
+      ),
+    }));
+  };
+
+  const addWorkExperienceAchievement = (experienceIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      work_experience: prev.work_experience.map((exp, i) =>
+        i === experienceIndex ? { ...exp, achievements: [...(exp.achievements || []), ''] } : exp
+      ),
+    }));
+  };
+
+  const updateWorkExperienceAchievement = (
+    experienceIndex: number,
+    achievementIndex: number,
+    value: string
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      work_experience: prev.work_experience.map((exp, i) =>
+        i === experienceIndex
+          ? {
+              ...exp,
+              achievements: (exp.achievements || []).map((ach, j) =>
+                j === achievementIndex ? value : ach
+              ),
+            }
+          : exp
+      ),
+    }));
+  };
+
+  const removeWorkExperienceAchievement = (experienceIndex: number, achievementIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      work_experience: prev.work_experience.map((exp, i) =>
+        i === experienceIndex
+          ? {
+              ...exp,
+              achievements: (exp.achievements || []).filter((_, j) => j !== achievementIndex),
+            }
+          : exp
+      ),
     }));
   };
 
@@ -301,10 +411,240 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
               </div>
             )}
 
+            {/* Work Experience Section */}
+            {activeSection() === 'experience' && (
+              <div class='space-y-4'>
+                <h3 class='text-xl font-semibold mb-4'>💼 Work Experience</h3>
+
+                <div class='space-y-6'>
+                  {/* Add New Experience Button */}
+                  <div class='flex justify-between items-center'>
+                    <p class='text-sm text-base-content/70'>
+                      Add your work experience, starting with your most recent position.
+                    </p>
+                    <button
+                      type='button'
+                      class='btn btn-outline btn-sm'
+                      onClick={addWorkExperience}
+                    >
+                      ➕ Add Experience
+                    </button>
+                  </div>
+
+                  {/* Work Experience Entries */}
+                  <div class='space-y-6'>
+                    <For each={formData().work_experience}>
+                      {(experience, index) => (
+                        <div class='card bg-base-100 border border-base-300 p-6'>
+                          {/* Experience Header */}
+                          <div class='flex justify-between items-center mb-4'>
+                            <h4 class='text-lg font-medium'>Experience {index() + 1}</h4>
+                            <div class='flex space-x-2'>
+                              {/* Move Up Button */}
+                              <Show when={index() > 0}>
+                                <button
+                                  type='button'
+                                  class='btn btn-ghost btn-sm'
+                                  onClick={() => moveWorkExperienceUp(index())}
+                                  title='Move up'
+                                >
+                                  ⬆️
+                                </button>
+                              </Show>
+
+                              {/* Move Down Button */}
+                              <Show when={index() < formData().work_experience.length - 1}>
+                                <button
+                                  type='button'
+                                  class='btn btn-ghost btn-sm'
+                                  onClick={() => moveWorkExperienceDown(index())}
+                                  title='Move down'
+                                >
+                                  ⬇️
+                                </button>
+                              </Show>
+
+                              {/* Delete Button */}
+                              <button
+                                type='button'
+                                class='btn btn-ghost btn-sm text-error'
+                                onClick={() => removeWorkExperience(index())}
+                                title='Remove experience'
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Experience Form Fields */}
+                          <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            {/* Company Name */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Company *</label>
+                              <input
+                                type='text'
+                                class='input input-bordered w-full'
+                                placeholder='Company Name'
+                                value={experience.company}
+                                onInput={e =>
+                                  updateWorkExperience(index(), 'company', e.target.value)
+                                }
+                                required
+                              />
+                            </div>
+
+                            {/* Position */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Position *</label>
+                              <input
+                                type='text'
+                                class='input input-bordered w-full'
+                                placeholder='Job Title'
+                                value={experience.position}
+                                onInput={e =>
+                                  updateWorkExperience(index(), 'position', e.target.value)
+                                }
+                                required
+                              />
+                            </div>
+
+                            {/* Location */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Location</label>
+                              <input
+                                type='text'
+                                class='input input-bordered w-full'
+                                placeholder='City, State'
+                                value={experience.location || ''}
+                                onInput={e =>
+                                  updateWorkExperience(index(), 'location', e.target.value)
+                                }
+                              />
+                            </div>
+
+                            {/* Current Position Checkbox */}
+                            <div class='flex items-center space-x-2 pt-8'>
+                              <input
+                                type='checkbox'
+                                class='checkbox'
+                                checked={experience.is_current || false}
+                                onChange={e =>
+                                  updateWorkExperience(index(), 'is_current', e.target.checked)
+                                }
+                              />
+                              <label class='text-sm'>I currently work here</label>
+                            </div>
+
+                            {/* Start Date */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Start Date *</label>
+                              <input
+                                type='date'
+                                class='input input-bordered w-full'
+                                value={experience.start_date}
+                                onInput={e =>
+                                  updateWorkExperience(index(), 'start_date', e.target.value)
+                                }
+                                required
+                              />
+                            </div>
+
+                            {/* End Date */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>
+                                End Date {experience.is_current ? '(Current)' : '*'}
+                              </label>
+                              <input
+                                type='date'
+                                class='input input-bordered w-full'
+                                value={experience.end_date || ''}
+                                onInput={e =>
+                                  updateWorkExperience(index(), 'end_date', e.target.value)
+                                }
+                                disabled={experience.is_current}
+                                required={!experience.is_current}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Description */}
+                          <div class='mt-4'>
+                            <label class='block text-sm font-medium mb-2'>Job Description</label>
+                            <textarea
+                              class='textarea textarea-bordered w-full h-24'
+                              placeholder='Describe your role, responsibilities, and key contributions...'
+                              value={experience.description || ''}
+                              onInput={e =>
+                                updateWorkExperience(index(), 'description', e.target.value)
+                              }
+                            ></textarea>
+                          </div>
+
+                          {/* Achievements */}
+                          <div class='mt-4'>
+                            <label class='block text-sm font-medium mb-2'>Key Achievements</label>
+                            <div class='space-y-2'>
+                              <For each={experience.achievements || []}>
+                                {(achievement, achIndex) => (
+                                  <div class='flex space-x-2'>
+                                    <input
+                                      type='text'
+                                      class='input input-bordered flex-1'
+                                      placeholder='Key achievement or accomplishment'
+                                      value={achievement}
+                                      onInput={e =>
+                                        updateWorkExperienceAchievement(
+                                          index(),
+                                          achIndex(),
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                    <button
+                                      type='button'
+                                      class='btn btn-ghost btn-sm text-error'
+                                      onClick={() =>
+                                        removeWorkExperienceAchievement(index(), achIndex())
+                                      }
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                )}
+                              </For>
+                              <button
+                                type='button'
+                                class='btn btn-ghost btn-sm w-full'
+                                onClick={() => addWorkExperienceAchievement(index())}
+                              >
+                                ➕ Add Achievement
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+
+                  {/* Empty State */}
+                  <Show when={formData().work_experience.length === 0}>
+                    <div class='text-center py-12 bg-base-100 rounded-lg border-2 border-dashed border-base-300'>
+                      <div class='text-4xl mb-2'>💼</div>
+                      <h3 class='text-lg font-medium mb-2'>No work experience added yet</h3>
+                      <p class='text-base-content/70 mb-4'>
+                        Add your work experience to showcase your professional background
+                      </p>
+                      <button type='button' class='btn btn-primary' onClick={addWorkExperience}>
+                        Add Your First Experience
+                      </button>
+                    </div>
+                  </Show>
+                </div>
+              </div>
+            )}
+
             {/* Other Sections Placeholder */}
-            {['experience', 'education', 'skills', 'projects', 'certifications'].includes(
-              activeSection()
-            ) && (
+            {['education', 'skills', 'projects', 'certifications'].includes(activeSection()) && (
               <div class='space-y-4'>
                 <h3 class='text-xl font-semibold mb-4'>
                   {sections.find(s => s.key === activeSection())?.icon}{' '}
