@@ -10,6 +10,7 @@ import { Timeline } from './components/Timeline';
 import ApplicationsManager from './components/ApplicationsManager';
 import LeadsManager from './components/LeadsManager';
 import { ProfileDashboard } from './components/UserProfile';
+import { ResumeDashboard } from './components/Resume';
 import { webSocketService } from './services/websocket';
 import type {
   ChatMessage,
@@ -38,7 +39,7 @@ const App: Component = () => {
   const [showStatusPanel, setShowStatusPanel] = createSignal(false);
   const [systemHealthy, setSystemHealthy] = createSignal(true);
   const [activeTab, setActiveTab] = createSignal<
-    'chat' | 'jobs' | 'timeline' | 'applications' | 'leads' | 'profile'
+    'chat' | 'jobs' | 'timeline' | 'applications' | 'leads' | 'profile' | 'resume'
   >('chat');
   const [selectedJobId, setSelectedJobId] = createSignal<string | null>(null);
   const [showJobModal, setShowJobModal] = createSignal(false);
@@ -259,6 +260,12 @@ const App: Component = () => {
                 );
               }}
             />
+          </div>
+        </Show>
+
+        <Show when={activeTab() === 'resume'}>
+          <div class='bg-base-100 rounded-lg p-2 h-full overflow-y-auto'>
+            <ResumeDashboard userId='demo-user-123' />
           </div>
         </Show>
       </main>
