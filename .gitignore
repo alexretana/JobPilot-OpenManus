@@ -305,3 +305,5 @@ docker-compose.override.yml
 *.pfx
 secrets.json
 config/secrets/
+
+WARP.md
