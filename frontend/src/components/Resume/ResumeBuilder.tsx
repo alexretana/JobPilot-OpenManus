@@ -208,6 +208,223 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
     }));
   };
 
+  // Education Management Functions
+  const addEducation = () => {
+    const newEducation = {
+      institution: '',
+      degree: '',
+      field_of_study: '',
+      location: '',
+      start_date: '',
+      graduation_date: '',
+      gpa: '',
+      honors: [],
+      relevant_coursework: [],
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      education: [...prev.education, newEducation],
+    }));
+  };
+
+  const removeEducation = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      education: prev.education.filter((_, i) => i !== index),
+    }));
+  };
+
+  const moveEducationUp = (index: number) => {
+    if (index === 0) return;
+
+    setFormData(prev => {
+      const newEducation = [...prev.education];
+      [newEducation[index - 1], newEducation[index]] = [
+        newEducation[index],
+        newEducation[index - 1],
+      ];
+      return {
+        ...prev,
+        education: newEducation,
+      };
+    });
+  };
+
+  const moveEducationDown = (index: number) => {
+    setFormData(prev => {
+      if (index === prev.education.length - 1) return prev;
+
+      const newEducation = [...prev.education];
+      [newEducation[index], newEducation[index + 1]] = [
+        newEducation[index + 1],
+        newEducation[index],
+      ];
+      return {
+        ...prev,
+        education: newEducation,
+      };
+    });
+  };
+
+  const updateEducation = (index: number, field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      education: prev.education.map((edu, i) => (i === index ? { ...edu, [field]: value } : edu)),
+    }));
+  };
+
+  const addEducationHonor = (educationIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      education: prev.education.map((edu, i) =>
+        i === educationIndex ? { ...edu, honors: [...(edu.honors || []), ''] } : edu
+      ),
+    }));
+  };
+
+  const updateEducationHonor = (educationIndex: number, honorIndex: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      education: prev.education.map((edu, i) =>
+        i === educationIndex
+          ? {
+              ...edu,
+              honors: (edu.honors || []).map((honor, j) => (j === honorIndex ? value : honor)),
+            }
+          : edu
+      ),
+    }));
+  };
+
+  const removeEducationHonor = (educationIndex: number, honorIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      education: prev.education.map((edu, i) =>
+        i === educationIndex
+          ? {
+              ...edu,
+              honors: (edu.honors || []).filter((_, j) => j !== honorIndex),
+            }
+          : edu
+      ),
+    }));
+  };
+
+  const addEducationCourse = (educationIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      education: prev.education.map((edu, i) =>
+        i === educationIndex
+          ? { ...edu, relevant_coursework: [...(edu.relevant_coursework || []), ''] }
+          : edu
+      ),
+    }));
+  };
+
+  const updateEducationCourse = (educationIndex: number, courseIndex: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      education: prev.education.map((edu, i) =>
+        i === educationIndex
+          ? {
+              ...edu,
+              relevant_coursework: (edu.relevant_coursework || []).map((course, j) =>
+                j === courseIndex ? value : course
+              ),
+            }
+          : edu
+      ),
+    }));
+  };
+
+  const removeEducationCourse = (educationIndex: number, courseIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      education: prev.education.map((edu, i) =>
+        i === educationIndex
+          ? {
+              ...edu,
+              relevant_coursework: (edu.relevant_coursework || []).filter(
+                (_, j) => j !== courseIndex
+              ),
+            }
+          : edu
+      ),
+    }));
+  };
+
+  // Skills Management Functions
+  const addSkill = () => {
+    const newSkill = {
+      name: '',
+      category: 'Technical Skills',
+      proficiency_level: 'Intermediate',
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      skills: [...prev.skills, newSkill],
+    }));
+  };
+
+  const removeSkill = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      skills: prev.skills.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateSkill = (index: number, field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      skills: prev.skills.map((skill, i) => (i === index ? { ...skill, [field]: value } : skill)),
+    }));
+  };
+
+  const moveSkillUp = (index: number) => {
+    if (index === 0) return;
+
+    setFormData(prev => {
+      const newSkills = [...prev.skills];
+      [newSkills[index - 1], newSkills[index]] = [newSkills[index], newSkills[index - 1]];
+      return {
+        ...prev,
+        skills: newSkills,
+      };
+    });
+  };
+
+  const moveSkillDown = (index: number) => {
+    setFormData(prev => {
+      if (index === prev.skills.length - 1) return prev;
+
+      const newSkills = [...prev.skills];
+      [newSkills[index], newSkills[index + 1]] = [newSkills[index + 1], newSkills[index]];
+      return {
+        ...prev,
+        skills: newSkills,
+      };
+    });
+  };
+
+  const getSkillsByCategory = () => {
+    const skillsByCategory: Record<
+      string,
+      Array<{ name: string; category?: string; proficiency_level?: string; originalIndex: number }>
+    > = {};
+
+    formData().skills.forEach((skill, index) => {
+      const category = skill.category || 'Other';
+      if (!skillsByCategory[category]) {
+        skillsByCategory[category] = [];
+      }
+      skillsByCategory[category].push({ ...skill, originalIndex: index });
+    });
+
+    return skillsByCategory;
+  };
+
   const sections = [
     { key: 'contact', label: 'Contact Info', icon: '👤' },
     { key: 'summary', label: 'Summary', icon: '📝' },
@@ -643,8 +860,465 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
               </div>
             )}
 
+            {/* Education Section */}
+            {activeSection() === 'education' && (
+              <div class='space-y-4'>
+                <h3 class='text-xl font-semibold mb-4'>🎓 Education</h3>
+
+                <div class='space-y-6'>
+                  {/* Add New Education Button */}
+                  <div class='flex justify-between items-center'>
+                    <p class='text-sm text-base-content/70'>
+                      Add your educational background, starting with your most recent degree.
+                    </p>
+                    <button type='button' class='btn btn-outline btn-sm' onClick={addEducation}>
+                      ➕ Add Education
+                    </button>
+                  </div>
+
+                  {/* Education Entries */}
+                  <div class='space-y-6'>
+                    <For each={formData().education}>
+                      {(education, index) => (
+                        <div class='card bg-base-100 border border-base-300 p-6'>
+                          {/* Education Header */}
+                          <div class='flex justify-between items-center mb-4'>
+                            <h4 class='text-lg font-medium'>Education {index() + 1}</h4>
+                            <div class='flex space-x-2'>
+                              {/* Move Up Button */}
+                              <Show when={index() > 0}>
+                                <button
+                                  type='button'
+                                  class='btn btn-ghost btn-sm'
+                                  onClick={() => moveEducationUp(index())}
+                                  title='Move up'
+                                >
+                                  ⬆️
+                                </button>
+                              </Show>
+
+                              {/* Move Down Button */}
+                              <Show when={index() < formData().education.length - 1}>
+                                <button
+                                  type='button'
+                                  class='btn btn-ghost btn-sm'
+                                  onClick={() => moveEducationDown(index())}
+                                  title='Move down'
+                                >
+                                  ⬇️
+                                </button>
+                              </Show>
+
+                              {/* Delete Button */}
+                              <button
+                                type='button'
+                                class='btn btn-ghost btn-sm text-error'
+                                onClick={() => removeEducation(index())}
+                                title='Remove education'
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Education Form Fields */}
+                          <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            {/* Institution Name */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Institution *</label>
+                              <input
+                                type='text'
+                                class='input input-bordered w-full'
+                                placeholder='University Name'
+                                value={education.institution}
+                                onInput={e =>
+                                  updateEducation(index(), 'institution', e.target.value)
+                                }
+                                required
+                              />
+                            </div>
+
+                            {/* Degree */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Degree *</label>
+                              <select
+                                class='select select-bordered w-full'
+                                value={education.degree}
+                                onChange={e => updateEducation(index(), 'degree', e.target.value)}
+                                required
+                              >
+                                <option value='' disabled>
+                                  Select degree type
+                                </option>
+                                <option value='High School Diploma'>High School Diploma</option>
+                                <option value="Associate's Degree">Associate's Degree</option>
+                                <option value="Bachelor's Degree">Bachelor's Degree</option>
+                                <option value="Master's Degree">Master's Degree</option>
+                                <option value='MBA'>MBA</option>
+                                <option value='PhD'>PhD</option>
+                                <option value='Professional Degree'>Professional Degree</option>
+                                <option value='Certificate'>Certificate</option>
+                                <option value='Other'>Other</option>
+                              </select>
+                            </div>
+
+                            {/* Field of Study */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Field of Study</label>
+                              <input
+                                type='text'
+                                class='input input-bordered w-full'
+                                placeholder='Major/Field of Study'
+                                value={education.field_of_study || ''}
+                                onInput={e =>
+                                  updateEducation(index(), 'field_of_study', e.target.value)
+                                }
+                              />
+                            </div>
+
+                            {/* Location */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Location</label>
+                              <input
+                                type='text'
+                                class='input input-bordered w-full'
+                                placeholder='City, State'
+                                value={education.location || ''}
+                                onInput={e => updateEducation(index(), 'location', e.target.value)}
+                              />
+                            </div>
+
+                            {/* Start Date */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Start Date</label>
+                              <input
+                                type='date'
+                                class='input input-bordered w-full'
+                                value={education.start_date || ''}
+                                onInput={e =>
+                                  updateEducation(index(), 'start_date', e.target.value)
+                                }
+                              />
+                            </div>
+
+                            {/* Graduation Date */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Graduation Date</label>
+                              <input
+                                type='date'
+                                class='input input-bordered w-full'
+                                value={education.graduation_date || ''}
+                                onInput={e =>
+                                  updateEducation(index(), 'graduation_date', e.target.value)
+                                }
+                              />
+                            </div>
+
+                            {/* GPA */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>GPA (Optional)</label>
+                              <input
+                                type='number'
+                                class='input input-bordered w-full'
+                                placeholder='3.8'
+                                step='0.1'
+                                min='0'
+                                max='4.0'
+                                value={education.gpa || ''}
+                                onInput={e => updateEducation(index(), 'gpa', e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Honors and Achievements */}
+                          <div class='mt-4'>
+                            <label class='block text-sm font-medium mb-2'>
+                              Honors & Achievements
+                            </label>
+                            <div class='space-y-2'>
+                              <For each={education.honors || []}>
+                                {(honor, honorIndex) => (
+                                  <div class='flex space-x-2'>
+                                    <input
+                                      type='text'
+                                      class='input input-bordered flex-1'
+                                      placeholder='Honor, award, or achievement'
+                                      value={honor}
+                                      onInput={e =>
+                                        updateEducationHonor(index(), honorIndex(), e.target.value)
+                                      }
+                                    />
+                                    <button
+                                      type='button'
+                                      class='btn btn-ghost btn-sm text-error'
+                                      onClick={() => removeEducationHonor(index(), honorIndex())}
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                )}
+                              </For>
+                              <button
+                                type='button'
+                                class='btn btn-ghost btn-sm w-full'
+                                onClick={() => addEducationHonor(index())}
+                              >
+                                ➕ Add Honor/Achievement
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Relevant Coursework */}
+                          <div class='mt-4'>
+                            <label class='block text-sm font-medium mb-2'>
+                              Relevant Coursework
+                            </label>
+                            <div class='space-y-2'>
+                              <For each={education.relevant_coursework || []}>
+                                {(course, courseIndex) => (
+                                  <div class='flex space-x-2'>
+                                    <input
+                                      type='text'
+                                      class='input input-bordered flex-1'
+                                      placeholder='Course name'
+                                      value={course}
+                                      onInput={e =>
+                                        updateEducationCourse(
+                                          index(),
+                                          courseIndex(),
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                    <button
+                                      type='button'
+                                      class='btn btn-ghost btn-sm text-error'
+                                      onClick={() => removeEducationCourse(index(), courseIndex())}
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                )}
+                              </For>
+                              <button
+                                type='button'
+                                class='btn btn-ghost btn-sm w-full'
+                                onClick={() => addEducationCourse(index())}
+                              >
+                                ➕ Add Course
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+
+                  {/* Empty State */}
+                  <Show when={formData().education.length === 0}>
+                    <div class='text-center py-12 bg-base-100 rounded-lg border-2 border-dashed border-base-300'>
+                      <div class='text-4xl mb-2'>🎓</div>
+                      <h3 class='text-lg font-medium mb-2'>No education added yet</h3>
+                      <p class='text-base-content/70 mb-4'>
+                        Add your educational background to showcase your qualifications
+                      </p>
+                      <button type='button' class='btn btn-primary' onClick={addEducation}>
+                        Add Your First Education
+                      </button>
+                    </div>
+                  </Show>
+                </div>
+              </div>
+            )}
+
+            {/* Skills Section */}
+            {activeSection() === 'skills' && (
+              <div class='space-y-4'>
+                <h3 class='text-xl font-semibold mb-4'>🛠️ Skills</h3>
+
+                <div class='space-y-6'>
+                  {/* Add New Skill Button */}
+                  <div class='flex justify-between items-center'>
+                    <p class='text-sm text-base-content/70'>
+                      Add your skills organized by category with proficiency levels.
+                    </p>
+                    <button type='button' class='btn btn-outline btn-sm' onClick={addSkill}>
+                      ➕ Add Skill
+                    </button>
+                  </div>
+
+                  {/* Skills organized by Category */}
+                  <div class='space-y-6'>
+                    <For each={Object.entries(getSkillsByCategory())}>
+                      {([category, categorySkills]) => (
+                        <div class='card bg-base-100 border border-base-300 p-6'>
+                          <div class='mb-4'>
+                            <h4 class='text-lg font-medium text-primary'>{category}</h4>
+                            <p class='text-sm text-base-content/60 mt-1'>
+                              {categorySkills.length} skill{categorySkills.length !== 1 ? 's' : ''}{' '}
+                              in this category
+                            </p>
+                          </div>
+
+                          <div class='space-y-3'>
+                            <For each={categorySkills}>
+                              {skill => (
+                                <div class='grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-base-50 rounded-lg border'>
+                                  {/* Skill Name */}
+                                  <div>
+                                    <label class='block text-sm font-medium mb-2'>
+                                      Skill Name *
+                                    </label>
+                                    <input
+                                      type='text'
+                                      class='input input-bordered w-full'
+                                      placeholder='e.g., JavaScript'
+                                      value={skill.name}
+                                      onInput={e =>
+                                        updateSkill(skill.originalIndex, 'name', e.target.value)
+                                      }
+                                      required
+                                    />
+                                  </div>
+
+                                  {/* Category */}
+                                  <div>
+                                    <label class='block text-sm font-medium mb-2'>Category</label>
+                                    <select
+                                      class='select select-bordered w-full'
+                                      value={skill.category || 'Technical Skills'}
+                                      onChange={e =>
+                                        updateSkill(skill.originalIndex, 'category', e.target.value)
+                                      }
+                                    >
+                                      <option value='Technical Skills'>Technical Skills</option>
+                                      <option value='Programming Languages'>
+                                        Programming Languages
+                                      </option>
+                                      <option value='Frameworks & Libraries'>
+                                        Frameworks & Libraries
+                                      </option>
+                                      <option value='Tools & Software'>Tools & Software</option>
+                                      <option value='Soft Skills'>Soft Skills</option>
+                                      <option value='Languages'>Languages</option>
+                                      <option value='Certifications'>Certifications</option>
+                                      <option value='Design'>Design</option>
+                                      <option value='Data & Analytics'>Data & Analytics</option>
+                                      <option value='Other'>Other</option>
+                                    </select>
+                                  </div>
+
+                                  {/* Proficiency Level */}
+                                  <div>
+                                    <label class='block text-sm font-medium mb-2'>
+                                      Proficiency
+                                    </label>
+                                    <div class='flex items-center space-x-2'>
+                                      <select
+                                        class='select select-bordered flex-1'
+                                        value={skill.proficiency_level || 'Intermediate'}
+                                        onChange={e =>
+                                          updateSkill(
+                                            skill.originalIndex,
+                                            'proficiency_level',
+                                            e.target.value
+                                          )
+                                        }
+                                      >
+                                        <option value='Beginner'>Beginner</option>
+                                        <option value='Intermediate'>Intermediate</option>
+                                        <option value='Advanced'>Advanced</option>
+                                        <option value='Expert'>Expert</option>
+                                      </select>
+
+                                      {/* Action Buttons */}
+                                      <div class='flex space-x-1'>
+                                        {/* Move Up */}
+                                        <Show when={skill.originalIndex > 0}>
+                                          <button
+                                            type='button'
+                                            class='btn btn-ghost btn-xs'
+                                            onClick={() => moveSkillUp(skill.originalIndex)}
+                                            title='Move up'
+                                          >
+                                            ⬆️
+                                          </button>
+                                        </Show>
+
+                                        {/* Move Down */}
+                                        <Show
+                                          when={skill.originalIndex < formData().skills.length - 1}
+                                        >
+                                          <button
+                                            type='button'
+                                            class='btn btn-ghost btn-xs'
+                                            onClick={() => moveSkillDown(skill.originalIndex)}
+                                            title='Move down'
+                                          >
+                                            ⬇️
+                                          </button>
+                                        </Show>
+
+                                        {/* Delete */}
+                                        <button
+                                          type='button'
+                                          class='btn btn-ghost btn-xs text-error'
+                                          onClick={() => removeSkill(skill.originalIndex)}
+                                          title='Remove skill'
+                                        >
+                                          🗑️
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </For>
+                          </div>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+
+                  {/* Empty State */}
+                  <Show when={formData().skills.length === 0}>
+                    <div class='text-center py-12 bg-base-100 rounded-lg border-2 border-dashed border-base-300'>
+                      <div class='text-4xl mb-2'>🛠️</div>
+                      <h3 class='text-lg font-medium mb-2'>No skills added yet</h3>
+                      <p class='text-base-content/70 mb-4'>
+                        Add your technical and soft skills to showcase your expertise
+                      </p>
+                      <button type='button' class='btn btn-primary' onClick={addSkill}>
+                        Add Your First Skill
+                      </button>
+                    </div>
+                  </Show>
+
+                  {/* Skills Summary */}
+                  <Show when={formData().skills.length > 0}>
+                    <div class='bg-info/10 border border-info/20 rounded-lg p-4'>
+                      <div class='flex items-start space-x-3'>
+                        <div class='text-info text-xl'>💡</div>
+                        <div>
+                          <h4 class='font-medium text-info-content mb-2'>Skills Summary</h4>
+                          <p class='text-sm text-base-content/70'>
+                            Total: {formData().skills.length} skills across{' '}
+                            {Object.keys(getSkillsByCategory()).length} categories
+                          </p>
+                          <div class='mt-2 text-xs text-base-content/60'>
+                            <strong>Tip:</strong> Focus on skills relevant to your target role. Use
+                            specific technologies and tools rather than generic terms.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Show>
+                </div>
+              </div>
+            )}
+
             {/* Other Sections Placeholder */}
-            {['education', 'skills', 'projects', 'certifications'].includes(activeSection()) && (
+            {['projects', 'certifications'].includes(activeSection()) && (
               <div class='space-y-4'>
                 <h3 class='text-xl font-semibold mb-4'>
                   {sections.find(s => s.key === activeSection())?.icon}{' '}
