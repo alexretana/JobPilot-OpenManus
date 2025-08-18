@@ -425,6 +425,230 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
     return skillsByCategory;
   };
 
+  // Projects Management Functions
+  const addProject = () => {
+    const newProject = {
+      name: '',
+      description: '',
+      technologies: [],
+      url: '',
+      start_date: '',
+      end_date: '',
+      achievements: [],
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      projects: [...prev.projects, newProject],
+    }));
+  };
+
+  const removeProject = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      projects: prev.projects.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateProject = (index: number, field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      projects: prev.projects.map((project, i) =>
+        i === index ? { ...project, [field]: value } : project
+      ),
+    }));
+  };
+
+  const moveProjectUp = (index: number) => {
+    if (index === 0) return;
+
+    setFormData(prev => {
+      const newProjects = [...prev.projects];
+      [newProjects[index - 1], newProjects[index]] = [newProjects[index], newProjects[index - 1]];
+      return {
+        ...prev,
+        projects: newProjects,
+      };
+    });
+  };
+
+  const moveProjectDown = (index: number) => {
+    setFormData(prev => {
+      if (index === prev.projects.length - 1) return prev;
+
+      const newProjects = [...prev.projects];
+      [newProjects[index], newProjects[index + 1]] = [newProjects[index + 1], newProjects[index]];
+      return {
+        ...prev,
+        projects: newProjects,
+      };
+    });
+  };
+
+  const addProjectTechnology = (projectIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      projects: prev.projects.map((project, i) =>
+        i === projectIndex
+          ? { ...project, technologies: [...(project.technologies || []), ''] }
+          : project
+      ),
+    }));
+  };
+
+  const updateProjectTechnology = (projectIndex: number, techIndex: number, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      projects: prev.projects.map((project, i) =>
+        i === projectIndex
+          ? {
+              ...project,
+              technologies: (project.technologies || []).map((tech, j) =>
+                j === techIndex ? value : tech
+              ),
+            }
+          : project
+      ),
+    }));
+  };
+
+  const removeProjectTechnology = (projectIndex: number, techIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      projects: prev.projects.map((project, i) =>
+        i === projectIndex
+          ? {
+              ...project,
+              technologies: (project.technologies || []).filter((_, j) => j !== techIndex),
+            }
+          : project
+      ),
+    }));
+  };
+
+  const addProjectAchievement = (projectIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      projects: prev.projects.map((project, i) =>
+        i === projectIndex
+          ? { ...project, achievements: [...(project.achievements || []), ''] }
+          : project
+      ),
+    }));
+  };
+
+  const updateProjectAchievement = (
+    projectIndex: number,
+    achievementIndex: number,
+    value: string
+  ) => {
+    setFormData(prev => ({
+      ...prev,
+      projects: prev.projects.map((project, i) =>
+        i === projectIndex
+          ? {
+              ...project,
+              achievements: (project.achievements || []).map((ach, j) =>
+                j === achievementIndex ? value : ach
+              ),
+            }
+          : project
+      ),
+    }));
+  };
+
+  const removeProjectAchievement = (projectIndex: number, achievementIndex: number) => {
+    setFormData(prev => ({
+      ...prev,
+      projects: prev.projects.map((project, i) =>
+        i === projectIndex
+          ? {
+              ...project,
+              achievements: (project.achievements || []).filter((_, j) => j !== achievementIndex),
+            }
+          : project
+      ),
+    }));
+  };
+
+  // Certifications Management Functions
+  const addCertification = () => {
+    const newCertification = {
+      name: '',
+      issuer: '',
+      date_earned: '',
+      expiry_date: '',
+      credential_id: '',
+      verification_url: '',
+      status: 'Active',
+    };
+
+    setFormData(prev => ({
+      ...prev,
+      certifications: [...prev.certifications, newCertification],
+    }));
+  };
+
+  const removeCertification = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      certifications: prev.certifications.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateCertification = (index: number, field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      certifications: prev.certifications.map((cert, i) =>
+        i === index ? { ...cert, [field]: value } : cert
+      ),
+    }));
+  };
+
+  const moveCertificationUp = (index: number) => {
+    if (index === 0) return;
+
+    setFormData(prev => {
+      const newCertifications = [...prev.certifications];
+      [newCertifications[index - 1], newCertifications[index]] = [
+        newCertifications[index],
+        newCertifications[index - 1],
+      ];
+      return {
+        ...prev,
+        certifications: newCertifications,
+      };
+    });
+  };
+
+  const moveCertificationDown = (index: number) => {
+    setFormData(prev => {
+      if (index === prev.certifications.length - 1) return prev;
+
+      const newCertifications = [...prev.certifications];
+      [newCertifications[index], newCertifications[index + 1]] = [
+        newCertifications[index + 1],
+        newCertifications[index],
+      ];
+      return {
+        ...prev,
+        certifications: newCertifications,
+      };
+    });
+  };
+
+  const getCertificationStatus = (certification: any) => {
+    if (!certification.expiry_date) return 'Active';
+
+    const expiryDate = new Date(certification.expiry_date);
+    const today = new Date();
+    const thirtyDaysFromNow = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    if (expiryDate < today) return 'Expired';
+    if (expiryDate < thirtyDaysFromNow) return 'Expiring Soon';
+    return 'Active';
+  };
+
   const sections = [
     { key: 'contact', label: 'Contact Info', icon: '👤' },
     { key: 'summary', label: 'Summary', icon: '📝' },
@@ -1317,18 +1541,431 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
               </div>
             )}
 
-            {/* Other Sections Placeholder */}
-            {['projects', 'certifications'].includes(activeSection()) && (
+            {/* Projects Section */}
+            {activeSection() === 'projects' && (
               <div class='space-y-4'>
-                <h3 class='text-xl font-semibold mb-4'>
-                  {sections.find(s => s.key === activeSection())?.icon}{' '}
-                  {sections.find(s => s.key === activeSection())?.label}
-                </h3>
-                <div class='text-center py-8 bg-base-200 rounded-lg'>
-                  <div class='text-4xl mb-2'>🚧</div>
-                  <p class='text-base-content/70'>
-                    This section is under development. Coming soon!
-                  </p>
+                <h3 class='text-xl font-semibold mb-4'>🚀 Projects</h3>
+
+                <div class='space-y-6'>
+                  {/* Add New Project Button */}
+                  <div class='flex justify-between items-center'>
+                    <p class='text-sm text-base-content/70'>
+                      Showcase your projects, starting with your most impressive or recent work.
+                    </p>
+                    <button type='button' class='btn btn-outline btn-sm' onClick={addProject}>
+                      ➕ Add Project
+                    </button>
+                  </div>
+
+                  {/* Project Entries */}
+                  <div class='space-y-6'>
+                    <For each={formData().projects}>
+                      {(project, index) => (
+                        <div class='card bg-base-100 border border-base-300 p-6'>
+                          {/* Project Header */}
+                          <div class='flex justify-between items-center mb-4'>
+                            <h4 class='text-lg font-medium'>Project {index() + 1}</h4>
+                            <div class='flex space-x-2'>
+                              {/* Move Up Button */}
+                              <Show when={index() > 0}>
+                                <button
+                                  type='button'
+                                  class='btn btn-ghost btn-sm'
+                                  onClick={() => moveProjectUp(index())}
+                                  title='Move up'
+                                >
+                                  ⬆️
+                                </button>
+                              </Show>
+
+                              {/* Move Down Button */}
+                              <Show when={index() < formData().projects.length - 1}>
+                                <button
+                                  type='button'
+                                  class='btn btn-ghost btn-sm'
+                                  onClick={() => moveProjectDown(index())}
+                                  title='Move down'
+                                >
+                                  ⬇️
+                                </button>
+                              </Show>
+
+                              {/* Delete Button */}
+                              <button
+                                type='button'
+                                class='btn btn-ghost btn-sm text-error'
+                                onClick={() => removeProject(index())}
+                                title='Remove project'
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Project Form Fields */}
+                          <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            {/* Project Name */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Project Name *</label>
+                              <input
+                                type='text'
+                                class='input input-bordered w-full'
+                                placeholder='My Awesome Project'
+                                value={project.name}
+                                onInput={e => updateProject(index(), 'name', e.target.value)}
+                                required
+                              />
+                            </div>
+
+                            {/* Project URL */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Project URL</label>
+                              <input
+                                type='url'
+                                class='input input-bordered w-full'
+                                placeholder='https://github.com/user/project'
+                                value={project.url || ''}
+                                onInput={e => updateProject(index(), 'url', e.target.value)}
+                              />
+                            </div>
+
+                            {/* Start Date */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Start Date</label>
+                              <input
+                                type='date'
+                                class='input input-bordered w-full'
+                                value={project.start_date || ''}
+                                onInput={e => updateProject(index(), 'start_date', e.target.value)}
+                              />
+                            </div>
+
+                            {/* End Date */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>End Date</label>
+                              <input
+                                type='date'
+                                class='input input-bordered w-full'
+                                value={project.end_date || ''}
+                                onInput={e => updateProject(index(), 'end_date', e.target.value)}
+                              />
+                            </div>
+                          </div>
+
+                          {/* Description */}
+                          <div class='mt-4'>
+                            <label class='block text-sm font-medium mb-2'>
+                              Project Description
+                            </label>
+                            <textarea
+                              class='textarea textarea-bordered w-full h-24'
+                              placeholder='Describe what this project does, your role, and key features...'
+                              value={project.description || ''}
+                              onInput={e => updateProject(index(), 'description', e.target.value)}
+                            ></textarea>
+                          </div>
+
+                          {/* Technologies */}
+                          <div class='mt-4'>
+                            <label class='block text-sm font-medium mb-2'>Technologies Used</label>
+                            <div class='space-y-2'>
+                              <For each={project.technologies || []}>
+                                {(tech, techIndex) => (
+                                  <div class='flex space-x-2'>
+                                    <input
+                                      type='text'
+                                      class='input input-bordered flex-1'
+                                      placeholder='e.g., React, Node.js, MongoDB'
+                                      value={tech}
+                                      onInput={e =>
+                                        updateProjectTechnology(
+                                          index(),
+                                          techIndex(),
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                    <button
+                                      type='button'
+                                      class='btn btn-ghost btn-sm text-error'
+                                      onClick={() => removeProjectTechnology(index(), techIndex())}
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                )}
+                              </For>
+                              <button
+                                type='button'
+                                class='btn btn-ghost btn-sm w-full'
+                                onClick={() => addProjectTechnology(index())}
+                              >
+                                ➕ Add Technology
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Key Achievements */}
+                          <div class='mt-4'>
+                            <label class='block text-sm font-medium mb-2'>Key Achievements</label>
+                            <div class='space-y-2'>
+                              <For each={project.achievements || []}>
+                                {(achievement, achIndex) => (
+                                  <div class='flex space-x-2'>
+                                    <input
+                                      type='text'
+                                      class='input input-bordered flex-1'
+                                      placeholder='Key outcome or impact of this project'
+                                      value={achievement}
+                                      onInput={e =>
+                                        updateProjectAchievement(
+                                          index(),
+                                          achIndex(),
+                                          e.target.value
+                                        )
+                                      }
+                                    />
+                                    <button
+                                      type='button'
+                                      class='btn btn-ghost btn-sm text-error'
+                                      onClick={() => removeProjectAchievement(index(), achIndex())}
+                                    >
+                                      ✕
+                                    </button>
+                                  </div>
+                                )}
+                              </For>
+                              <button
+                                type='button'
+                                class='btn btn-ghost btn-sm w-full'
+                                onClick={() => addProjectAchievement(index())}
+                              >
+                                ➕ Add Achievement
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+
+                  {/* Empty State */}
+                  <Show when={formData().projects.length === 0}>
+                    <div class='text-center py-12 bg-base-100 rounded-lg border-2 border-dashed border-base-300'>
+                      <div class='text-4xl mb-2'>🚀</div>
+                      <h3 class='text-lg font-medium mb-2'>No projects added yet</h3>
+                      <p class='text-base-content/70 mb-4'>
+                        Showcase your projects to demonstrate your skills and experience
+                      </p>
+                      <button type='button' class='btn btn-primary' onClick={addProject}>
+                        Add Your First Project
+                      </button>
+                    </div>
+                  </Show>
+                </div>
+              </div>
+            )}
+
+            {/* Certifications Section */}
+            {activeSection() === 'certifications' && (
+              <div class='space-y-4'>
+                <h3 class='text-xl font-semibold mb-4'>🏆 Certifications</h3>
+
+                <div class='space-y-6'>
+                  {/* Add New Certification Button */}
+                  <div class='flex justify-between items-center'>
+                    <p class='text-sm text-base-content/70'>
+                      Add your professional certifications with expiry tracking.
+                    </p>
+                    <button type='button' class='btn btn-outline btn-sm' onClick={addCertification}>
+                      ➕ Add Certification
+                    </button>
+                  </div>
+
+                  {/* Certification Entries */}
+                  <div class='space-y-6'>
+                    <For each={formData().certifications}>
+                      {(certification, index) => (
+                        <div class='card bg-base-100 border border-base-300 p-6'>
+                          {/* Certification Header */}
+                          <div class='flex justify-between items-center mb-4'>
+                            <div class='flex items-center space-x-3'>
+                              <h4 class='text-lg font-medium'>Certification {index() + 1}</h4>
+                              <div
+                                class={`badge ${
+                                  getCertificationStatus(certification) === 'Expired'
+                                    ? 'badge-error'
+                                    : getCertificationStatus(certification) === 'Expiring Soon'
+                                    ? 'badge-warning'
+                                    : 'badge-success'
+                                }`}
+                              >
+                                {getCertificationStatus(certification)}
+                              </div>
+                            </div>
+                            <div class='flex space-x-2'>
+                              {/* Move Up Button */}
+                              <Show when={index() > 0}>
+                                <button
+                                  type='button'
+                                  class='btn btn-ghost btn-sm'
+                                  onClick={() => moveCertificationUp(index())}
+                                  title='Move up'
+                                >
+                                  ⬆️
+                                </button>
+                              </Show>
+
+                              {/* Move Down Button */}
+                              <Show when={index() < formData().certifications.length - 1}>
+                                <button
+                                  type='button'
+                                  class='btn btn-ghost btn-sm'
+                                  onClick={() => moveCertificationDown(index())}
+                                  title='Move down'
+                                >
+                                  ⬇️
+                                </button>
+                              </Show>
+
+                              {/* Delete Button */}
+                              <button
+                                type='button'
+                                class='btn btn-ghost btn-sm text-error'
+                                onClick={() => removeCertification(index())}
+                                title='Remove certification'
+                              >
+                                🗑️
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Certification Form Fields */}
+                          <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                            {/* Certification Name */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>
+                                Certification Name *
+                              </label>
+                              <input
+                                type='text'
+                                class='input input-bordered w-full'
+                                placeholder='AWS Certified Solutions Architect'
+                                value={certification.name}
+                                onInput={e => updateCertification(index(), 'name', e.target.value)}
+                                required
+                              />
+                            </div>
+
+                            {/* Issuing Organization */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>
+                                Issuing Organization
+                              </label>
+                              <input
+                                type='text'
+                                class='input input-bordered w-full'
+                                placeholder='Amazon Web Services'
+                                value={certification.issuer || ''}
+                                onInput={e =>
+                                  updateCertification(index(), 'issuer', e.target.value)
+                                }
+                              />
+                            </div>
+
+                            {/* Date Earned */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Date Earned</label>
+                              <input
+                                type='date'
+                                class='input input-bordered w-full'
+                                value={certification.date_earned || ''}
+                                onInput={e =>
+                                  updateCertification(index(), 'date_earned', e.target.value)
+                                }
+                              />
+                            </div>
+
+                            {/* Expiry Date */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Expiry Date</label>
+                              <input
+                                type='date'
+                                class='input input-bordered w-full'
+                                value={certification.expiry_date || ''}
+                                onInput={e =>
+                                  updateCertification(index(), 'expiry_date', e.target.value)
+                                }
+                              />
+                            </div>
+
+                            {/* Credential ID */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Credential ID</label>
+                              <input
+                                type='text'
+                                class='input input-bordered w-full'
+                                placeholder='Certificate number or ID'
+                                value={certification.credential_id || ''}
+                                onInput={e =>
+                                  updateCertification(index(), 'credential_id', e.target.value)
+                                }
+                              />
+                            </div>
+
+                            {/* Verification URL */}
+                            <div>
+                              <label class='block text-sm font-medium mb-2'>Verification URL</label>
+                              <input
+                                type='url'
+                                class='input input-bordered w-full'
+                                placeholder='https://verify.certification.com/...'
+                                value={certification.verification_url || ''}
+                                onInput={e =>
+                                  updateCertification(index(), 'verification_url', e.target.value)
+                                }
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </For>
+                  </div>
+
+                  {/* Empty State */}
+                  <Show when={formData().certifications.length === 0}>
+                    <div class='text-center py-12 bg-base-100 rounded-lg border-2 border-dashed border-base-300'>
+                      <div class='text-4xl mb-2'>🏆</div>
+                      <h3 class='text-lg font-medium mb-2'>No certifications added yet</h3>
+                      <p class='text-base-content/70 mb-4'>
+                        Add your professional certifications to boost your credibility
+                      </p>
+                      <button type='button' class='btn btn-primary' onClick={addCertification}>
+                        Add Your First Certification
+                      </button>
+                    </div>
+                  </Show>
+
+                  {/* Certifications Summary */}
+                  <Show when={formData().certifications.length > 0}>
+                    <div class='bg-warning/10 border border-warning/20 rounded-lg p-4'>
+                      <div class='flex items-start space-x-3'>
+                        <div class='text-warning text-xl'>⚠️</div>
+                        <div>
+                          <h4 class='font-medium text-warning-content mb-2'>
+                            Certification Status
+                          </h4>
+                          <p class='text-sm text-base-content/70'>
+                            Total: {formData().certifications.length} certifications
+                          </p>
+                          <div class='mt-2 text-xs text-base-content/60'>
+                            <strong>Tip:</strong> Keep track of expiry dates and renew
+                            certifications before they expire to maintain their value.
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Show>
                 </div>
               </div>
             )}
