@@ -22,8 +22,9 @@ from sqlalchemy import (
     create_engine,
 )
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
+
+from .base import Base
 
 # =====================================
 # Enums for Job-Related Classifications
@@ -540,8 +541,6 @@ class ETLOperationLog(BaseModel):
 # =====================================
 # SQLAlchemy Database Models
 # =====================================
-
-Base = declarative_base()
 
 
 # =====================================
