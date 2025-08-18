@@ -734,7 +734,8 @@ class UserProfileDB(Base):
 
     # Relationships
     applications = relationship("JobApplicationDB", back_populates="user_profile")
-    # TODO: Add resume and skill bank relationships after resolving circular import
+    resumes = relationship("ResumeDB", back_populates="user")
+    skill_bank = relationship("SkillBankDB", back_populates="user", uselist=False)
 
 
 class JobApplicationDB(Base):

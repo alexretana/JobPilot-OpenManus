@@ -84,9 +84,9 @@
   - [x] Test database operations end-to-end
 
 - [ ] **Fix Database Relationships**
-  - [ ] Resolve circular import between models
-  - [ ] Add proper UserProfile ↔ Resume relationships
-  - [ ] Add SkillBank relationship to UserProfile
+  - [x] Resolve circular import between models ✅ **COMPLETED**
+  - [x] Add proper UserProfile ↔ Resume relationships ✅ **COMPLETED**
+  - [x] Add SkillBank relationship to UserProfile ✅ **COMPLETED**
   - [ ] Create database migration for new relationships
 
 - [ ] **Align API Models**
@@ -162,11 +162,11 @@
 - Create new migration file
 
 **Tasks:**
-- [ ] Add `resumes = relationship("ResumeDB", back_populates="user")` to UserProfileDB
-- [ ] Add `skill_bank = relationship("SkillBankDB", back_populates="user", uselist=False)` to UserProfileDB
-- [ ] Resolve circular import by restructuring imports
+- [x] Add `resumes = relationship("ResumeDB", back_populates="user")` to UserProfileDB ✅ **COMPLETED**
+- [x] Add `skill_bank = relationship("SkillBankDB", back_populates="user", uselist=False)` to UserProfileDB ✅ **COMPLETED**
+- [x] Resolve circular import by restructuring imports ✅ **COMPLETED**
 - [ ] Create database migration script
-- [ ] Test relationships work correctly
+- [x] Test relationships work correctly ✅ **COMPLETED**
 
 #### 3. Align Frontend/Backend Models
 **Files to modify:**
