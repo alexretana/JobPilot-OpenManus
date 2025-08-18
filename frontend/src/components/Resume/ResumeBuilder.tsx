@@ -1,5 +1,7 @@
 import { Component, createSignal, onMount, For, Show } from 'solid-js';
 import { ResumeService, CreateResumeRequest } from '../../services/resumeService';
+import { userProfileApi } from '../../services/userProfileApi';
+import { ResumeImportService } from '../../services/resumeImportService';
 
 interface ResumeBuilderProps {
   resumeId?: string; // undefined for new resume, string for editing existing
@@ -33,15 +35,35 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const [error, setError] = createSignal<string | null>(null);
   const [activeSection, setActiveSection] = createSignal<string>('contact');
 
-  // Load existing resume if editing
+  // Load existing resume if editing, or populate with profile data for new resume
   onMount(async () => {
     if (props.resumeId) {
+      // Editing existing resume
       try {
         const resume = await ResumeService.getResume(props.resumeId, props.userId);
         setFormData(resume);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load resume');
         console.error('Failed to load resume:', err);
+      }
+    } else {
+      // Creating new resume - populate with profile data
+      try {
+        const profile = await userProfileApi.getProfile(props.userId);
+        const resumeData = ResumeImportService.mapProfileToResume(profile, {
+          includeContactInfo: true,
+          includeSummary: true,
+          includeSkills: true,
+          includeEducation: true,
+          includeExperience: false, // Don't auto-populate work experience
+        });
+        
+        setFormData(resumeData);
+        console.log('Pre-populated resume with profile data:', resumeData);
+      } catch (err) {
+        // If profile loading fails, just continue with empty form
+        console.warn('Could not load profile data for resume:', err);
+        // The form already starts with empty data, so no need to do anything
       }
     }
   });

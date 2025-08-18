@@ -1,12 +1,14 @@
 import { Component, createSignal, createResource, Show, For, onMount } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import { userProfileApi, UserProfile, ProfileCompleteness } from '../../services/userProfileApi';
+import { ResumeImportService } from '../../services/resumeImportService';
 import ProfileEditModal from './ProfileEditModal';
 import ProfileCompletenessComponent from './ProfileCompleteness';
 
 interface ProfileDashboardProps {
   userId?: string; // If not provided, will attempt to get current user
   onProfileChange?: (profile: UserProfile) => void;
+  onNavigateToResume?: (resumeData?: any) => void; // Callback for navigation
 }
 
 const ProfileDashboard: Component<ProfileDashboardProps> = props => {
@@ -15,6 +17,7 @@ const ProfileDashboard: Component<ProfileDashboardProps> = props => {
     'personal' | 'professional' | 'preferences'
   >('personal');
   const [completenessData, setCompletenessData] = createStore<ProfileCompleteness | null>(null);
+  const [isCreatingResume, setIsCreatingResume] = createSignal(false);
 
   // Fetch user profile - use specific user ID or default profile for single-user mode
   const [profile, { refetch: refetchProfile }] = createResource(async () => {
@@ -73,6 +76,17 @@ const ProfileDashboard: Component<ProfileDashboardProps> = props => {
       displayed: skills.slice(0, maxShow),
       remaining: skills.length - maxShow,
     };
+  };
+
+  const handleCreateResume = () => {
+    if (!profile()) return;
+    
+    // Simply navigate to resume creation
+    if (props.onNavigateToResume) {
+      props.onNavigateToResume();
+    } else {
+      alert('Navigation to resume not configured.');
+    }
   };
 
   return (
@@ -347,16 +361,29 @@ const ProfileDashboard: Component<ProfileDashboardProps> = props => {
                 <div class='card-body'>
                   <h2 class='card-title'>Quick Actions</h2>
                   <div class='grid grid-cols-2 md:grid-cols-4 gap-4'>
-                    <button class='btn btn-outline flex flex-col gap-2 h-auto py-4'>
-                      <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path
-                          stroke-linecap='round'
-                          stroke-linejoin='round'
-                          stroke-width='2'
-                          d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-                        />
-                      </svg>
-                      <span class='text-sm'>Generate Resume</span>
+                    <button 
+                      class='btn btn-primary flex flex-col gap-2 h-auto py-4'
+                      onClick={handleCreateResume}
+                      disabled={isCreatingResume() || !profile()}
+                    >
+                      <Show 
+                        when={!isCreatingResume()}
+                        fallback={
+                          <span class='loading loading-spinner loading-sm'></span>
+                        }
+                      >
+                        <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                          <path
+                            stroke-linecap='round'
+                            stroke-linejoin='round'
+                            stroke-width='2'
+                            d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                          />
+                        </svg>
+                      </Show>
+                      <span class='text-sm'>
+                        {isCreatingResume() ? 'Creating...' : 'Create Resume'}
+                      </span>
                     </button>
 
                     <button class='btn btn-outline flex flex-col gap-2 h-auto py-4'>

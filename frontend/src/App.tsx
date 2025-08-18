@@ -43,6 +43,7 @@ const App: Component = () => {
   >('chat');
   const [selectedJobId, setSelectedJobId] = createSignal<string | null>(null);
   const [showJobModal, setShowJobModal] = createSignal(false);
+  const [shouldCreateNewResume, setShouldCreateNewResume] = createSignal(false);
 
   let messageIdCounter = 0;
   let activityIdCounter = 0;
@@ -259,13 +260,22 @@ const App: Component = () => {
                   `👤 Profile updated: ${profile.first_name} ${profile.last_name}`
                 );
               }}
+              onNavigateToResume={() => {
+                setShouldCreateNewResume(true);
+                setActiveTab('resume');
+                addActivity('info', '📄 Navigating to Resume creation');
+              }}
             />
           </div>
         </Show>
 
         <Show when={activeTab() === 'resume'}>
           <div class='bg-base-100 rounded-lg p-2 h-full overflow-y-auto'>
-            <ResumeDashboard userId='demo-user-123' />
+            <ResumeDashboard 
+              userId='demo-user-123' 
+              shouldCreateNew={shouldCreateNewResume()}
+              onCreateNewHandled={() => setShouldCreateNewResume(false)}
+            />
           </div>
         </Show>
       </main>
