@@ -34,7 +34,7 @@ providing a comprehensive solution for modern job seekers.
 | **📈 Advanced Analytics**    | ⏳ **Planned**         | Predictive modeling, market trends                                           |
 
 **Current Status**: ✅ **Phase 1 Complete + Phase 2 Bonus Features** - Advanced system ready for production **Next
-Phase**: 🔄 **Real Job Board Integration** - See [ROADMAP.md](ROADMAP.md) for details
+Phase**: 🔄 **Real Job Board Integration** - See [docs/plans/ROADMAP.md](docs/plans/ROADMAP.md) for details
 
 ## 🎯 Vision
 
@@ -400,6 +400,24 @@ python run_tests.py --backend --cov    # With coverage report
 - Performance characteristics and response times
 
 For detailed testing documentation, see [TESTING.md](TESTING.md).
+
+## 📚 Documentation
+
+JobPilot-OpenManus includes comprehensive development documentation to help contributors and developers understand the system architecture and implementation plans.
+
+### **Development Plans & Roadmaps**
+- **[Development Plans Overview](docs/plans/README.md)** - Organized collection of all project plans
+- **[User Profile & Resume Integration Plan](docs/plans/USERPROFILE_AND_RESUME_PLAN.md)** - Main integration strategy
+- **[Resume UI Integration Plan](docs/plans/RESUME_UI_INTEGRATION_PLAN.md)** - Frontend component strategy
+- **[Project Roadmap](docs/plans/ROADMAP.md)** - Overall development timeline
+
+### **Architecture Documentation**
+- **[System Architecture](docs/architecture/SYSTEM_ARCHITECTURE.md)** - Overall system design
+- **[ETL Architecture](docs/architecture/ETL_ARCHITECTURE.md)** - Data processing pipeline
+
+### **Implementation Guides**
+- **[Testing Guide](docs/development/TESTING.md)** - Comprehensive testing strategies
+- **[Frontend Documentation](frontend/README.md)** - UI development details
 
 ## How to contribute
 
