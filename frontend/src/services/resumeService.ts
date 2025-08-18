@@ -32,8 +32,10 @@ export interface CreateResumeRequest {
   work_experience?: Array<{
     company: string;
     position: string;
+    location?: string;
     start_date: string;
     end_date?: string;
+    is_current?: boolean;
     description?: string;
     achievements?: string[];
   }>;
@@ -41,8 +43,12 @@ export interface CreateResumeRequest {
     institution: string;
     degree: string;
     field_of_study?: string;
+    location?: string;
+    start_date?: string;
     graduation_date?: string;
     gpa?: string;
+    honors?: string[];
+    relevant_coursework?: string[];
   }>;
   skills?: Array<{
     name: string;
@@ -54,12 +60,18 @@ export interface CreateResumeRequest {
     description?: string;
     technologies?: string[];
     url?: string;
+    start_date?: string;
+    end_date?: string;
+    achievements?: string[];
   }>;
   certifications?: Array<{
     name: string;
     issuer?: string;
     date_earned?: string;
     expiry_date?: string;
+    credential_id?: string;
+    verification_url?: string;
+    status?: string;
   }>;
 }
 

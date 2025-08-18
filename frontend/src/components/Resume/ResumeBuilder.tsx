@@ -425,7 +425,9 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
     return skillsByCategory;
   };
 
+  // ===============================
   // Projects Management Functions
+  // ===============================
   const addProject = () => {
     const newProject = {
       name: '',
@@ -571,7 +573,9 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
     }));
   };
 
+  // ====================================
   // Certifications Management Functions
+  // ====================================
   const addCertification = () => {
     const newCertification = {
       name: '',
