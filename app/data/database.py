@@ -32,6 +32,7 @@ from app.data.models import (
     pydantic_to_sqlalchemy,
     sqlalchemy_to_pydantic,
 )
+from app.data.resume_models import Resume, ResumeDB
 from app.logger import logger
 from app.utils.retry import retry_db_critical, retry_db_write
 
@@ -743,6 +744,175 @@ class SavedJobRepository:
             return None
 
 
+class ResumeRepository:
+    """Repository for resume operations."""
+
+    def __init__(self, db_manager: DatabaseManager):
+        """Initialize resume repository."""
+        self.db_manager = db_manager
+
+    @retry_db_write()
+    def create_resume(self, resume_data: Resume) -> Resume:
+        """Create a new resume."""
+        try:
+            with self.db_manager.get_session() as session:
+                resume_db = pydantic_to_sqlalchemy(resume_data, ResumeDB)
+                session.add(resume_db)
+                session.flush()  # Get the ID
+
+                result = sqlalchemy_to_pydantic(resume_db, Resume)
+                logger.info(f"Created resume: {result.title} for user {result.user_id}")
+                return result
+
+        except Exception as e:
+            logger.error(f"Error creating resume: {e}")
+            raise
+
+    def get_resume(self, resume_id: str) -> Optional[Resume]:
+        """Get resume by ID."""
+        try:
+            with self.db_manager.get_session() as session:
+                resume_db = (
+                    session.query(ResumeDB).filter(ResumeDB.id == resume_id).first()
+                )
+                if resume_db:
+                    return sqlalchemy_to_pydantic(resume_db, Resume)
+                return None
+        except Exception as e:
+            logger.error(f"Error getting resume {resume_id}: {e}")
+            return None
+
+    def get_user_resumes(
+        self,
+        user_id: str,
+        status: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> Tuple[List[Resume], int]:
+        """Get resumes for a user with filtering and pagination."""
+        try:
+            with self.db_manager.get_session() as session:
+                query_obj = session.query(ResumeDB).filter(ResumeDB.user_id == user_id)
+
+                # Filter by status if provided
+                if status:
+                    query_obj = query_obj.filter(ResumeDB.status == status)
+
+                # Get total count
+                total_count = query_obj.count()
+
+                # Apply pagination and ordering
+                resumes_db = (
+                    query_obj.order_by(desc(ResumeDB.updated_at))
+                    .offset(offset)
+                    .limit(limit)
+                    .all()
+                )
+
+                # Convert to Pydantic models
+                resumes = [
+                    sqlalchemy_to_pydantic(resume_db, Resume)
+                    for resume_db in resumes_db
+                ]
+
+                logger.info(
+                    f"Retrieved {len(resumes)} resumes out of {total_count} total for user {user_id}"
+                )
+                return resumes, total_count
+
+        except Exception as e:
+            logger.error(f"Error getting resumes for user {user_id}: {e}")
+            return [], 0
+
+    @retry_db_write()
+    def update_resume(
+        self, resume_id: str, update_data: Dict[str, Any]
+    ) -> Optional[Resume]:
+        """Update resume."""
+        try:
+            with self.db_manager.get_session() as session:
+                resume_db = (
+                    session.query(ResumeDB).filter(ResumeDB.id == resume_id).first()
+                )
+                if not resume_db:
+                    return None
+
+                # Update fields
+                for field, value in update_data.items():
+                    if hasattr(resume_db, field):
+                        setattr(resume_db, field, value)
+
+                resume_db.updated_at = datetime.utcnow()
+                session.flush()
+
+                result = sqlalchemy_to_pydantic(resume_db, Resume)
+                logger.info(f"Updated resume: {resume_id}")
+                return result
+
+        except Exception as e:
+            logger.error(f"Error updating resume {resume_id}: {e}")
+            raise
+
+    def delete_resume(self, resume_id: str) -> bool:
+        """Delete resume."""
+        try:
+            with self.db_manager.get_session() as session:
+                resume_db = (
+                    session.query(ResumeDB).filter(ResumeDB.id == resume_id).first()
+                )
+                if resume_db:
+                    session.delete(resume_db)
+                    logger.info(f"Deleted resume: {resume_id}")
+                    return True
+                return False
+        except Exception as e:
+            logger.error(f"Error deleting resume {resume_id}: {e}")
+            return False
+
+    def get_resumes_by_type(
+        self, user_id: str, resume_type: str, limit: int = 20
+    ) -> List[Resume]:
+        """Get resumes by type for a user."""
+        try:
+            with self.db_manager.get_session() as session:
+                resumes_db = (
+                    session.query(ResumeDB)
+                    .filter(
+                        and_(
+                            ResumeDB.user_id == user_id,
+                            ResumeDB.resume_type == resume_type,
+                        )
+                    )
+                    .order_by(desc(ResumeDB.updated_at))
+                    .limit(limit)
+                    .all()
+                )
+
+                resumes = [
+                    sqlalchemy_to_pydantic(resume_db, Resume)
+                    for resume_db in resumes_db
+                ]
+                logger.info(
+                    f"Retrieved {len(resumes)} {resume_type} resumes for user {user_id}"
+                )
+                return resumes
+
+        except Exception as e:
+            logger.error(f"Error getting {resume_type} resumes for user {user_id}: {e}")
+            return []
+
+    async def get_total_resumes_count(self) -> int:
+        """Get total count of all resumes in the database."""
+        try:
+            with self.db_manager.get_session() as session:
+                count = session.query(ResumeDB).count()
+                logger.info(f"Total resumes count: {count}")
+                return count
+        except Exception as e:
+            logger.error(f"Error getting total resumes count: {e}")
+            return 0
+
+
 class ApplicationRepository:
     """Repository for job application operations."""
 
@@ -925,17 +1095,19 @@ job_repo = None
 user_repo = None
 saved_job_repo = None
 application_repo = None
+resume_repo = None
 
 
 def initialize_database(database_url: str = None):
     """Initialize global database instances."""
-    global db_manager, job_repo, user_repo, saved_job_repo, application_repo
+    global db_manager, job_repo, user_repo, saved_job_repo, application_repo, resume_repo
 
     db_manager = DatabaseManager(database_url)
     job_repo = JobRepository(db_manager)
     user_repo = UserRepository(db_manager)
     saved_job_repo = SavedJobRepository(db_manager)
     application_repo = ApplicationRepository(db_manager)
+    resume_repo = ResumeRepository(db_manager)
 
     logger.info("Database repositories initialized")
 
@@ -978,3 +1150,11 @@ def get_application_repository() -> ApplicationRepository:
     if application_repo is None:
         initialize_database()
     return application_repo
+
+
+def get_resume_repository() -> ResumeRepository:
+    """Get or create resume repository."""
+    global resume_repo
+    if resume_repo is None:
+        initialize_database()
+    return resume_repo

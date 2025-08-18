@@ -5,11 +5,36 @@ FastAPI routes for resume management with database integration.
 
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from uuid import uuid4
 
 from fastapi import APIRouter, Body, HTTPException, Path, Query
 from pydantic import BaseModel, Field
 
+from app.data.database import get_resume_repository
+from app.data.resume_models import (
+    Certification as CertificationModel,
+)
+from app.data.resume_models import (
+    ContactInfo as ContactInfoModel,
+)
+from app.data.resume_models import (
+    Education as EducationModel,
+)
+from app.data.resume_models import (
+    Project as ProjectModel,
+)
+from app.data.resume_models import (
+    Resume as ResumeModel,
+)
+from app.data.resume_models import (
+    ResumeStatus,
+    ResumeType,
+)
+from app.data.resume_models import (
+    Skill as SkillModel,
+)
+from app.data.resume_models import (
+    WorkExperience as WorkExperienceModel,
+)
 from app.logger import logger
 
 # Create router
@@ -142,16 +167,8 @@ class ResumeListResponse(BaseModel):
 
 
 # =====================================
-# Mock Data Store (In production, this would use the actual database)
+# Helper Functions
 # =====================================
-
-# In-memory storage for demo purposes - matches resume_api_simple pattern
-RESUMES_STORE = {}
-
-
-def generate_resume_id() -> str:
-    """Generate a unique resume ID."""
-    return str(uuid4())
 
 
 def calculate_completeness(resume_data: dict) -> float:
@@ -212,43 +229,58 @@ async def get_user_resumes(
 ):
     """Get all resumes for a user with optional filtering and pagination."""
     try:
-        # Filter resumes for the user
-        user_resumes = [
-            resume
-            for resume in RESUMES_STORE.values()
-            if resume.get("user_id") == user_id
-        ]
+        # Get resume repository
+        resume_repo = get_resume_repository()
 
-        # Apply status filter if provided
-        if status:
-            user_resumes = [r for r in user_resumes if r.get("status") == status]
-
-        # Apply pagination
-        start_idx = (page - 1) * per_page
-        end_idx = start_idx + per_page
-        paginated_resumes = user_resumes[start_idx:end_idx]
+        # Get resumes from database with pagination
+        offset = (page - 1) * per_page
+        resumes, total = resume_repo.get_user_resumes(
+            user_id=user_id, status=status, limit=per_page, offset=offset
+        )
 
         # Convert to response format
         resume_responses = []
-        for resume in paginated_resumes:
-            completeness = calculate_completeness(resume)
+        for resume in resumes:
+            # Convert Resume model to dict for completeness calculation
+            resume_dict = (
+                resume.dict()
+                if hasattr(resume, "dict")
+                else {
+                    "contact_info": resume.contact_info,
+                    "summary": resume.summary,
+                    "work_experience": resume.work_experience,
+                    "education": resume.education,
+                    "skills": resume.skills,
+                    "projects": resume.projects,
+                }
+            )
+
+            completeness = calculate_completeness(resume_dict)
             resume_responses.append(
                 ResumeResponse(
-                    id=resume["id"],
-                    user_id=resume["user_id"],
-                    title=resume["title"],
-                    status=resume["status"],
-                    resume_type=resume.get("resume_type", "base"),
-                    created_at=resume["created_at"],
-                    updated_at=resume["updated_at"],
-                    version=resume.get("version", 1),
+                    id=str(resume.id) if resume.id else "",
+                    user_id=resume.user_id,
+                    title=resume.title,
+                    status=resume.status,
+                    resume_type=resume.resume_type or "base",
+                    created_at=(
+                        resume.created_at.isoformat()
+                        if resume.created_at
+                        else datetime.utcnow().isoformat()
+                    ),
+                    updated_at=(
+                        resume.updated_at.isoformat()
+                        if resume.updated_at
+                        else datetime.utcnow().isoformat()
+                    ),
+                    version=resume.version or 1,
                     completeness_score=completeness,
                 )
             )
 
         return ResumeListResponse(
             resumes=resume_responses,
-            total=len(user_resumes),
+            total=total,
             page=page,
             per_page=per_page,
         )
@@ -267,13 +299,14 @@ async def get_resume(
 ):
     """Get a specific resume by ID."""
     try:
-        resume = RESUMES_STORE.get(resume_id)
+        resume_repo = get_resume_repository()
+        resume = resume_repo.get_resume(resume_id=resume_id)
 
         if not resume:
             raise HTTPException(status_code=404, detail="Resume not found")
 
         # Check authorization
-        if resume.get("user_id") != user_id:
+        if resume.user_id != user_id:
             raise HTTPException(status_code=403, detail="Access denied")
 
         return resume
@@ -294,37 +327,44 @@ async def create_resume(
 ):
     """Create a new resume."""
     try:
-        resume_id = generate_resume_id()
-        now = datetime.utcnow().isoformat()
+        resume_repo = get_resume_repository()
+        now = datetime.utcnow()
 
         # Create resume data
-        resume_data = {
-            "id": resume_id,
-            "user_id": user_id,
-            "title": request.title,
-            "contact_info": request.contact_info.dict(),
-            "summary": request.summary,
-            "work_experience": [exp.dict() for exp in (request.work_experience or [])],
-            "education": [edu.dict() for edu in (request.education or [])],
-            "skills": [skill.dict() for skill in (request.skills or [])],
-            "projects": [proj.dict() for proj in (request.projects or [])],
-            "certifications": [cert.dict() for cert in (request.certifications or [])],
-            "template_id": request.template_id,
-            "resume_type": "base",
-            "status": "draft",
-            "created_at": now,
-            "updated_at": now,
-            "version": 1,
-        }
+        resume_data = ResumeModel(
+            user_id=user_id,
+            title=request.title,
+            contact_info=ContactInfoModel(**request.contact_info.dict()),
+            summary=request.summary,
+            work_experience=[
+                WorkExperienceModel(**exp.dict())
+                for exp in (request.work_experience or [])
+            ],
+            education=[
+                EducationModel(**edu.dict()) for edu in (request.education or [])
+            ],
+            skills=[SkillModel(**skill.dict()) for skill in (request.skills or [])],
+            projects=[ProjectModel(**proj.dict()) for proj in (request.projects or [])],
+            certifications=[
+                CertificationModel(**cert.dict())
+                for cert in (request.certifications or [])
+            ],
+            template_id=request.template_id,
+            resume_type=ResumeType.BASE,
+            status=ResumeStatus.DRAFT,
+            created_at=now,
+            updated_at=now,
+            version=1,
+        )
 
         # Store the resume
-        RESUMES_STORE[resume_id] = resume_data
+        created_resume = resume_repo.create_resume(resume_data)
 
-        logger.info(f"Created new resume: {resume_id} for user: {user_id}")
+        logger.info(f"Created new resume: {created_resume.id} for user: {user_id}")
         return {
             "message": "Resume created successfully",
-            "resume_id": resume_id,
-            "id": resume_id,  # Also return as 'id' for compatibility
+            "resume_id": created_resume.id,
+            "id": created_resume.id,  # Also return as 'id' for compatibility
         }
 
     except Exception as e:
@@ -340,48 +380,33 @@ async def update_resume(
 ):
     """Update an existing resume."""
     try:
-        resume = RESUMES_STORE.get(resume_id)
+        resume_repo = get_resume_repository()
+        resume = resume_repo.get_resume(resume_id=resume_id)
 
         if not resume:
             raise HTTPException(status_code=404, detail="Resume not found")
 
         # Check authorization
-        if resume.get("user_id") != user_id:
+        if resume.user_id != user_id:
             raise HTTPException(status_code=403, detail="Access denied")
 
         # Update resume data with provided fields
-        update_data = {}
-
-        if request.title is not None:
-            update_data["title"] = request.title
-        if request.contact_info is not None:
-            update_data["contact_info"] = request.contact_info.dict()
-        if request.summary is not None:
-            update_data["summary"] = request.summary
-        if request.work_experience is not None:
-            update_data["work_experience"] = [
-                exp.dict() for exp in request.work_experience
-            ]
-        if request.education is not None:
-            update_data["education"] = [edu.dict() for edu in request.education]
-        if request.skills is not None:
-            update_data["skills"] = [skill.dict() for skill in request.skills]
-        if request.projects is not None:
-            update_data["projects"] = [proj.dict() for proj in request.projects]
-        if request.certifications is not None:
-            update_data["certifications"] = [
-                cert.dict() for cert in request.certifications
-            ]
-        if request.template_id is not None:
-            update_data["template_id"] = request.template_id
+        update_data = request.dict(exclude_unset=True)
 
         if update_data:
-            resume.update(update_data)
-            resume["updated_at"] = datetime.utcnow().isoformat()
-            resume["version"] = resume.get("version", 1) + 1
-
-        logger.info(f"Updated resume: {resume_id}")
-        return {"message": "Resume updated successfully", "version": resume["version"]}
+            updated_resume = resume_repo.update_resume(
+                resume_id=resume_id, update_data=update_data
+            )
+            if updated_resume:
+                logger.info(f"Updated resume: {resume_id}")
+                return {
+                    "message": "Resume updated successfully",
+                    "version": updated_resume.version,
+                }
+            else:
+                raise HTTPException(status_code=404, detail="Resume not found")
+        else:
+            return {"message": "No changes to update"}
 
     except HTTPException:
         raise
@@ -397,17 +422,19 @@ async def delete_resume(
 ):
     """Delete a resume."""
     try:
-        resume = RESUMES_STORE.get(resume_id)
+        resume_repo = get_resume_repository()
 
-        if not resume:
+        # First check if resume exists and belongs to user
+        resume = resume_repo.get_resume(resume_id=resume_id)
+        if not resume or resume.user_id != user_id:
+            raise HTTPException(
+                status_code=404, detail="Resume not found or access denied"
+            )
+
+        success = resume_repo.delete_resume(resume_id=resume_id)
+
+        if not success:
             raise HTTPException(status_code=404, detail="Resume not found")
-
-        # Check authorization
-        if resume.get("user_id") != user_id:
-            raise HTTPException(status_code=403, detail="Access denied")
-
-        # Delete the resume
-        del RESUMES_STORE[resume_id]
 
         logger.info(f"Deleted resume: {resume_id}")
         return {"message": "Resume deleted successfully"}
@@ -472,13 +499,14 @@ async def export_resume(
 ):
     """Export an existing resume in various formats."""
     try:
-        resume = RESUMES_STORE.get(resume_id)
+        resume_repo = get_resume_repository()
+        resume = resume_repo.get_resume(resume_id=resume_id)
 
         if not resume:
             raise HTTPException(status_code=404, detail="Resume not found")
 
         # Check authorization
-        if resume.get("user_id") != user_id:
+        if resume.user_id != user_id:
             raise HTTPException(status_code=403, detail="Access denied")
 
         # For now, we'll return a mock response since we don't have the full PDF service
@@ -492,7 +520,10 @@ async def export_resume(
                 "note": "PDF generation not implemented in demo - this is a mock response",
             }
         elif request.export_format.lower() == "json":
-            return {"message": "Resume exported as JSON successfully", "data": resume}
+            return {
+                "message": "Resume exported as JSON successfully",
+                "data": resume.dict(),
+            }
         else:
             return {
                 "message": f"Resume exported as {request.export_format} successfully",
@@ -545,25 +576,28 @@ async def get_resume_analytics(
 ):
     """Get comprehensive analytics for a resume."""
     try:
-        resume = RESUMES_STORE.get(resume_id)
+        resume_repo = get_resume_repository()
+        resume = resume_repo.get_resume(resume_id=resume_id)
 
         if not resume:
             raise HTTPException(status_code=404, detail="Resume not found")
 
         # Check authorization
-        if resume.get("user_id") != user_id:
+        if resume.user_id != user_id:
             raise HTTPException(status_code=403, detail="Access denied")
 
         # Calculate basic analytics
-        completeness = calculate_completeness(resume)
-        work_experience = resume.get("work_experience", [])
-        education = resume.get("education", [])
-        skills = resume.get("skills", [])
-        projects = resume.get("projects", [])
-        certifications = resume.get("certifications", [])
+        completeness = calculate_completeness(resume.dict())
+        work_experience = resume.work_experience or []
+        education = resume.education or []
+        skills = resume.skills or []
+        projects = resume.projects or []
+        certifications = resume.certifications or []
 
         recommendations = []
-        if not any(exp.get("achievements") for exp in work_experience):
+        if not any(
+            exp.achievements for exp in work_experience if hasattr(exp, "achievements")
+        ):
             recommendations.append("Add more specific achievements to work experience")
         if len(skills) < 8:
             recommendations.append(
@@ -604,10 +638,21 @@ async def get_resume_analytics(
 @router.get("/health")
 async def resume_api_health():
     """Health check for resume API."""
-    return {
-        "status": "healthy",
-        "service": "Resume API",
-        "resumes_count": len(RESUMES_STORE),
-        "timestamp": datetime.utcnow().isoformat(),
-        "features": ["resume_crud", "templates", "export", "analytics"],
-    }
+    try:
+        resume_repo = get_resume_repository()
+        total_resumes = await resume_repo.get_total_resumes_count()
+        return {
+            "status": "healthy",
+            "service": "Resume API",
+            "resumes_count": total_resumes,
+            "timestamp": datetime.utcnow().isoformat(),
+            "features": ["resume_crud", "templates", "export", "analytics"],
+        }
+    except Exception as e:
+        logger.error(f"Error in resume API health check: {e}")
+        return {
+            "status": "unhealthy",
+            "service": "Resume API",
+            "error": str(e),
+            "timestamp": datetime.utcnow().isoformat(),
+        }
