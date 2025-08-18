@@ -2,20 +2,30 @@
 
 This folder contains all development plans, roadmaps, and implementation strategies for the JobPilot-OpenManus project.
 
+## 🎯 **Plan/Checklist Structure**
+
+Each major feature implementation follows a structured approach with paired documents:
+- **`*_IMPLEMENTATION_PLAN.md`** - Detailed technical implementation strategy
+- **`*_CHECKLIST.md`** - Progress tracking and task completion status
+
 ## 📁 Organization
 
-### 🎯 **Core Feature Plans**
-- **[USERPROFILE_AND_RESUME_PLAN.md](./USERPROFILE_AND_RESUME_PLAN.md)** - Main integration plan for user profiles and resume building
-- **[RESUME_BUILDER_IMPLEMENTATION_ROADMAP.md](./RESUME_BUILDER_IMPLEMENTATION_ROADMAP.md)** - Detailed resume builder development roadmap
-- **[RESUME_UI_INTEGRATION_PLAN.md](./RESUME_UI_INTEGRATION_PLAN.md)** - Frontend UI integration strategy for resume components
+### 🎯 **Core Feature Implementation**
+
+#### **Resume System** (Consolidated)
+- **[RESUME_SYSTEM_IMPLEMENTATION_PLAN.md](./RESUME_SYSTEM_IMPLEMENTATION_PLAN.md)** - Complete resume building system plan
+- **[RESUME_SYSTEM_CHECKLIST.md](./RESUME_SYSTEM_CHECKLIST.md)** - Implementation progress tracking
+
+#### **User Profile System**
+- **[USER_PROFILE_IMPLEMENTATION_PLAN.md](./USER_PROFILE_IMPLEMENTATION_PLAN.md)** - User profile management system plan
+- **[USER_PROFILE_CHECKLIST.md](./USER_PROFILE_CHECKLIST.md)** - Implementation status and completion tracking
 
 ### 🏗️ **Architecture Plans**
 - **[SYSTEM_ARCHITECTURE.md](../architecture/SYSTEM_ARCHITECTURE.md)** - Overall system architecture design *(kept in architecture/)*
 - **[ETL_ARCHITECTURE.md](../architecture/ETL_ARCHITECTURE.md)** - Data processing and ETL architecture *(kept in architecture/)*
 - **[JSEARCH_INTEGRATION_ARCHITECTURE.md](./JSEARCH_INTEGRATION_ARCHITECTURE.md)** - Job search API integration architecture
 
-### 🚀 **Implementation Plans**
-- **[USER_PROFILES_IMPLEMENTATION.md](./USER_PROFILES_IMPLEMENTATION.md)** - User profile system implementation details
+### 🚀 **Backend Implementation Plans**
 - **[PHASE2_BACKEND_IMPLEMENTATION.md](./PHASE2_BACKEND_IMPLEMENTATION.md)** - Phase 2 backend development plan
 
 ### 🗺️ **Project Roadmaps**
@@ -31,24 +41,24 @@ This folder contains all development plans, roadmaps, and implementation strateg
 ## 📊 **Current Progress Overview**
 
 ### ✅ **Completed Major Items**
-- User Profile system (backend + frontend)
-- Resume data models and API
-- Database relationships and migrations
-- **Frontend-Backend Model Field Alignment** *(2025-01-18)*
-  - Fixed ContactInfo field inconsistencies
-  - Updated utility functions and PDF service
-  - Comprehensive test coverage
+- **User Profile System Backend**: Complete (API, database, testing)
+- **Resume System Backend**: Complete (models, API, PDF generation, AI services)
+- **Database Relationships**: Complete (UserProfile ↔ Resume ↔ SkillBank)
+- **Field Alignment**: Complete (ContactInfo model consistency)
+- **Testing Infrastructure**: Complete (backend API and integration tests)
 
 ### 🔄 **Currently In Progress**
-- API response structure standardization
-- End-to-end API integration testing
-- Database migration creation for relationships
+- **Resume System Phase 1**: API standardization and database migrations
+- **Plan Consolidation**: Streamlined plan/checklist structure *(2025-01-18)*
+  - Consolidated 3 resume plans into 1 comprehensive plan
+  - Created structured plan/checklist pairing system
+  - Improved progress tracking and task organization
 
 ### 📋 **Next Priority Items**
-1. Complete remaining model alignment tasks
-2. Frontend navigation integration (Profile ↔ Resume)
-3. Resume creation wizard implementation
-4. Smart suggestions and AI integration
+1. **Resume System**: Complete API standardization and database migration
+2. **Resume Builder UI**: Enhanced three-pane editing interface
+3. **Profile Integration**: Navigation and data flow between profile and resume
+4. **Skills Bank UI**: Visual skills management interface
 
 ## 📅 **Timeline Overview**
 
@@ -77,10 +87,17 @@ Profile Editor ←―――――――――――― "Edit Profile" ←――�
 
 ## 📖 **How to Use These Plans**
 
-1. **Start with** `USERPROFILE_AND_RESUME_PLAN.md` for the main integration strategy
-2. **Refer to** specific implementation plans for detailed task breakdowns
-3. **Check status** regularly - plans are updated as work progresses
-4. **Follow dependencies** - some tasks require others to be completed first
+### **For Implementation**
+1. **Start with the `*_IMPLEMENTATION_PLAN.md`** for technical strategy and architecture
+2. **Use the `*_CHECKLIST.md`** for tracking progress and marking completed tasks
+3. **Follow the plan/checklist pairs** for each major feature implementation
+4. **Update checklists** regularly as work progresses
+
+### **For Progress Tracking**
+1. **Checklists show current status** - what's done, in progress, or planned
+2. **Implementation plans provide context** - why and how to implement features
+3. **Dependencies are clearly marked** - some tasks require others to be completed first
+4. **Metrics and success criteria** are defined for each major component
 
 ## 🔗 **Related Documentation**
 - [Architecture Documentation](../architecture/) - System design details
