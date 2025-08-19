@@ -53,19 +53,19 @@ const Header: Component<HeaderProps> = props => {
           </div>
         </div>
         <div class='flex items-center space-x-2'>
-          <img src='/JobPilotIcon-Alpha.png' alt='JobPilot Logo' class='w-8 h-8' />
+          <img src='/JobPilotIcon-Alpha.png' alt='JobPilot Logo' class='w-12 h-12' />
           <div>
-            <div class='text-xl font-bold text-primary'>JobPilot-OpenManus</div>
-            <div class='text-sm opacity-70'>AI-Powered Job Hunting Assistant</div>
+            <div class='text-xl font-bold text-primary'>JobPilot</div>
+            <div class='text-sm opacity-70'>AI Job Search Agent</div>
           </div>
         </div>
       </div>
 
       <div class='navbar-center hidden lg:flex'>
-        <div class='tabs tabs-border tabs-lg'>
+        <div class='flex gap-2'>
           <button
-            class={`tab ai-chat-btn gap-2 ${
-              props.activeTab?.() === 'chat' ? 'active tab-active' : ''
+            class={`tab-uniform ai-chat-btn gap-2 ${
+              props.activeTab?.() === 'chat' ? 'active' : ''
             }`}
             onClick={() => props.onTabChange?.('chat')}
           >
@@ -83,15 +83,17 @@ const Header: Component<HeaderProps> = props => {
                 d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
               />
             </svg>
-            <span class='leading-none'>AI Chat</span>
+            <span>AI Chat</span>
           </button>
           <button
-            class={`tab gap-2 ${props.activeTab?.() === 'job-search' ? 'tab-active' : ''}`}
+            class={`tab-uniform tab-neutral gap-2 ${
+              props.activeTab?.() === 'job-search' ? 'active' : ''
+            }`}
             onClick={() => props.onTabChange?.('job-search')}
           >
             <svg
               xmlns='http://www.w3.org/2000/svg'
-              class='h-4 w-4'
+              class='h-4 w-4 flex-shrink-0'
               fill='none'
               viewBox='0 0 24 24'
               stroke='currentColor'
@@ -100,18 +102,20 @@ const Header: Component<HeaderProps> = props => {
                 stroke-linecap='round'
                 stroke-linejoin='round'
                 stroke-width='2'
-                d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 01-2 2H10a2 2 0 01-2-2V6m8 0H8'
+                d='M21 13.255A23.931 23.231 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 01-2 2H10a2 2 0 01-2-2V6m8 0H8'
               />
             </svg>
-            Job Search Manager
+            <span>Job Search Manager</span>
           </button>
           <button
-            class={`tab gap-2 ${props.activeTab?.() === 'resume-builder' ? 'tab-active' : ''}`}
+            class={`tab-uniform tab-neutral gap-2 ${
+              props.activeTab?.() === 'resume-builder' ? 'active' : ''
+            }`}
             onClick={() => props.onTabChange?.('resume-builder')}
           >
             <svg
               xmlns='http://www.w3.org/2000/svg'
-              class='h-4 w-4'
+              class='h-4 w-4 flex-shrink-0'
               fill='none'
               viewBox='0 0 24 24'
               stroke='currentColor'
@@ -123,7 +127,7 @@ const Header: Component<HeaderProps> = props => {
                 d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
               />
             </svg>
-            Resume Builder
+            <span>Resume Builder</span>
           </button>
         </div>
       </div>
