@@ -184,7 +184,7 @@ const App: Component = () => {
   });
 
   return (
-    <div class='min-h-screen bg-base-200 flex flex-col'>
+    <div class='h-screen bg-base-200 flex flex-col'>
       <Header
         activities={activities}
         onShowTimeline={() => setShowTimelineModal(true)}
@@ -194,9 +194,9 @@ const App: Component = () => {
         onTabChange={setActiveTab}
       />
 
-      <main class='flex-1 mx-auto p-2 min-h-0 h-full'>
+      <main class='flex-1 mx-2 p-2 min-h-0'>
         <Show when={activeTab() === 'chat'}>
-          <div class='flex flex-col lg:flex-row gap-2 h-full w-full'>
+          <div class='flex flex-col lg:flex-row gap-2 h-full'>
             {/* Chat Column */}
             <div class='flex-1 flex flex-col min-h-0'>
               <Chat
