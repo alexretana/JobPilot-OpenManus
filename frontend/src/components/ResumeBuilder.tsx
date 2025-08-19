@@ -1,6 +1,7 @@
 import { Component, createSignal, onMount, Show } from 'solid-js';
 import { ProfileDashboard } from './UserProfile';
 import { ResumeDashboard } from './Resume';
+import Breadcrumb, { type BreadcrumbItem } from './Breadcrumb';
 
 interface ResumeBuilderProps {
   userId?: string;
@@ -55,15 +56,86 @@ export const ResumeBuilder: Component<ResumeBuilderProps> = props => {
     setShouldCreateNewResume(false);
   };
 
+  // Breadcrumb navigation
+  const getBreadcrumbItems = (): BreadcrumbItem[] => {
+    const items: BreadcrumbItem[] = [];
+
+    if (activeTab() === 'profile') {
+      items.push({
+        label: 'User Profile',
+        icon: '👤',
+        isActive: true,
+      });
+    } else if (activeTab() === 'resume') {
+      items.push({
+        label: 'User Profile',
+        icon: '👤',
+        onClick: () => handleTabChange('profile'),
+      });
+
+      if (shouldCreateNewResume()) {
+        items.push({
+          label: 'Create Resume',
+          icon: '✨',
+          isActive: true,
+        });
+      } else {
+        items.push({
+          label: 'Resumes',
+          icon: '📄',
+          isActive: true,
+        });
+      }
+    }
+
+    return items;
+  };
+
   return (
     <div class={`w-full h-full flex flex-col ${props.className || ''}`}>
-      {/* Header */}
-      <div class='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6'>
-        <div>
-          <h2 class='text-2xl font-bold text-base-content'>Resume Builder</h2>
-          <p class='text-sm text-base-content/70 mt-1'>
-            Manage your profile and create professional resumes
-          </p>
+      {/* Tab Navigation with Quick Actions */}
+      <div class='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4'>
+        <div class='tabs tabs-boxed justify-start'>
+          <button
+            class={`tab tab-lg gap-2 ${activeTab() === 'profile' ? 'tab-active' : ''}`}
+            onClick={() => handleTabChange('profile')}
+          >
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              class='h-5 w-5'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+              />
+            </svg>
+            User Profile
+          </button>
+          <button
+            class={`tab tab-lg gap-2 ${activeTab() === 'resume' ? 'tab-active' : ''}`}
+            onClick={() => handleTabChange('resume')}
+          >
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              class='h-5 w-5'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+              />
+            </svg>
+            Resume
+          </button>
         </div>
 
         {/* Quick Actions */}
@@ -109,48 +181,14 @@ export const ResumeBuilder: Component<ResumeBuilderProps> = props => {
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div class='tabs tabs-boxed justify-start mb-6'>
-        <button
-          class={`tab tab-lg gap-2 ${activeTab() === 'profile' ? 'tab-active' : ''}`}
-          onClick={() => handleTabChange('profile')}
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            class='h-5 w-5'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-          >
-            <path
-              stroke-linecap='round'
-              stroke-linejoin='round'
-              stroke-width='2'
-              d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
-            />
-          </svg>
-          User Profile
-        </button>
-        <button
-          class={`tab tab-lg gap-2 ${activeTab() === 'resume' ? 'tab-active' : ''}`}
-          onClick={() => handleTabChange('resume')}
-        >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            class='h-5 w-5'
-            fill='none'
-            viewBox='0 0 24 24'
-            stroke='currentColor'
-          >
-            <path
-              stroke-linecap='round'
-              stroke-linejoin='round'
-              stroke-width='2'
-              d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-            />
-          </svg>
-          Resume
-        </button>
+      {/* Breadcrumb Navigation */}
+      <div class='bg-base-100/50 rounded-lg px-4 py-2 mb-2'>
+        <Breadcrumb
+          items={getBreadcrumbItems()}
+          showHome={false}
+          separator='→'
+          className='text-base-content/70'
+        />
       </div>
 
       {/* Tab Content */}
