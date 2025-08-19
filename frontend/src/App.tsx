@@ -1,16 +1,12 @@
 import { Component, createSignal, onMount, onCleanup, Show } from 'solid-js';
 import Header from './components/Header';
 import Chat from './components/Chat';
-import { JobsContainer } from './components/JobsContainer';
 import { JobDetailsModal } from './components/JobDetailsModal';
 import BrowserViewport from './components/BrowserViewport';
-import ActivityModal from './components/ActivityModal';
+import TimelineModal from './components/TimelineModal';
 import StatusPanel from './components/StatusPanel';
-import { Timeline } from './components/Timeline';
-import ApplicationsManager from './components/ApplicationsManager';
-import LeadsManager from './components/LeadsManager';
-import { ProfileDashboard } from './components/UserProfile';
-import { ResumeDashboard } from './components/Resume';
+import JobSearchManager from './components/JobSearchManager';
+import ResumeBuilder from './components/ResumeBuilder';
 import { webSocketService } from './services/websocket';
 import type {
   ChatMessage,
@@ -35,12 +31,10 @@ const App: Component = () => {
     url: 'No active browsing session',
     content: 'Waiting for browser activity...',
   });
-  const [showActivityModal, setShowActivityModal] = createSignal(false);
+  const [showTimelineModal, setShowTimelineModal] = createSignal(false);
   const [showStatusPanel, setShowStatusPanel] = createSignal(false);
   const [systemHealthy, setSystemHealthy] = createSignal(true);
-  const [activeTab, setActiveTab] = createSignal<
-    'chat' | 'jobs' | 'timeline' | 'applications' | 'leads' | 'profile' | 'resume'
-  >('chat');
+  const [activeTab, setActiveTab] = createSignal<'chat' | 'job-search' | 'resume-builder'>('chat');
   const [selectedJobId, setSelectedJobId] = createSignal<string | null>(null);
   const [showJobModal, setShowJobModal] = createSignal(false);
   const [shouldCreateNewResume, setShouldCreateNewResume] = createSignal(false);
@@ -193,7 +187,7 @@ const App: Component = () => {
     <div class='min-h-screen bg-base-200'>
       <Header
         activities={activities}
-        onShowActivityLog={() => setShowActivityModal(true)}
+        onShowTimeline={() => setShowTimelineModal(true)}
         onShowStatusPanel={() => setShowStatusPanel(true)}
         systemHealthy={() => systemHealthy() && webSocketService.getIsConnected()()}
         activeTab={activeTab}
@@ -222,37 +216,18 @@ const App: Component = () => {
           </div>
         </Show>
 
-        <Show when={activeTab() === 'jobs'}>
-          <div class='bg-base-100 rounded-lg p-2 h-full'>
-            <JobsContainer onJobSelect={handleJobSelect} onJobSave={handleJobSave} />
+        <Show when={activeTab() === 'job-search'}>
+          <div class='bg-base-200 rounded-lg p-2 h-full'>
+            <JobSearchManager onJobSelect={handleJobSelect} onJobSave={handleJobSave} />
           </div>
         </Show>
 
-        <Show when={activeTab() === 'timeline'}>
-          <div class='bg-base-100 rounded-lg p-4 h-full overflow-y-auto'>
-            <Timeline
-              userProfileId='demo-user-123' // TODO: Replace with actual user ID from auth
-              className='h-full'
-            />
-          </div>
-        </Show>
-
-        <Show when={activeTab() === 'applications'}>
-          <div class='bg-base-100 rounded-lg p-2 h-full overflow-y-auto'>
-            <ApplicationsManager />
-          </div>
-        </Show>
-
-        <Show when={activeTab() === 'leads'}>
-          <div class='bg-base-100 rounded-lg p-2 h-full overflow-y-auto'>
-            <LeadsManager />
-          </div>
-        </Show>
-
-        <Show when={activeTab() === 'profile'}>
-          <div class='bg-base-100 rounded-lg p-2 h-full overflow-y-auto'>
-            <ProfileDashboard
+        <Show when={activeTab() === 'resume-builder'}>
+          <div class='bg-base-200 rounded-lg p-2 h-full'>
+            <ResumeBuilder
               userId='demo-user-123'
+              shouldCreateNewResume={shouldCreateNewResume()}
+              onCreateNewHandled={() => setShouldCreateNewResume(false)}
               onProfileChange={profile => {
                 console.log('Profile updated in main app:', profile);
                 addActivity(
@@ -260,21 +235,6 @@ const App: Component = () => {
                   `👤 Profile updated: ${profile.first_name} ${profile.last_name}`
                 );
               }}
-              onNavigateToResume={() => {
-                setShouldCreateNewResume(true);
-                setActiveTab('resume');
-                addActivity('info', '📄 Navigating to Resume creation');
-              }}
-            />
-          </div>
-        </Show>
-
-        <Show when={activeTab() === 'resume'}>
-          <div class='bg-base-100 rounded-lg p-2 h-full overflow-y-auto'>
-            <ResumeDashboard 
-              userId='demo-user-123' 
-              shouldCreateNew={shouldCreateNewResume()}
-              onCreateNewHandled={() => setShouldCreateNewResume(false)}
             />
           </div>
         </Show>
@@ -287,11 +247,12 @@ const App: Component = () => {
         onClose={handleJobModalClose}
       />
 
-      {/* Activity Modal */}
-      <ActivityModal
+      {/* Timeline Modal */}
+      <TimelineModal
         activities={activities}
-        isOpen={showActivityModal}
-        onClose={() => setShowActivityModal(false)}
+        isOpen={showTimelineModal}
+        onClose={() => setShowTimelineModal(false)}
+        userProfileId='demo-user-123' // TODO: Replace with actual user ID from auth
       />
 
       {/* Status Panel Drawer */}

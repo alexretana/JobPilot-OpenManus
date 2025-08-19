@@ -121,7 +121,31 @@
   - [x] System-to-system signaling mechanism
   - [x] Consistent navigation experience across both systems
 
-### **Breadcrumb Navigation** (Priority 3) ⏳ **FUTURE ENHANCEMENT**
+### **Navigation Reorganization** (Priority 3) ✅ **COMPLETED**
+- [x] **Timeline Integration with Activity Log**
+  - [x] Add fourth "System Logs" tab to Timeline component
+  - [x] Move Timeline utilities (Timeline, Milestones, Upcoming, System Logs) to Activity Log modal
+  - [x] Rename Activity Log to "Timeline" in navigation
+  - [x] Remove old Timeline implementation after migration
+  - [x] Ensure all Timeline functionality works within modal context
+  
+- [x] **Job Search Manager Tab**
+  - [x] Combine "Jobs", "Applications", and "Leads" into single "Job Search Manager" tab
+  - [x] Create sub-tab navigation within Job Search Manager
+  - [x] Implement session-based memory for last selected sub-tab
+  - [x] Default to "Jobs" sub-tab on new sessions
+  - [x] Maintain existing functionality for all three components
+  - [x] Update navigation state management for nested tabs
+  
+- [x] **Resume Builder Tab**  
+  - [x] Combine "Resume" and "User Profile" into single "Resume Builder" tab
+  - [x] Create sub-tab navigation for Profile and Resume sections
+  - [x] Implement session-based memory for last selected sub-tab
+  - [x] Maintain existing Profile-Resume integration functionality
+  - [x] Update cross-system navigation to work within unified tab
+  - [x] Preserve "Create Resume" workflow within new structure
+
+### **Breadcrumb Navigation** (Priority 4) ⏳ **FUTURE ENHANCEMENT**
 - [ ] **Breadcrumb Component**
   - [ ] Create reusable breadcrumb navigation component
   - [ ] Implement breadcrumbs in Resume Builder (Profile → Resumes → Builder)

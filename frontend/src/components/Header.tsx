@@ -3,13 +3,11 @@ import type { ActivityLogEntry } from '../types';
 
 interface HeaderProps {
   activities?: () => ActivityLogEntry[];
-  onShowActivityLog?: () => void;
+  onShowTimeline?: () => void;
   onShowStatusPanel?: () => void;
   systemHealthy?: () => boolean;
-  activeTab?: () => 'chat' | 'jobs' | 'timeline' | 'applications' | 'leads' | 'profile' | 'resume';
-  onTabChange?: (
-    tab: 'chat' | 'jobs' | 'timeline' | 'applications' | 'leads' | 'profile' | 'resume'
-  ) => void;
+  activeTab?: () => 'chat' | 'job-search' | 'resume-builder';
+  onTabChange?: (tab: 'chat' | 'job-search' | 'resume-builder') => void;
 }
 
 const Header: Component<HeaderProps> = props => {
@@ -66,52 +64,70 @@ const Header: Component<HeaderProps> = props => {
       <div class='navbar-center hidden lg:flex'>
         <div class='tabs tabs-border tabs-lg'>
           <button
-            class={`tab ${props.activeTab?.() === 'chat' ? 'tab-active' : ''}`}
+            class={`tab gap-2 ${props.activeTab?.() === 'chat' ? 'tab-active' : ''}`}
             onClick={() => props.onTabChange?.('chat')}
           >
-            💬 AI Chat
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              class='h-4 w-4'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z'
+              />
+            </svg>
+            AI Chat
           </button>
           <button
-            class={`tab ${props.activeTab?.() === 'jobs' ? 'tab-active' : ''}`}
-            onClick={() => props.onTabChange?.('jobs')}
+            class={`tab gap-2 ${props.activeTab?.() === 'job-search' ? 'tab-active' : ''}`}
+            onClick={() => props.onTabChange?.('job-search')}
           >
-            💼 Jobs
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              class='h-4 w-4'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0H8m8 0v2a2 2 0 01-2 2H10a2 2 0 01-2-2V6m8 0H8'
+              />
+            </svg>
+            Job Search Manager
           </button>
           <button
-            class={`tab ${props.activeTab?.() === 'timeline' ? 'tab-active' : ''}`}
-            onClick={() => props.onTabChange?.('timeline')}
+            class={`tab gap-2 ${props.activeTab?.() === 'resume-builder' ? 'tab-active' : ''}`}
+            onClick={() => props.onTabChange?.('resume-builder')}
           >
-            📅 Timeline
-          </button>
-          <button
-            class={`tab ${props.activeTab?.() === 'applications' ? 'tab-active' : ''}`}
-            onClick={() => props.onTabChange?.('applications')}
-          >
-            📝 Applications
-          </button>
-          <button
-            class={`tab ${props.activeTab?.() === 'leads' ? 'tab-active' : ''}`}
-            onClick={() => props.onTabChange?.('leads')}
-          >
-            🤝 Leads
-          </button>
-          <button
-            class={`tab ${props.activeTab?.() === 'profile' ? 'tab-active' : ''}`}
-            onClick={() => props.onTabChange?.('profile')}
-          >
-            👤 Profile
-          </button>
-          <button
-            class={`tab ${props.activeTab?.() === 'resume' ? 'tab-active' : ''}`}
-            onClick={() => props.onTabChange?.('resume')}
-          >
-            📝 Resume
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              class='h-4 w-4'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+              />
+            </svg>
+            Resume Builder
           </button>
         </div>
       </div>
 
       <div class='navbar-end space-x-2'>
-        {/* Activity Log Notification Button */}
+        {/* Timeline Notification Button */}
         <div class='indicator'>
           {props.activities && props.activities().length > 0 && (
             <span class='indicator-item badge badge-primary badge-sm'>
@@ -120,8 +136,8 @@ const Header: Component<HeaderProps> = props => {
           )}
           <button
             class='btn btn-ghost btn-circle'
-            onClick={() => props.onShowActivityLog?.()}
-            title='View Activity Log'
+            onClick={() => props.onShowTimeline?.()}
+            title='View Timeline and Activity Log'
           >
             <svg
               class='w-6 h-6'
