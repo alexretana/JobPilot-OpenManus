@@ -64,7 +64,9 @@ const Header: Component<HeaderProps> = props => {
       <div class='navbar-center hidden lg:flex'>
         <div class='tabs tabs-border tabs-lg'>
           <button
-            class={`tab gap-2 ${props.activeTab?.() === 'chat' ? 'tab-active' : ''}`}
+            class={`tab ai-chat-btn gap-2 ${
+              props.activeTab?.() === 'chat' ? 'active tab-active' : ''
+            }`}
             onClick={() => props.onTabChange?.('chat')}
           >
             <svg

@@ -84,4 +84,25 @@ body,
     background-color: rgb(163, 163, 163);
     border-radius: 2px;
   }
+
+  /* AI Chat gradient button */
+  .ai-chat-btn {
+    @apply bg-gradient-to-r from-primary to-accent text-primary-content font-medium shadow-lg;
+    @apply rounded-full border-none px-6 py-2 transition-all duration-300;
+    @apply hover:shadow-xl hover:scale-105 focus:scale-105;
+    @apply flex items-center justify-center;
+    line-height: 1;
+    align-items: center;
+    display: flex;
+  }
+
+  .ai-chat-btn svg,
+  .ai-chat-btn span {
+    vertical-align: middle;
+    line-height: 1;
+  }
+
+  .ai-chat-btn.active {
+    @apply shadow-2xl scale-105;
+  }
 }
