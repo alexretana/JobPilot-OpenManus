@@ -1,7 +1,6 @@
 import { Component, createSignal, onMount, Show } from 'solid-js';
 import { ProfileDashboard } from './UserProfile';
 import { ResumeDashboard } from './Resume';
-import Breadcrumb, { type BreadcrumbItem } from './Shared/Breadcrumb';
 
 interface ResumeBuilderProps {
   userId?: string;
@@ -54,41 +53,6 @@ export const ResumeBuilderPage: Component<ResumeBuilderProps> = props => {
 
   const handleCreateNewHandled = () => {
     setShouldCreateNewResume(false);
-  };
-
-  // Breadcrumb navigation
-  const getBreadcrumbItems = (): BreadcrumbItem[] => {
-    const items: BreadcrumbItem[] = [];
-
-    if (activeTab() === 'profile') {
-      items.push({
-        label: 'User Profile',
-        icon: '👤',
-        isActive: true,
-      });
-    } else if (activeTab() === 'resume') {
-      items.push({
-        label: 'User Profile',
-        icon: '👤',
-        onClick: () => handleTabChange('profile'),
-      });
-
-      if (shouldCreateNewResume()) {
-        items.push({
-          label: 'Create Resume',
-          icon: '✨',
-          isActive: true,
-        });
-      } else {
-        items.push({
-          label: 'Resumes',
-          icon: '📄',
-          isActive: true,
-        });
-      }
-    }
-
-    return items;
   };
 
   return (
@@ -181,16 +145,6 @@ export const ResumeBuilderPage: Component<ResumeBuilderProps> = props => {
         </div>
       </div>
 
-      {/* Breadcrumb Navigation */}
-      <div class='bg-base-100/50 rounded-lg px-4 py-2 mb-2'>
-        <Breadcrumb
-          items={getBreadcrumbItems()}
-          showHome={false}
-          separator='→'
-          className='text-base-content/70'
-        />
-      </div>
-
       {/* Tab Content */}
       <div class='flex-1 min-h-0'>
         <Show when={activeTab() === 'profile'}>
@@ -214,7 +168,7 @@ export const ResumeBuilderPage: Component<ResumeBuilderProps> = props => {
         </Show>
       </div>
 
-      {/* Breadcrumb / Context Indicator */}
+      {/* Context Indicator */}
       <Show when={activeTab() === 'resume' && shouldCreateNewResume()}>
         <div class='alert alert-info mt-4'>
           <svg
