@@ -1,4 +1,4 @@
-import { Component, createSignal, createEffect, Show, For, onMount } from 'solid-js';
+import { Component, createSignal, Show, For, onMount } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import {
   userProfileApi,
@@ -90,8 +90,8 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
 
   const handleAddLocation = () => {
     const location = locationInput().trim();
-    if (location && !formData.preferred_locations.includes(location)) {
-      setFormData('preferred_locations', [...formData.preferred_locations, location]);
+    if (location && !(formData.preferred_locations || []).includes(location)) {
+      setFormData('preferred_locations', [...(formData.preferred_locations || []), location]);
       setLocationInput('');
     }
   };
@@ -99,7 +99,7 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
   const handleRemoveLocation = (locationToRemove: string) => {
     setFormData(
       'preferred_locations',
-      formData.preferred_locations.filter(loc => loc !== locationToRemove)
+      (formData.preferred_locations || []).filter(loc => loc !== locationToRemove)
     );
   };
 
@@ -465,7 +465,9 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
           <div class='form-control'>
             <label class='label'>
               <span class='label-text'>Preferred Locations</span>
-              <span class='label-text-alt'>{formData.preferred_locations.length} locations</span>
+              <span class='label-text-alt'>
+                {(formData.preferred_locations || []).length} locations
+              </span>
             </label>
 
             <div class='flex gap-2 mb-2'>
@@ -487,9 +489,9 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
               </button>
             </div>
 
-            <Show when={formData.preferred_locations.length > 0}>
+            <Show when={(formData.preferred_locations || []).length > 0}>
               <div class='flex flex-wrap gap-2'>
-                <For each={formData.preferred_locations}>
+                <For each={formData.preferred_locations || []}>
                   {location => (
                     <div class='badge badge-info gap-2'>
                       {location}

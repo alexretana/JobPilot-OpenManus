@@ -47,10 +47,8 @@ export class ResumeImportService {
     } = options;
 
     // Generate resume title
-    const resumeTitle = 
-      templateTitle ||
-      this.generateResumeTitle(profile) ||
-      'My Professional Resume';
+    const resumeTitle =
+      templateTitle || this.generateResumeTitle(profile) || 'My Professional Resume';
 
     const resumeData: CreateResumeRequest = {
       title: resumeTitle,
@@ -109,9 +107,9 @@ export class ResumeImportService {
     options: ResumeImportOptions = {}
   ): ResumeImportPreview {
     const resumeData = this.mapProfileToResume(profile, options);
-    const mappedFields = this.analyzeMappedFields(profile, resumeData);
+    const mappedFields = this.analyzeMappedFields(resumeData);
     const missingFields = this.identifyMissingFields(profile);
-    const warnings = this.generateWarnings(profile, options);
+    const warnings = this.generateWarnings(profile);
 
     return {
       resumeData,
@@ -125,18 +123,17 @@ export class ResumeImportService {
    * Maps profile contact information to resume format
    */
   private static mapContactInfo(profile: UserProfile) {
-    const fullName = [profile.first_name, profile.last_name]
-      .filter(Boolean)
-      .join(' ') || 'Your Name';
+    const fullName =
+      [profile.first_name, profile.last_name].filter(Boolean).join(' ') || 'Your Name';
 
     return {
       full_name: fullName,
       email: profile.email || '',
       phone: profile.phone || '',
       location: profile.preferred_locations?.[0] || '',
-      linkedin_url: profile.linkedin_url || '',
-      github_url: profile.github_url || '',
-      website_url: profile.website_url || '',
+      linkedin_url: '', // UserProfile doesn't include social URLs
+      github_url: '', // UserProfile doesn't include social URLs
+      website_url: '', // UserProfile doesn't include social URLs
     };
   }
 
@@ -144,7 +141,7 @@ export class ResumeImportService {
    * Maps profile skills to resume skills format
    */
   private static mapSkills(profileSkills: string[]) {
-    return profileSkills.map((skillName) => ({
+    return profileSkills.map(skillName => ({
       name: skillName,
       category: this.categorizeSkill(skillName),
       proficiency_level: 'Intermediate', // Default level, user can adjust
@@ -178,29 +175,72 @@ export class ResumeImportService {
    */
   private static categorizeSkill(skillName: string): string {
     const skill = skillName.toLowerCase();
-    
+
     // Programming languages
     const programmingLangs = [
-      'javascript', 'python', 'java', 'c++', 'c#', 'ruby', 'php', 'go', 
-      'rust', 'typescript', 'swift', 'kotlin', 'scala', 'r', 'matlab'
+      'javascript',
+      'python',
+      'java',
+      'c++',
+      'c#',
+      'ruby',
+      'php',
+      'go',
+      'rust',
+      'typescript',
+      'swift',
+      'kotlin',
+      'scala',
+      'r',
+      'matlab',
     ];
-    
+
     // Frameworks and libraries
     const frameworks = [
-      'react', 'angular', 'vue', 'node', 'express', 'django', 'flask', 
-      'spring', 'rails', 'laravel', 'nextjs', 'nuxt', 'solid'
+      'react',
+      'angular',
+      'vue',
+      'node',
+      'express',
+      'django',
+      'flask',
+      'spring',
+      'rails',
+      'laravel',
+      'nextjs',
+      'nuxt',
+      'solid',
     ];
-    
+
     // Tools and software
     const tools = [
-      'git', 'docker', 'kubernetes', 'aws', 'azure', 'gcp', 'jenkins', 
-      'terraform', 'ansible', 'linux', 'windows', 'macos'
+      'git',
+      'docker',
+      'kubernetes',
+      'aws',
+      'azure',
+      'gcp',
+      'jenkins',
+      'terraform',
+      'ansible',
+      'linux',
+      'windows',
+      'macos',
     ];
-    
+
     // Data and analytics
     const dataTools = [
-      'sql', 'mongodb', 'postgresql', 'mysql', 'redis', 'elasticsearch', 
-      'tableau', 'powerbi', 'excel', 'pandas', 'numpy'
+      'sql',
+      'mongodb',
+      'postgresql',
+      'mysql',
+      'redis',
+      'elasticsearch',
+      'tableau',
+      'powerbi',
+      'excel',
+      'pandas',
+      'numpy',
     ];
 
     if (programmingLangs.some(lang => skill.includes(lang))) {
@@ -215,7 +255,7 @@ export class ResumeImportService {
     if (dataTools.some(tool => skill.includes(tool))) {
       return 'Data & Analytics';
     }
-    
+
     // Default category
     return 'Technical Skills';
   }
@@ -237,16 +277,16 @@ export class ResumeImportService {
     if (title) {
       return `${title} Resume ${year}`;
     }
-    
+
     return `Professional Resume ${year}`;
   }
 
   /**
    * Analyzes what fields were successfully mapped
    */
-  private static analyzeMappedFields(profile: UserProfile, resumeData: CreateResumeRequest) {
+  private static analyzeMappedFields(resumeData: CreateResumeRequest) {
     const contactFields: string[] = [];
-    
+
     if (resumeData.contact_info.full_name) contactFields.push('Full Name');
     if (resumeData.contact_info.email) contactFields.push('Email');
     if (resumeData.contact_info.phone) contactFields.push('Phone');
@@ -283,7 +323,7 @@ export class ResumeImportService {
   /**
    * Generates warnings about the import process
    */
-  private static generateWarnings(profile: UserProfile, options: ResumeImportOptions): string[] {
+  private static generateWarnings(profile: UserProfile): string[] {
     const warnings: string[] = [];
 
     if (!profile.bio) {
@@ -291,16 +331,15 @@ export class ResumeImportService {
     }
 
     if (!profile.skills || profile.skills.length === 0) {
-      warnings.push('No skills found in profile. You\'ll need to add skills manually.');
+      warnings.push("No skills found in profile. You'll need to add skills manually.");
     }
 
     if (profile.skills && profile.skills.length < 5) {
       warnings.push('Limited skills found. Consider adding more skills to your profile.');
     }
 
-    if (!profile.linkedin_url && !profile.github_url) {
-      warnings.push('No professional social links found. Consider adding LinkedIn or GitHub URLs.');
-    }
+    // Note: UserProfile doesn't currently support social URLs
+    // This warning is disabled until the profile interface is extended
 
     if (!profile.phone) {
       warnings.push('Phone number not provided. This may be required for some applications.');
@@ -312,10 +351,10 @@ export class ResumeImportService {
   /**
    * Validates if a profile has minimum required data for resume creation
    */
-  static validateProfileForImport(profile: UserProfile): { 
-    isValid: boolean; 
-    errors: string[]; 
-    warnings: string[]; 
+  static validateProfileForImport(profile: UserProfile): {
+    isValid: boolean;
+    errors: string[];
+    warnings: string[];
   } {
     const errors: string[] = [];
     const warnings: string[] = [];
@@ -341,7 +380,7 @@ export class ResumeImportService {
     return {
       isValid: errors.length === 0,
       errors,
-      warnings: [...warnings, ...this.generateWarnings(profile, {})],
+      warnings: [...warnings, ...this.generateWarnings(profile)],
     };
   }
 }

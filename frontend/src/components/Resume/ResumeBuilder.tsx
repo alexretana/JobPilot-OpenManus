@@ -57,7 +57,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
           includeEducation: true,
           includeExperience: false, // Don't auto-populate work experience
         });
-        
+
         setFormData(resumeData);
         console.log('Pre-populated resume with profile data:', resumeData);
       } catch (err) {
@@ -135,14 +135,14 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
 
     setFormData(prev => ({
       ...prev,
-      work_experience: [...prev.work_experience, newExperience],
+      work_experience: [...(prev.work_experience || []), newExperience],
     }));
   };
 
   const removeWorkExperience = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      work_experience: prev.work_experience.filter((_, i) => i !== index),
+      work_experience: (prev.work_experience || []).filter((_, i) => i !== index),
     }));
   };
 
@@ -150,7 +150,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
     if (index === 0) return;
 
     setFormData(prev => {
-      const newExperiences = [...prev.work_experience];
+      const newExperiences = [...(prev.work_experience || [])];
       [newExperiences[index - 1], newExperiences[index]] = [
         newExperiences[index],
         newExperiences[index - 1],
@@ -164,9 +164,10 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
 
   const moveWorkExperienceDown = (index: number) => {
     setFormData(prev => {
-      if (index === prev.work_experience.length - 1) return prev;
+      const workExp = prev.work_experience || [];
+      if (index === workExp.length - 1) return prev;
 
-      const newExperiences = [...prev.work_experience];
+      const newExperiences = [...workExp];
       [newExperiences[index], newExperiences[index + 1]] = [
         newExperiences[index + 1],
         newExperiences[index],
@@ -181,7 +182,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const updateWorkExperience = (index: number, field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      work_experience: prev.work_experience.map((exp, i) =>
+      work_experience: (prev.work_experience || []).map((exp, i) =>
         i === index ? { ...exp, [field]: value } : exp
       ),
     }));
@@ -190,7 +191,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const addWorkExperienceAchievement = (experienceIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      work_experience: prev.work_experience.map((exp, i) =>
+      work_experience: (prev.work_experience || []).map((exp, i) =>
         i === experienceIndex ? { ...exp, achievements: [...(exp.achievements || []), ''] } : exp
       ),
     }));
@@ -203,7 +204,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   ) => {
     setFormData(prev => ({
       ...prev,
-      work_experience: prev.work_experience.map((exp, i) =>
+      work_experience: (prev.work_experience || []).map((exp, i) =>
         i === experienceIndex
           ? {
               ...exp,
@@ -219,7 +220,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const removeWorkExperienceAchievement = (experienceIndex: number, achievementIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      work_experience: prev.work_experience.map((exp, i) =>
+      work_experience: (prev.work_experience || []).map((exp, i) =>
         i === experienceIndex
           ? {
               ...exp,
@@ -246,14 +247,14 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
 
     setFormData(prev => ({
       ...prev,
-      education: [...prev.education, newEducation],
+      education: [...(prev.education || []), newEducation],
     }));
   };
 
   const removeEducation = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      education: prev.education.filter((_, i) => i !== index),
+      education: (prev.education || []).filter((_, i) => i !== index),
     }));
   };
 
@@ -261,7 +262,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
     if (index === 0) return;
 
     setFormData(prev => {
-      const newEducation = [...prev.education];
+      const newEducation = [...(prev.education || [])];
       [newEducation[index - 1], newEducation[index]] = [
         newEducation[index],
         newEducation[index - 1],
@@ -275,9 +276,10 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
 
   const moveEducationDown = (index: number) => {
     setFormData(prev => {
-      if (index === prev.education.length - 1) return prev;
+      const education = prev.education || [];
+      if (index === education.length - 1) return prev;
 
-      const newEducation = [...prev.education];
+      const newEducation = [...education];
       [newEducation[index], newEducation[index + 1]] = [
         newEducation[index + 1],
         newEducation[index],
@@ -292,14 +294,16 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const updateEducation = (index: number, field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      education: prev.education.map((edu, i) => (i === index ? { ...edu, [field]: value } : edu)),
+      education: (prev.education || []).map((edu, i) =>
+        i === index ? { ...edu, [field]: value } : edu
+      ),
     }));
   };
 
   const addEducationHonor = (educationIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      education: prev.education.map((edu, i) =>
+      education: (prev.education || []).map((edu, i) =>
         i === educationIndex ? { ...edu, honors: [...(edu.honors || []), ''] } : edu
       ),
     }));
@@ -308,7 +312,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const updateEducationHonor = (educationIndex: number, honorIndex: number, value: string) => {
     setFormData(prev => ({
       ...prev,
-      education: prev.education.map((edu, i) =>
+      education: (prev.education || []).map((edu, i) =>
         i === educationIndex
           ? {
               ...edu,
@@ -322,7 +326,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const removeEducationHonor = (educationIndex: number, honorIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      education: prev.education.map((edu, i) =>
+      education: (prev.education || []).map((edu, i) =>
         i === educationIndex
           ? {
               ...edu,
@@ -336,7 +340,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const addEducationCourse = (educationIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      education: prev.education.map((edu, i) =>
+      education: (prev.education || []).map((edu, i) =>
         i === educationIndex
           ? { ...edu, relevant_coursework: [...(edu.relevant_coursework || []), ''] }
           : edu
@@ -347,7 +351,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const updateEducationCourse = (educationIndex: number, courseIndex: number, value: string) => {
     setFormData(prev => ({
       ...prev,
-      education: prev.education.map((edu, i) =>
+      education: (prev.education || []).map((edu, i) =>
         i === educationIndex
           ? {
               ...edu,
@@ -363,7 +367,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const removeEducationCourse = (educationIndex: number, courseIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      education: prev.education.map((edu, i) =>
+      education: (prev.education || []).map((edu, i) =>
         i === educationIndex
           ? {
               ...edu,
@@ -386,21 +390,23 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
 
     setFormData(prev => ({
       ...prev,
-      skills: [...prev.skills, newSkill],
+      skills: [...(prev.skills || []), newSkill],
     }));
   };
 
   const removeSkill = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      skills: prev.skills.filter((_, i) => i !== index),
+      skills: (prev.skills || []).filter((_, i) => i !== index),
     }));
   };
 
   const updateSkill = (index: number, field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      skills: prev.skills.map((skill, i) => (i === index ? { ...skill, [field]: value } : skill)),
+      skills: (prev.skills || []).map((skill, i) =>
+        i === index ? { ...skill, [field]: value } : skill
+      ),
     }));
   };
 
@@ -408,7 +414,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
     if (index === 0) return;
 
     setFormData(prev => {
-      const newSkills = [...prev.skills];
+      const newSkills = [...(prev.skills || [])];
       [newSkills[index - 1], newSkills[index]] = [newSkills[index], newSkills[index - 1]];
       return {
         ...prev,
@@ -419,9 +425,9 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
 
   const moveSkillDown = (index: number) => {
     setFormData(prev => {
-      if (index === prev.skills.length - 1) return prev;
+      if (index === (prev.skills || []).length - 1) return prev;
 
-      const newSkills = [...prev.skills];
+      const newSkills = [...(prev.skills || [])];
       [newSkills[index], newSkills[index + 1]] = [newSkills[index + 1], newSkills[index]];
       return {
         ...prev,
@@ -436,7 +442,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
       Array<{ name: string; category?: string; proficiency_level?: string; originalIndex: number }>
     > = {};
 
-    formData().skills.forEach((skill, index) => {
+    (formData().skills || []).forEach((skill, index) => {
       const category = skill.category || 'Other';
       if (!skillsByCategory[category]) {
         skillsByCategory[category] = [];
@@ -463,21 +469,21 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
 
     setFormData(prev => ({
       ...prev,
-      projects: [...prev.projects, newProject],
+      projects: [...(prev.projects || []), newProject],
     }));
   };
 
   const removeProject = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      projects: prev.projects.filter((_, i) => i !== index),
+      projects: (prev.projects || []).filter((_, i) => i !== index),
     }));
   };
 
   const updateProject = (index: number, field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      projects: prev.projects.map((project, i) =>
+      projects: (prev.projects || []).map((project, i) =>
         i === index ? { ...project, [field]: value } : project
       ),
     }));
@@ -487,7 +493,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
     if (index === 0) return;
 
     setFormData(prev => {
-      const newProjects = [...prev.projects];
+      const newProjects = [...(prev.projects || [])];
       [newProjects[index - 1], newProjects[index]] = [newProjects[index], newProjects[index - 1]];
       return {
         ...prev,
@@ -498,9 +504,9 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
 
   const moveProjectDown = (index: number) => {
     setFormData(prev => {
-      if (index === prev.projects.length - 1) return prev;
+      if (index === (prev.projects || []).length - 1) return prev;
 
-      const newProjects = [...prev.projects];
+      const newProjects = [...(prev.projects || [])];
       [newProjects[index], newProjects[index + 1]] = [newProjects[index + 1], newProjects[index]];
       return {
         ...prev,
@@ -512,7 +518,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const addProjectTechnology = (projectIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      projects: prev.projects.map((project, i) =>
+      projects: (prev.projects || []).map((project, i) =>
         i === projectIndex
           ? { ...project, technologies: [...(project.technologies || []), ''] }
           : project
@@ -523,7 +529,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const updateProjectTechnology = (projectIndex: number, techIndex: number, value: string) => {
     setFormData(prev => ({
       ...prev,
-      projects: prev.projects.map((project, i) =>
+      projects: (prev.projects || []).map((project, i) =>
         i === projectIndex
           ? {
               ...project,
@@ -539,7 +545,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const removeProjectTechnology = (projectIndex: number, techIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      projects: prev.projects.map((project, i) =>
+      projects: (prev.projects || []).map((project, i) =>
         i === projectIndex
           ? {
               ...project,
@@ -553,7 +559,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const addProjectAchievement = (projectIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      projects: prev.projects.map((project, i) =>
+      projects: (prev.projects || []).map((project, i) =>
         i === projectIndex
           ? { ...project, achievements: [...(project.achievements || []), ''] }
           : project
@@ -568,7 +574,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   ) => {
     setFormData(prev => ({
       ...prev,
-      projects: prev.projects.map((project, i) =>
+      projects: (prev.projects || []).map((project, i) =>
         i === projectIndex
           ? {
               ...project,
@@ -584,7 +590,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const removeProjectAchievement = (projectIndex: number, achievementIndex: number) => {
     setFormData(prev => ({
       ...prev,
-      projects: prev.projects.map((project, i) =>
+      projects: (prev.projects || []).map((project, i) =>
         i === projectIndex
           ? {
               ...project,
@@ -611,21 +617,21 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
 
     setFormData(prev => ({
       ...prev,
-      certifications: [...prev.certifications, newCertification],
+      certifications: [...(prev.certifications || []), newCertification],
     }));
   };
 
   const removeCertification = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      certifications: prev.certifications.filter((_, i) => i !== index),
+      certifications: (prev.certifications || []).filter((_, i) => i !== index),
     }));
   };
 
   const updateCertification = (index: number, field: string, value: any) => {
     setFormData(prev => ({
       ...prev,
-      certifications: prev.certifications.map((cert, i) =>
+      certifications: (prev.certifications || []).map((cert, i) =>
         i === index ? { ...cert, [field]: value } : cert
       ),
     }));
@@ -635,7 +641,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
     if (index === 0) return;
 
     setFormData(prev => {
-      const newCertifications = [...prev.certifications];
+      const newCertifications = [...(prev.certifications || [])];
       [newCertifications[index - 1], newCertifications[index]] = [
         newCertifications[index],
         newCertifications[index - 1],
@@ -649,9 +655,9 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
 
   const moveCertificationDown = (index: number) => {
     setFormData(prev => {
-      if (index === prev.certifications.length - 1) return prev;
+      if (index === (prev.certifications || []).length - 1) return prev;
 
-      const newCertifications = [...prev.certifications];
+      const newCertifications = [...(prev.certifications || [])];
       [newCertifications[index], newCertifications[index + 1]] = [
         newCertifications[index + 1],
         newCertifications[index],
@@ -920,7 +926,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                               </Show>
 
                               {/* Move Down Button */}
-                              <Show when={index() < formData().work_experience.length - 1}>
+                              <Show when={index() < (formData().work_experience || []).length - 1}>
                                 <button
                                   type='button'
                                   class='btn btn-ghost btn-sm'
@@ -1094,7 +1100,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                   </div>
 
                   {/* Empty State */}
-                  <Show when={formData().work_experience.length === 0}>
+                  <Show when={(formData().work_experience || []).length === 0}>
                     <div class='text-center py-12 bg-base-100 rounded-lg border-2 border-dashed border-base-300'>
                       <div class='text-4xl mb-2'>💼</div>
                       <h3 class='text-lg font-medium mb-2'>No work experience added yet</h3>
@@ -1148,7 +1154,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                               </Show>
 
                               {/* Move Down Button */}
-                              <Show when={index() < formData().education.length - 1}>
+                              <Show when={index() < (formData().education || []).length - 1}>
                                 <button
                                   type='button'
                                   class='btn btn-ghost btn-sm'
@@ -1365,7 +1371,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                   </div>
 
                   {/* Empty State */}
-                  <Show when={formData().education.length === 0}>
+                  <Show when={(formData().education || []).length === 0}>
                     <div class='text-center py-12 bg-base-100 rounded-lg border-2 border-dashed border-base-300'>
                       <div class='text-4xl mb-2'>🎓</div>
                       <h3 class='text-lg font-medium mb-2'>No education added yet</h3>
@@ -1497,7 +1503,10 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
 
                                         {/* Move Down */}
                                         <Show
-                                          when={skill.originalIndex < formData().skills.length - 1}
+                                          when={
+                                            skill.originalIndex <
+                                            (formData().skills || []).length - 1
+                                          }
                                         >
                                           <button
                                             type='button'
@@ -1531,7 +1540,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                   </div>
 
                   {/* Empty State */}
-                  <Show when={formData().skills.length === 0}>
+                  <Show when={(formData().skills || []).length === 0}>
                     <div class='text-center py-12 bg-base-100 rounded-lg border-2 border-dashed border-base-300'>
                       <div class='text-4xl mb-2'>🛠️</div>
                       <h3 class='text-lg font-medium mb-2'>No skills added yet</h3>
@@ -1545,14 +1554,14 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                   </Show>
 
                   {/* Skills Summary */}
-                  <Show when={formData().skills.length > 0}>
+                  <Show when={(formData().skills || []).length > 0}>
                     <div class='bg-info/10 border border-info/20 rounded-lg p-4'>
                       <div class='flex items-start space-x-3'>
                         <div class='text-info text-xl'>💡</div>
                         <div>
                           <h4 class='font-medium text-info-content mb-2'>Skills Summary</h4>
                           <p class='text-sm text-base-content/70'>
-                            Total: {formData().skills.length} skills across{' '}
+                            Total: {(formData().skills || []).length} skills across{' '}
                             {Object.keys(getSkillsByCategory()).length} categories
                           </p>
                           <div class='mt-2 text-xs text-base-content/60'>
@@ -1605,7 +1614,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                               </Show>
 
                               {/* Move Down Button */}
-                              <Show when={index() < formData().projects.length - 1}>
+                              <Show when={index() < (formData().projects || []).length - 1}>
                                 <button
                                   type='button'
                                   class='btn btn-ghost btn-sm'
@@ -1776,7 +1785,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                   </div>
 
                   {/* Empty State */}
-                  <Show when={formData().projects.length === 0}>
+                  <Show when={(formData().projects || []).length === 0}>
                     <div class='text-center py-12 bg-base-100 rounded-lg border-2 border-dashed border-base-300'>
                       <div class='text-4xl mb-2'>🚀</div>
                       <h3 class='text-lg font-medium mb-2'>No projects added yet</h3>
@@ -1843,7 +1852,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                               </Show>
 
                               {/* Move Down Button */}
-                              <Show when={index() < formData().certifications.length - 1}>
+                              <Show when={index() < (formData().certifications || []).length - 1}>
                                 <button
                                   type='button'
                                   class='btn btn-ghost btn-sm'
@@ -1959,7 +1968,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                   </div>
 
                   {/* Empty State */}
-                  <Show when={formData().certifications.length === 0}>
+                  <Show when={(formData().certifications || []).length === 0}>
                     <div class='text-center py-12 bg-base-100 rounded-lg border-2 border-dashed border-base-300'>
                       <div class='text-4xl mb-2'>🏆</div>
                       <h3 class='text-lg font-medium mb-2'>No certifications added yet</h3>
@@ -1973,7 +1982,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                   </Show>
 
                   {/* Certifications Summary */}
-                  <Show when={formData().certifications.length > 0}>
+                  <Show when={(formData().certifications || []).length > 0}>
                     <div class='bg-warning/10 border border-warning/20 rounded-lg p-4'>
                       <div class='flex items-start space-x-3'>
                         <div class='text-warning text-xl'>⚠️</div>
@@ -1982,7 +1991,7 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                             Certification Status
                           </h4>
                           <p class='text-sm text-base-content/70'>
-                            Total: {formData().certifications.length} certifications
+                            Total: {(formData().certifications || []).length} certifications
                           </p>
                           <div class='mt-2 text-xs text-base-content/60'>
                             <strong>Tip:</strong> Keep track of expiry dates and renew
