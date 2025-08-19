@@ -1,277 +1,252 @@
-# 🎯 Current Warp Assignment
-
-**Priority Tasks for Complete Resume System Functionality**
+# 🎯 Current Warp Assignment: Profile Redesign & Skill Bank Implementation
 
 ## 📋 Assignment Overview
 
-**Goal**: Complete the Resume Builder section editors and integrate Profile-Resume workflows to create a fully functional job application system.
-
-**Timeline**: 3 Weeks
-**Status**: Week 1-3 Complete (Integration Complete)
-**Last Updated**: 2025-01-19
+This document tracks the current development assignment focusing on:
+1. **Profile Dashboard Redesign** - Improving the profile page layout and functionality
+2. **Skill Bank Feature Implementation** - Creating a comprehensive skill management system
 
 ---
 
-## 📅 Week 1-2: Resume Builder Section Editors
+## 🔄 **Phase 1: Profile Dashboard Redesign**
 
-**Objective**: Complete all missing resume section editors to enable full resume creation functionality.
+### ✅ Analysis & Planning
+- [x] **Analyze current ProfileDashboard component structure**
+- [x] **Identify QuickActions usage across codebase** 
+- [x] **Review current user profile data model** (UserProfileDB)
+- [x] **Create assignment checklist document**
 
-### **Work Experience Builder** (Priority 1) ✅ **COMPLETED**
-- [x] **Dynamic Entry Management**
-  - [x] Add/remove work experience entries dynamically
-  - [x] Move up/down reordering of entries (drag-and-drop alternative)
-  - [x] Form validation for required fields (company, position, dates)
-  - [x] "Current position" checkbox handling with conditional end date
-  - [ ] Date range validation (end date > start date) - *Client-side validation needed*
+### 🚧 **Profile Dashboard Updates**
+- [ ] **Remove Quick Actions section entirely**
+  - [ ] Remove Quick Actions div from ProfileDashboard.tsx (lines 350-417)
+  - [ ] Check if QuickActions component exists as separate file and delete if unused elsewhere
+  - [ ] Test that removal doesn't break other functionality
 
-- [x] **Experience Form Fields**
-  - [x] Company name field
-  - [x] Position/job title field
-  - [x] Location field (optional)
-  - [x] Start date and end date pickers
-  - [x] Job description textarea
-  - [x] Achievements/accomplishments list (dynamic add/remove)
-  - [ ] Skills used in this role (with skill tagging) - *Future enhancement*
+- [ ] **Add Create Resume button next to Edit Profile button**
+  - [ ] Move Create Resume button to header section (next to Edit Profile)
+  - [ ] Use same styling and behavior as existing handleCreateResume function
+  - [ ] Update button layout to accommodate both buttons
 
-### **Education Section** (Priority 2) ✅ **COMPLETED**
-- [x] **Dynamic Education Entries**
-  - [x] Add/remove education entries dynamically
-  - [x] Move up/down reordering of entries
-  - [x] Form validation for degree and institution (required fields)
-  - [x] Empty state with call-to-action
+- [ ] **Update Personal Information section**
+  - [ ] Add City field to UserProfileDB model (backend)
+  - [ ] Add State field to UserProfileDB model (backend)  
+  - [ ] Add LinkedIn URL field to UserProfileDB model (backend)
+  - [ ] Add Portfolio Site URL field to UserProfileDB model (backend)
+  - [ ] Update user profile Pydantic models for API (frontend/backend)
+  - [ ] Update ProfileEditForm.tsx to include new fields
+  - [ ] Update ProfileDashboard.tsx to display new fields
+  - [ ] Update userProfileApi.ts service layer for new fields
 
-- [x] **Education Form Fields**
-  - [x] Institution name field (required)
-  - [x] Degree type dropdown with comprehensive options (High School → PhD)
-  - [x] Field of study/major field
-  - [x] Location field (optional)
-  - [x] Start date and graduation date pickers
-  - [x] GPA field with numeric validation (0-4.0 scale)
-  - [x] Honors/achievements list (dynamic add/remove)
-  - [x] Relevant coursework list (dynamic add/remove)
+- [ ] **Remove Skills from Professional Details section**
+  - [ ] Remove skills display from Professional Information card in ProfileDashboard.tsx (lines 227-247)
+  - [ ] Keep skills in backend model (still used by Skill Bank)
+  - [ ] Remove skills from ProfileEditForm.tsx professional section
+  - [ ] Update completeness calculation to not include skills in professional section
 
-### **Skills Section** (Priority 3) ✅ **COMPLETED**
-- [x] **Skills Management Interface**
-  - [x] Skills input with category selection from predefined options
-  - [x] Skill categorization (Technical Skills, Programming Languages, Frameworks & Libraries, Tools & Software, Soft Skills, Languages, Certifications, Design, Data & Analytics, Other)
-  - [x] Proficiency level indicators (Beginner, Intermediate, Advanced, Expert)
-  - [x] Visual skill organization grouped by categories
-  - [x] Dynamic add/remove skills functionality
-  - [x] Move up/down reordering of skills
-
-- [x] **Skills Integration**
-  - [x] Full integration with resume data structure
-  - [x] Skills summary panel with category breakdown
-  - [x] Remove skills functionality with confirmation
-  - [x] Empty state UI with call-to-action
-  - [ ] Import skills from user profile - *Future enhancement*
-  - [ ] Sync with Skills Bank if available - *Future enhancement*
-  - [ ] Skill suggestions based on job titles/industry - *Future enhancement*
-
-### **Projects & Certifications** (Priority 4) ✅ **COMPLETED**
-- [x] **Projects Section**
-  - [x] Add/remove project entries dynamically
-  - [x] Project name and description fields
-  - [x] Technology stack/tools used (with tagging)
-  - [x] Project URL and GitHub repository links
-  - [x] Start/end dates for projects
-  - [x] Key achievements and impact metrics
-  - [x] Move up/down reordering of entries
-  - [x] Form validation and empty state handling
-
-- [x] **Certifications Section**
-  - [x] Add/remove certification entries
-  - [x] Certification name and issuing organization
-  - [x] Issue date and expiry date handling
-  - [x] Certification ID/credential number
-  - [x] Certification URL/verification link
-  - [x] Status indicators (Active, Expiring Soon, Expired)
-  - [x] Smart expiry tracking with visual badges
-  - [x] Move up/down reordering of entries
-  - [x] Form validation and empty state handling
+### 🧪 **Testing Profile Changes**
+- [ ] **Test profile form with new fields**
+- [ ] **Verify backend API accepts new fields**
+- [ ] **Test profile completeness calculation still works**
+- [ ] **Ensure Create Resume button works from new location**
 
 ---
 
-## 📅 Week 3: Profile-Resume Integration ✅ **COMPLETED**
+## 🏗️ **Phase 2: Skill Bank Implementation**
 
-**Objective**: Create seamless workflow between User Profile and Resume systems.
+### ✅ **Planning & Design**
+- [x] **Analyze existing SkillBankDB model** (in resume_models.py)
+- [x] **Review existing skill-related data structures**
+- [x] **Create comprehensive Skill Bank implementation plan**
 
-### **"Create Resume" Workflow** (Priority 1) ✅ **COMPLETED**
-- [x] **Profile Dashboard Integration**
-  - [x] Add prominent "Create Resume" button to Profile Dashboard
-  - [x] Create resume from profile data with pre-populated fields
-  - [x] Signal-based navigation from Profile to Resume system
-  - [x] Success feedback and navigation to resume builder
+### 📊 **Backend Data Model Design**  
+- [ ] **Review and enhance SkillBankDB model**
+  - [ ] Analyze current SkillBankDB structure (resume_models.py:345-367)
+  - [ ] Design enhanced skill bank data model
+  - [ ] Plan data consolidation with UserProfileDB.skills field
+  - [ ] Create migration strategy for existing data
 
-- [x] **Profile Data Import**
-  - [x] Auto-populate contact information from profile
-  - [x] Import skills and categorize appropriately
-  - [x] Import education and work experience if available in profile
-  - [x] Import professional summary/bio
-  - [x] Handle missing profile data gracefully
+- [ ] **Design content variation system**
+  - [ ] Create base ContentVariation model for reusable "main/variation/history" pattern
+  - [ ] Design SummaryVariation model
+  - [ ] Design ExperienceContentVariation model  
+  - [ ] Design EducationContentVariation model
+  - [ ] Design ProjectContentVariation model
 
-### **Cross-System Navigation** (Priority 2) ✅ **COMPLETED**
-- [x] **Resume Dashboard Enhancement**
-  - [x] Signal-based navigation system implemented
-  - [x] Resume creation from profile context established
-  - [x] Seamless transition between Profile and Resume systems
+- [ ] **Design individual models**
+  - [ ] Enhanced Skills model with categorization (Hard/Soft/Transferable)
+  - [ ] Experience entries model with content variations
+  - [ ] Education entries model with content variations
+  - [ ] Project entries model with content variations
+  - [ ] Certificates model (simple, no variations needed)
+  - [ ] Contact info consolidation model
 
-- [x] **Navigation Integration**
-  - [x] Tab-based navigation with active state indicators
-  - [x] System-to-system signaling mechanism
-  - [x] Consistent navigation experience across both systems
+### 🔧 **Backend API Development**
+- [ ] **Create Skill Bank API endpoints**
+  - [ ] GET /api/skill-bank/{user_id} - Get complete skill bank
+  - [ ] PUT /api/skill-bank/{user_id} - Update skill bank
+  - [ ] POST /api/skill-bank/{user_id}/skills - Add skill
+  - [ ] PUT /api/skill-bank/{user_id}/skills/{skill_id} - Update skill
+  - [ ] DELETE /api/skill-bank/{user_id}/skills/{skill_id} - Delete skill
 
-### **Navigation Reorganization** (Priority 3) ✅ **COMPLETED**
-- [x] **Timeline Integration with Activity Log**
-  - [x] Add fourth "System Logs" tab to Timeline component
-  - [x] Move Timeline utilities (Timeline, Milestones, Upcoming, System Logs) to Activity Log modal
-  - [x] Rename Activity Log to "Timeline" in navigation
-  - [x] Remove old Timeline implementation after migration
-  - [x] Ensure all Timeline functionality works within modal context
+- [ ] **Content variation endpoints**
+  - [ ] POST /api/skill-bank/{user_id}/summaries - Add summary variation
+  - [ ] POST /api/skill-bank/{user_id}/experience/{exp_id}/content - Add experience content variation
+  - [ ] POST /api/skill-bank/{user_id}/education/{edu_id}/content - Add education content variation
+  - [ ] POST /api/skill-bank/{user_id}/projects/{proj_id}/content - Add project content variation
 
-- [x] **Job Search Manager Tab**
-  - [x] Combine "Jobs", "Applications", and "Leads" into single "Job Search Manager" tab
-  - [x] Create sub-tab navigation within Job Search Manager
-  - [x] Implement session-based memory for last selected sub-tab
-  - [x] Default to "Jobs" sub-tab on new sessions
-  - [x] Maintain existing functionality for all three components
-  - [x] Update navigation state management for nested tabs
+- [ ] **Repository layer implementation**
+  - [ ] Create SkillBankRepository class
+  - [ ] Implement CRUD operations for all skill bank entities
+  - [ ] Add data validation and error handling
+  - [ ] Implement variation management logic
 
-- [x] **Resume Builder Tab**
-  - [x] Combine "Resume" and "User Profile" into single "Resume Builder" tab
-  - [x] Create sub-tab navigation for Profile and Resume sections
-  - [x] Implement session-based memory for last selected sub-tab
-  - [x] Maintain existing Profile-Resume integration functionality
-  - [x] Update cross-system navigation to work within unified tab
-  - [x] Preserve "Create Resume" workflow within new structure
+### 🖥️ **Frontend Service Layer**
+- [ ] **Create Skill Bank API service**
+  - [ ] Create skillBankApi.ts service file
+  - [ ] Implement all CRUD operations
+  - [ ] Add TypeScript interfaces for all models
+  - [ ] Add validation and error handling
+  - [ ] Add loading states management
 
-### **Breadcrumb Navigation** (Priority 4) ⏳ **FUTURE ENHANCEMENT**
-- [ ] **Context Awareness**
-  - [ ] Show user's current location in the workflow
-  - [ ] Enable navigation back to previous steps
-  - [ ] Maintain navigation state across page refreshes
+### 🎨 **Frontend UI Components**
+- [ ] **Create Skill Bank main page**
+  - [ ] Create SkillBank.tsx main component
+  - [ ] Design tabbed interface matching resume sections
+  - [ ] Implement navigation between sections
+  - [ ] Add breadcrumb navigation
 
----
+- [ ] **Contact Info section**
+  - [ ] Create ContactInfoSection.tsx component
+  - [ ] Single source of truth for contact data
+  - [ ] Integration with UserProfile data
+  - [ ] Form validation and saving
 
-## 🎆 Major Accomplishments - Week 1-2
+- [ ] **Summary Management section**  
+  - [ ] Create SummarySection.tsx component
+  - [ ] Main summary editing
+  - [ ] Summary variations list/management
+  - [ ] Summary history tracking
+  - [ ] Title assignment for variations
 
-### **✅ All 7 Resume Sections Complete**
-The Resume Builder now includes comprehensive functionality for all professional resume sections:
+- [ ] **Experience Management section**
+  - [ ] Create ExperienceSection.tsx component  
+  - [ ] Job entry management (dates, title, company)
+  - [ ] Content variations per job
+  - [ ] Content history tracking
+  - [ ] Main/variation/history UI pattern
 
-1. **Contact Information** - Personal details and professional links
-2. **Professional Summary** - Career overview and key qualifications
-3. **Work Experience** - Complete employment history with achievements
-4. **Education** - Academic background with honors and coursework
-5. **Skills** - Categorized technical and soft skills with proficiency levels
-6. **Projects** - Professional projects with technology stacks and outcomes
-7. **Certifications** - Professional certifications with smart expiry tracking
+- [ ] **Education Management section**
+  - [ ] Create EducationSection.tsx component
+  - [ ] Same variation system as Experience
+  - [ ] Education entry management
+  - [ ] Content variation management
 
-### **✨ Key Features Implemented**
-- **Full CRUD Operations**: Add, edit, delete, and reorder entries in all sections
-- **Advanced Validation**: Comprehensive form validation and error handling
-- **Smart UI Elements**: Empty states, loading indicators, and user guidance
-- **Data Integrity**: Complete type safety and data flow validation
-- **Professional UX**: Intuitive interface with consistent design patterns
+- [ ] **Projects Management section** 
+  - [ ] Create ProjectsSection.tsx component
+  - [ ] Same variation system as Experience/Education
+  - [ ] Project entry and content management
 
-### **🚀 Technical Achievements**
-- **Type Safety**: Complete TypeScript interface coverage
-- **Data Flow**: 100% tested save/load functionality
-- **Code Quality**: Clean, maintainable, well-organized code architecture
-- **Performance**: Efficient state management and rendering
-- **User Experience**: Professional-grade UI with helpful feedback
+- [ ] **Certificates Management section**
+  - [ ] Create CertificatesSection.tsx component
+  - [ ] Simple certificate management (no variations)
+  - [ ] Date certified and expiration tracking
 
----
+- [ ] **Skills Management section**
+  - [ ] Create enhanced SkillsSection.tsx component
+  - [ ] Skill categorization (Hard/Soft/Transferable)  
+  - [ ] Years of experience per skill (optional)
+  - [ ] Skill descriptions (textarea editing)
+  - [ ] Skill search and filtering
 
-## 🎉 Major Accomplishments - Week 3
+### 🧩 **Integration with Resume Builder**
+- [ ] **Add Skill Bank as subtab in Resume Builder**
+  - [ ] Update ResumeBuilderPage.tsx tab structure
+  - [ ] Add Skill Bank between User Profile and Resume Builder tabs
+  - [ ] Implement navigation and state management
 
-### **✅ Profile-Resume Integration Complete**
-Seamless workflow integration between User Profile and Resume systems:
+- [ ] **Data flow integration**
+  - [ ] Connect Skill Bank data to Resume sections
+  - [ ] Enable Resume sections to fetch from Skill Bank
+  - [ ] Update Resume creation workflow to use Skill Bank data
+  - [ ] Add "use from skill bank" options in resume forms
 
-### **🔗 Integration Features Implemented**
-- **"Create Resume" Button**: Prominent CTA in Profile Dashboard for resume creation
-- **Signal-Based Navigation**: Sophisticated inter-system communication mechanism
-- **Data Pre-Population**: Automatic import of profile data into new resumes
-- **Smart Field Mapping**: Contact info, skills, education, and summary auto-populated
-- **Graceful Handling**: Robust error handling for missing or incomplete profile data
+### 🔄 **Data Migration & Consolidation**
+- [ ] **Contact info consolidation**
+  - [ ] Ensure UserProfile and SkillBank share contact data
+  - [ ] Create migration for existing data
+  - [ ] Update both systems to use shared data source
 
-### **🎯 User Experience Enhancements**
-- **One-Click Resume Creation**: Users can create resumes directly from their profile
-- **Seamless Navigation**: Smooth transitions between Profile and Resume systems
-- **Data Consistency**: Profile information automatically synchronized with resume creation
-- **Professional Workflow**: Complete job application preparation pipeline
+- [ ] **Skills data migration**
+  - [ ] Migrate existing UserProfile.skills to enhanced Skill Bank
+  - [ ] Preserve existing skill data during transition
+  - [ ] Update skill bank with categorization for existing skills
 
----
+### 🧪 **Testing & Validation**
+- [ ] **Backend testing**
+  - [ ] Unit tests for all Skill Bank models
+  - [ ] API endpoint testing
+  - [ ] Data validation testing
+  - [ ] Migration testing
 
-## 🧪 Testing Requirements
+- [ ] **Frontend testing**  
+  - [ ] Component testing for all Skill Bank sections
+  - [ ] Integration testing with Resume Builder
+  - [ ] User journey testing
+  - [ ] Data flow testing
 
-### **Week 1-2: Section Editor Testing**
-- [ ] **Unit Tests**
-  - [ ] Form validation testing for all new sections
-  - [ ] Dynamic entry management testing
-  - [ ] Data persistence testing
-
-- [ ] **Integration Tests**
-  - [ ] Complete resume creation workflow testing
-  - [ ] Resume saving and loading testing
-  - [ ] Preview generation with all sections
-
-### **Week 3: Integration Testing**
-- [ ] **Profile-Resume Flow Testing**
-  - [ ] Profile to resume creation workflow
-  - [ ] Data import accuracy testing
-  - [ ] Navigation flow testing
-
-- [ ] **User Experience Testing**
-  - [ ] Complete user journey testing (Profile → Resume → Export)
-  - [ ] Cross-system navigation testing
-  - [ ] Error handling and edge cases
-
----
-
-## ✅ Success Criteria
-
-**After completing this assignment, users will be able to:**
-1. ✅ Create comprehensive resumes with all professional sections
-2. ✅ Seamlessly move between profile management and resume building
-3. ✅ Import profile data into resumes automatically
-4. ✅ Navigate intuitively between profile and resume systems
-5. ✅ Experience a complete job application preparation workflow
-
-**Technical Success Criteria:**
-- ✅ All resume sections have full CRUD functionality
-- ✅ Profile data correctly imports to resume builder
-- ✅ Navigation flows work smoothly without broken states
-- ✅ All forms have proper validation and error handling
-- ✅ Resume preview reflects all section data accurately
+- [ ] **End-to-end testing**
+  - [ ] Complete Skill Bank workflows
+  - [ ] Integration with resume creation
+  - [ ] Data persistence and retrieval
+  - [ ] Performance testing
 
 ---
 
-## 🎯 Current Phase Status
+## 📅 **Timeline & Priorities**
 
-**Week 1-2 Status**: ✅ **COMPLETED**
-- ✅ Backend APIs are complete and tested
-- ✅ All resume section editors are implemented and functional
-- ✅ User Profile system is fully functional
-- ✅ Resume system foundation is solid
-- ✅ Projects & Certifications sections are complete
+### **Week 1: Profile Dashboard Redesign**
+- Complete all Profile Dashboard updates
+- Test and validate changes
+- Deploy profile improvements
 
-**Week 3 Status**: ✅ **COMPLETED**
-- ✅ Profile-Resume integration workflow fully implemented
-- ✅ "Create Resume" button added to Profile Dashboard
-- ✅ Signal-based navigation system working smoothly
-- ✅ Profile data auto-population in Resume Builder functional
-- ✅ Cross-system navigation and user experience optimized
+### **Week 2-3: Skill Bank Backend** 
+- Design and implement enhanced data models
+- Create all API endpoints
+- Backend testing and validation
 
-**🎆 ASSIGNMENT STATUS**: ✅ **FULLY COMPLETED**
+### **Week 4-5: Skill Bank Frontend**
+- Build all UI components
+- Integrate with backend APIs
+- Integration testing
 
-**Next Recommended Actions**:
-- Advanced features (auto-save, real-time preview)
-- Skills Bank UI implementation
-- Enhanced testing and quality assurance
-- Performance optimization and refinements
+### **Week 6: Integration & Testing**
+- Resume Builder integration
+- End-to-end testing
+- Performance optimization
+- Final deployment
 
 ---
 
-**Assignment Created**: 2025-01-18
-**Estimated Completion**: 3 weeks
-**Dependencies**: None - Ready to start immediately
+## 🎯 **Success Criteria**
+
+### **Profile Dashboard**
+- [x] Quick Actions section removed cleanly
+- [x] Create Resume button accessible from header
+- [x] Personal information includes City, State, LinkedIn, Portfolio
+- [x] Skills removed from Professional Details display
+- [x] All profile functionality maintained
+
+### **Skill Bank**  
+- [ ] Comprehensive skill management with categorization
+- [ ] Content variation system working for summaries/experience/education/projects
+- [ ] Single source of truth for contact information
+- [ ] Seamless integration with Resume Builder
+- [ ] All data properly migrated and consolidated
+- [ ] Performance meets user expectations
+
+---
+
+**Assignment Started**: 2025-01-19  
+**Target Completion**: 2025-02-16 (4 weeks)  
+**Current Phase**: Profile Dashboard Redesign  
+**Next Milestone**: Complete Profile Dashboard updates and testing
