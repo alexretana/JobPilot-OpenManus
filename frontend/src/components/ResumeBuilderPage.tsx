@@ -13,7 +13,7 @@ interface ResumeBuilderProps {
 
 type ResumeTab = 'profile' | 'resume';
 
-export const ResumeBuilder: Component<ResumeBuilderProps> = props => {
+export const ResumeBuilderPage: Component<ResumeBuilderProps> = props => {
   const [activeTab, setActiveTab] = createSignal<ResumeTab>('profile');
   const [shouldCreateNewResume, setShouldCreateNewResume] = createSignal(false);
 
@@ -242,4 +242,4 @@ export const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   );
 };
 
-export default ResumeBuilder;
+export default ResumeBuilderPage;
