@@ -126,7 +126,7 @@ export const JobSearchManager: Component<JobSearchManagerProps> = props => {
       {/* Tab Content */}
       <div class='flex-1 min-h-0'>
         <Show when={activeTab() === 'jobs'}>
-          <div class='h-full bg-base-100 rounded-lg p-4'>
+          <div class='h-full bg-base-100 rounded-lg p-4 overflow-y-auto'>
             <JobsContainer onJobSelect={handleJobSelect} onJobSave={handleJobSave} />
           </div>
         </Show>
