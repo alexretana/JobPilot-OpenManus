@@ -26,7 +26,7 @@ export const JobsContainer: Component<JobsContainerProps> = props => {
   };
 
   return (
-    <div class='w-full h-full flex flex-col'>
+    <div class='container w-full h-full flex flex-col mx-auto'>
       {/* Tab Navigation */}
       <div class='tabs tabs-boxed justify-start mb-4'>
         <button

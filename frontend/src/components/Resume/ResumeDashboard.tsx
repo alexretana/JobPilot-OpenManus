@@ -44,7 +44,7 @@ const ResumeDashboard: Component<ResumeDashboardProps> = props => {
   };
 
   return (
-    <div class='h-full'>
+    <div class='container mx-auto h-full'>
       {/* Resume List View */}
       <Show when={currentView() === 'list'}>
         <ResumeList
