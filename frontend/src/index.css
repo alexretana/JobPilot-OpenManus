@@ -91,15 +91,12 @@ body,
     @apply rounded-full border-none px-6 py-2 transition-all duration-300;
     @apply hover:shadow-xl hover:scale-105 focus:scale-105;
     @apply flex items-center justify-center;
-    line-height: 1;
-    align-items: center;
-    display: flex;
   }
 
-  .ai-chat-btn svg,
   .ai-chat-btn span {
-    vertical-align: middle;
-    line-height: 1;
+    @apply leading-none;
+    display: inline-flex;
+    align-items: center;
   }
 
   .ai-chat-btn.active {
