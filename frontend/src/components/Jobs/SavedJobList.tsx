@@ -5,8 +5,8 @@
 
 import { Component, createSignal, createEffect, For, Show } from 'solid-js';
 import { JobCard } from './JobCard';
-import { jobApi } from '../services/jobApi';
-import type { SavedJob } from '../services/jobApi';
+import { jobApi } from '../../services/jobApi';
+import type { SavedJob } from '../../services/jobApi';
 
 interface SavedJobListProps {
   onJobSelect?: (jobId: string) => void;

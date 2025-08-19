@@ -4,8 +4,8 @@
  */
 
 import { Component, createSignal, createEffect, Show, For } from 'solid-js';
-import { jobApi, type JobDetails } from '../services/jobApi';
-import { ApplicationTimeline } from './ApplicationTimeline';
+import { jobApi, type JobDetails } from '../../services/jobApi';
+import { ApplicationTimeline } from '../Applications/ApplicationTimeline';
 
 interface JobDetailsModalProps {
   jobId: string | null;

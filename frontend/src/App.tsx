@@ -1,11 +1,11 @@
 import { Component, createSignal, onMount, onCleanup, Show } from 'solid-js';
-import Header from './components/Header';
-import Chat from './components/Chat';
-import { JobDetailsModal } from './components/JobDetailsModal';
-import BrowserViewport from './components/BrowserViewport';
-import TimelineModal from './components/TimelineModal';
-import StatusPanel from './components/StatusPanel';
-import JobSearchManager from './components/JobSearchManager';
+import Header from './components/UI/Header';
+import Chat from './components/UI/Chat';
+import { JobDetailsModal } from './components/Jobs/JobDetailsModal';
+import BrowserViewport from './components/UI/BrowserViewport';
+import TimelineModal from './components/Timeline/TimelineModal';
+import StatusPanel from './components/UI/StatusPanel';
+import JobSearchManager from './components/Jobs/JobSearchManager';
 import ResumeBuilderPage from './components/ResumeBuilderPage';
 import { webSocketService } from './services/websocket';
 import type {

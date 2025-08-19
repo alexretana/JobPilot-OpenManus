@@ -1,5 +1,5 @@
 import { Component, createSignal, onMount } from 'solid-js';
-import type { ActivityLogEntry } from '../types';
+import type { ActivityLogEntry } from '../../types';
 
 interface HeaderProps {
   activities?: () => ActivityLogEntry[];

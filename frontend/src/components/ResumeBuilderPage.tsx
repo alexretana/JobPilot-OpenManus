@@ -1,7 +1,7 @@
 import { Component, createSignal, onMount, Show } from 'solid-js';
 import { ProfileDashboard } from './UserProfile';
 import { ResumeDashboard } from './Resume';
-import Breadcrumb, { type BreadcrumbItem } from './Breadcrumb';
+import Breadcrumb, { type BreadcrumbItem } from './Shared/Breadcrumb';
 
 interface ResumeBuilderProps {
   userId?: string;

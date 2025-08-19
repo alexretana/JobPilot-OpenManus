@@ -4,8 +4,8 @@
  */
 
 import { Component, Show } from 'solid-js';
-import type { Job } from '../services/jobApi';
-import { jobApi } from '../services/jobApi';
+import type { Job } from '../../services/jobApi';
+import { jobApi } from '../../services/jobApi';
 
 interface JobCardProps {
   job: Job;

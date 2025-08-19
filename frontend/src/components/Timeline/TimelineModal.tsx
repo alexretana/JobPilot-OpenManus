@@ -1,7 +1,7 @@
 import { Component, createSignal, createEffect, For, Show } from 'solid-js';
-import type { TimelineEvent, ActivityLogEntry } from '../types';
-import { TimelineEventType } from '../types';
-import { timelineApi } from '../services/timelineApi';
+import type { TimelineEvent, ActivityLogEntry } from '../../types';
+import { TimelineEventType } from '../../types';
+import { timelineApi } from '../../services/timelineApi';
 import { TimelineEventCard } from './TimelineEventCard';
 import { CreateEventModal } from './CreateEventModal';
 

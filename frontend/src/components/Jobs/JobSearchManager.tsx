@@ -1,7 +1,7 @@
 import { Component, createSignal, onMount, Show } from 'solid-js';
 import { JobsContainer } from './JobsContainer';
-import ApplicationsManager from './ApplicationsManager';
-import LeadsManager from './LeadsManager';
+import ApplicationsManager from '../Applications/ApplicationsManager';
+import LeadsManager from '../Shared/LeadsManager';
 
 interface JobSearchManagerProps {
   onJobSelect?: (jobId: string) => void;

@@ -1,6 +1,6 @@
 import { createSignal, Show, createEffect } from 'solid-js';
-import { TimelineEventType } from '../types';
-import { timelineApi } from '../services/timelineApi';
+import { TimelineEventType } from '../../types';
+import { timelineApi } from '../../services/timelineApi';
 
 interface CreateEventModalProps {
   userProfileId: string;

@@ -1,7 +1,7 @@
 import { createSignal, createEffect, For, Show } from 'solid-js';
-import type { TimelineEvent } from '../types';
-import { TimelineEventType } from '../types';
-import { timelineApi } from '../services/timelineApi';
+import type { TimelineEvent } from '../../types';
+import { TimelineEventType } from '../../types';
+import { timelineApi } from '../../services/timelineApi';
 
 interface MiniTimelinePreviewProps {
   jobId: string;

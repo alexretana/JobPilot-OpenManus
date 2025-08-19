@@ -5,8 +5,8 @@
 
 import { Component, createSignal, createEffect, For, Show } from 'solid-js';
 import { JobCard } from './JobCard';
-import { jobApi } from '../services/jobApi';
-import type { Job, JobSearchFilters } from '../services/jobApi';
+import { jobApi } from '../../services/jobApi';
+import type { Job, JobSearchFilters } from '../../services/jobApi';
 
 interface JobListProps {
   filters?: JobSearchFilters;

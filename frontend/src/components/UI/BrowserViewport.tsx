@@ -1,5 +1,5 @@
 import { Component } from 'solid-js';
-import type { BrowserState } from '../types';
+import type { BrowserState } from '../../types';
 
 interface BrowserViewportProps {
   browserState: () => BrowserState;

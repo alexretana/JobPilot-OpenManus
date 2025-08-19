@@ -1,5 +1,5 @@
 import { Component, For } from 'solid-js';
-import type { ActivityLogEntry } from '../types';
+import type { ActivityLogEntry } from '../../types';
 
 interface ActivityLogProps {
   activities: () => ActivityLogEntry[];

@@ -1,6 +1,6 @@
 import { Component, createSignal, createEffect, For } from 'solid-js';
-import type { ChatMessage, ProgressState } from '../types';
-import { webSocketService } from '../services/websocket';
+import type { ChatMessage, ProgressState } from '../../types';
+import { webSocketService } from '../../services/websocket';
 
 interface ChatProps {
   messages: () => ChatMessage[];

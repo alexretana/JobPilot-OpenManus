@@ -1,7 +1,7 @@
 import { createSignal, Show, createEffect } from 'solid-js';
-import { TimelineEventType } from '../types';
-import type { TimelineEvent } from '../types';
-import { timelineApi } from '../services/timelineApi';
+import type { TimelineEvent } from '../../types';
+import { TimelineEventType } from '../../types';
+import { timelineApi } from '../../services/timelineApi';
 
 interface EditEventModalProps {
   event: TimelineEvent;

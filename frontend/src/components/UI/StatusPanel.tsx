@@ -1,7 +1,7 @@
 import { Component, createSignal, onMount, onCleanup } from 'solid-js';
-import { apiService } from '../services/api';
-import { webSocketService } from '../services/websocket';
-import type { HealthCheckResponse } from '../types';
+import { apiService } from '../../services/api';
+import { webSocketService } from '../../services/websocket';
+import type { HealthCheckResponse } from '../../types';
 
 interface StatusPanelProps {
   onQuickAction: (query: string) => void;
