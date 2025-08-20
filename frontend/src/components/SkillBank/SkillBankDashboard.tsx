@@ -200,260 +200,279 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
 
       {/* Main Content */}
       <Show when={skillBank() && !skillBank.loading}>
-        <div class='flex-1 flex flex-col'>
-          {/* Tab Navigation */}
-          <div class='tabs tabs-boxed mb-6 self-start'>
-            <button
-              class={`tab tab-lg gap-2 ${activeTab() === 'contact' ? 'tab-active' : ''}`}
-              onClick={() => handleTabChange('contact')}
-            >
-              <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
-                ></path>
-              </svg>
-              Contact Info
-            </button>
+        <div class='flex-1 flex gap-6'>
+          {/* Left Sidebar Menu */}
+          <ul class='menu bg-base-200 rounded-box w-64 p-2 h-fit sticky top-0'>
+            <li>
+              <button
+                class={activeTab() === 'contact' ? 'active' : ''}
+                onClick={() => handleTabChange('contact')}
+              >
+                <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+                  ></path>
+                </svg>
+                Contact Info
+              </button>
+            </li>
 
-            <button
-              class={`tab tab-lg gap-2 ${activeTab() === 'skills' ? 'tab-active' : ''}`}
-              onClick={() => handleTabChange('skills')}
-            >
-              <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
+            <li>
+              <button
+                class={activeTab() === 'skills' ? 'active' : ''}
+                onClick={() => handleTabChange('skills')}
+              >
+                <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
+                  />
+                </svg>
+                Skills
+                <div class='badge badge-primary badge-sm ml-auto'>{tabCounts().skills}</div>
+              </button>
+            </li>
+
+            <li>
+              <button
+                class={activeTab() === 'summaries' ? 'active' : ''}
+                onClick={() => handleTabChange('summaries')}
+              >
+                <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                  />
+                </svg>
+                Professional Summaries
+                <div class='badge badge-secondary badge-sm ml-auto'>{tabCounts().summaries}</div>
+              </button>
+            </li>
+
+            <li>
+              <button
+                class={activeTab() === 'experience' ? 'active' : ''}
+                onClick={() => handleTabChange('experience')}
+              >
+                <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z'
+                  />
+                </svg>
+                Work Experience
+                <div class='badge badge-accent badge-sm ml-auto'>{tabCounts().experiences}</div>
+              </button>
+            </li>
+
+            <li>
+              <button
+                class={activeTab() === 'education' ? 'active' : ''}
+                onClick={() => handleTabChange('education')}
+              >
+                <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M12 14l9-5-9-5-9 5 9 5z'
+                  ></path>
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M12 14l6.16-3.422A12.083 12.083 0 0121 18.782V12M4.84 10.578A12.083 12.083 0 003 12v6.782'
+                  ></path>
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M12 21v-7'
+                  ></path>
+                </svg>
+                Education
+                <div class='badge badge-info badge-sm ml-auto'>{tabCounts().education}</div>
+              </button>
+            </li>
+
+            <li>
+              <button
+                class={activeTab() === 'projects' ? 'active' : ''}
+                onClick={() => handleTabChange('projects')}
+              >
+                <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
+                  ></path>
+                </svg>
+                Projects
+                <div class='badge badge-info badge-sm ml-auto'>{tabCounts().projects}</div>
+              </button>
+            </li>
+
+            <li>
+              <button
+                class={activeTab() === 'certifications' ? 'active' : ''}
+                onClick={() => handleTabChange('certifications')}
+              >
+                <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                  <path
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    stroke-width='2'
+                    d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+                  ></path>
+                </svg>
+                Certifications
+                <div class='badge badge-info badge-sm ml-auto'>{tabCounts().certifications}</div>
+              </button>
+            </li>
+          </ul>
+
+          {/* Main Content Area with Scrolling */}
+          <div class='flex-1 flex flex-col min-h-0'>
+            {/* Tab Content - Scrollable */}
+            <div class='flex-1 overflow-y-auto pr-2'>
+              <Show when={activeTab() === 'contact'}>
+                <ContactInfoSection
+                  skillBank={skillBank()!}
+                  onUpdate={handleRefresh}
+                  loading={skillBank.loading}
                 />
-              </svg>
-              Skills
-              <div class='badge badge-primary badge-sm'>{tabCounts().skills}</div>
-            </button>
+              </Show>
 
-            <button
-              class={`tab tab-lg gap-2 ${activeTab() === 'summaries' ? 'tab-active' : ''}`}
-              onClick={() => handleTabChange('summaries')}
-            >
-              <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+              <Show when={activeTab() === 'skills'}>
+                <SkillsSection
+                  skillBank={skillBank()!}
+                  onUpdate={handleRefresh}
+                  loading={skillBank.loading}
                 />
-              </svg>
-              Professional Summaries
-              <div class='badge badge-secondary badge-sm'>{tabCounts().summaries}</div>
-            </button>
+              </Show>
 
-            <button
-              class={`tab tab-lg gap-2 ${activeTab() === 'experience' ? 'tab-active' : ''}`}
-              onClick={() => handleTabChange('experience')}
-            >
-              <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z'
+              <Show when={activeTab() === 'summaries'}>
+                <SummariesSection
+                  skillBank={skillBank()!}
+                  onUpdate={handleRefresh}
+                  loading={skillBank.loading}
                 />
-              </svg>
-              Work Experience
-              <div class='badge badge-accent badge-sm'>{tabCounts().experiences}</div>
-            </button>
+              </Show>
 
-            <button
-              class={`tab tab-lg gap-2 ${activeTab() === 'education' ? 'tab-active' : ''}`}
-              onClick={() => handleTabChange('education')}
-            >
-              <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M12 14l9-5-9-5-9 5 9 5z'
-                ></path>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M12 14l6.16-3.422A12.083 12.083 0 0121 18.782V12M4.84 10.578A12.083 12.083 0 003 12v6.782'
-                ></path>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M12 21v-7'
-                ></path>
-              </svg>
-              Education
-              <div class='badge badge-info badge-sm'>{tabCounts().education}</div>
-            </button>
-
-            <button
-              class={`tab tab-lg gap-2 ${activeTab() === 'projects' ? 'tab-active' : ''}`}
-              onClick={() => handleTabChange('projects')}
-            >
-              <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
-                ></path>
-              </svg>
-              Projects
-              <div class='badge badge-info badge-sm'>{tabCounts().projects}</div>
-            </button>
-
-            <button
-              class={`tab tab-lg gap-2 ${activeTab() === 'certifications' ? 'tab-active' : ''}`}
-              onClick={() => handleTabChange('certifications')}
-            >
-              <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
-                ></path>
-              </svg>
-              Certifications
-              <div class='badge badge-info badge-sm'>{tabCounts().certifications}</div>
-            </button>
-          </div>
-
-          {/* Tab Content */}
-          <div class='flex-1'>
-            <Show when={activeTab() === 'contact'}>
-              <ContactInfoSection
-                skillBank={skillBank()!}
-                onUpdate={handleRefresh}
-                loading={skillBank.loading}
-              />
-            </Show>
-
-            <Show when={activeTab() === 'skills'}>
-              <SkillsSection
-                skillBank={skillBank()!}
-                onUpdate={handleRefresh}
-                loading={skillBank.loading}
-              />
-            </Show>
-
-            <Show when={activeTab() === 'summaries'}>
-              <SummariesSection
-                skillBank={skillBank()!}
-                onUpdate={handleRefresh}
-                loading={skillBank.loading}
-              />
-            </Show>
-
-            <Show when={activeTab() === 'experience'}>
-              <ExperienceSection
-                skillBank={skillBank()!}
-                onUpdate={handleRefresh}
-                loading={skillBank.loading}
-              />
-            </Show>
-
-            <Show when={activeTab() === 'education'}>
-              <EducationSection
-                skillBank={skillBank()!}
-                onUpdate={handleRefresh}
-                loading={skillBank.loading}
-              />
-            </Show>
-
-            <Show when={activeTab() === 'projects'}>
-              <ProjectsSection
-                skillBank={skillBank()!}
-                onUpdate={handleRefresh}
-                loading={skillBank.loading}
-              />
-            </Show>
-
-            <Show when={activeTab() === 'certifications'}>
-              <CertificationsSection
-                skillBank={skillBank()!}
-                onUpdate={handleRefresh}
-                loading={skillBank.loading}
-              />
-            </Show>
-          </div>
-        </div>
-
-        {/* Summary Stats Footer */}
-        <div class='stats stats-vertical lg:stats-horizontal shadow-lg bg-base-200'>
-          <div class='stat'>
-            <div class='stat-figure text-primary'>
-              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
+              <Show when={activeTab() === 'experience'}>
+                <ExperienceSection
+                  skillBank={skillBank()!}
+                  onUpdate={handleRefresh}
+                  loading={skillBank.loading}
                 />
-              </svg>
+              </Show>
+
+              <Show when={activeTab() === 'education'}>
+                <EducationSection
+                  skillBank={skillBank()!}
+                  onUpdate={handleRefresh}
+                  loading={skillBank.loading}
+                />
+              </Show>
+
+              <Show when={activeTab() === 'projects'}>
+                <ProjectsSection
+                  skillBank={skillBank()!}
+                  onUpdate={handleRefresh}
+                  loading={skillBank.loading}
+                />
+              </Show>
+
+              <Show when={activeTab() === 'certifications'}>
+                <CertificationsSection
+                  skillBank={skillBank()!}
+                  onUpdate={handleRefresh}
+                  loading={skillBank.loading}
+                />
+              </Show>
             </div>
-            <div class='stat-title'>Total Skills</div>
-            <div class='stat-value text-primary'>{tabCounts().skills}</div>
-            <div class='stat-desc'>{Object.keys(skillBank()?.skills || {}).length} categories</div>
-          </div>
 
-          <div class='stat'>
-            <div class='stat-figure text-secondary'>
-              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-                />
-              </svg>
-            </div>
-            <div class='stat-title'>Summary Variations</div>
-            <div class='stat-value text-secondary'>{tabCounts().summaries}</div>
-            <div class='stat-desc'>Ready for tailoring</div>
-          </div>
+            {/* Summary Stats Footer - Fixed at bottom */}
+            <div class='mt-6 stats stats-vertical lg:stats-horizontal shadow-lg bg-base-200 flex-shrink-0'>
+              <div class='stat'>
+                <div class='stat-figure text-primary'>
+                  <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path
+                      stroke-linecap='round'
+                      stroke-linejoin='round'
+                      stroke-width='2'
+                      d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
+                    />
+                  </svg>
+                </div>
+                <div class='stat-title'>Total Skills</div>
+                <div class='stat-value text-primary'>{tabCounts().skills}</div>
+                <div class='stat-desc'>
+                  {Object.keys(skillBank()?.skills || {}).length} categories
+                </div>
+              </div>
 
-          <div class='stat'>
-            <div class='stat-figure text-accent'>
-              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z'
-                />
-              </svg>
-            </div>
-            <div class='stat-title'>Work Experience</div>
-            <div class='stat-value text-accent'>{tabCounts().experiences}</div>
-            <div class='stat-desc'>Professional roles</div>
-          </div>
+              <div class='stat'>
+                <div class='stat-figure text-secondary'>
+                  <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path
+                      stroke-linecap='round'
+                      stroke-linejoin='round'
+                      stroke-width='2'
+                      d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                    />
+                  </svg>
+                </div>
+                <div class='stat-title'>Summary Variations</div>
+                <div class='stat-value text-secondary'>{tabCounts().summaries}</div>
+                <div class='stat-desc'>Ready for tailoring</div>
+              </div>
 
-          <div class='stat'>
-            <div class='stat-figure text-info'>
-              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
-                />
-              </svg>
-            </div>
-            <div class='stat-title'>Projects & Certs</div>
-            <div class='stat-value text-info'>
-              {tabCounts().projects + tabCounts().certifications}
-            </div>
-            <div class='stat-desc'>
-              {tabCounts().projects} projects, {tabCounts().certifications} certs
+              <div class='stat'>
+                <div class='stat-figure text-accent'>
+                  <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path
+                      stroke-linecap='round'
+                      stroke-linejoin='round'
+                      stroke-width='2'
+                      d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z'
+                    />
+                  </svg>
+                </div>
+                <div class='stat-title'>Work Experience</div>
+                <div class='stat-value text-accent'>{tabCounts().experiences}</div>
+                <div class='stat-desc'>Professional roles</div>
+              </div>
+
+              <div class='stat'>
+                <div class='stat-figure text-info'>
+                  <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                    <path
+                      stroke-linecap='round'
+                      stroke-linejoin='round'
+                      stroke-width='2'
+                      d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
+                    />
+                  </svg>
+                </div>
+                <div class='stat-title'>Projects & Certs</div>
+                <div class='stat-value text-info'>
+                  {tabCounts().projects + tabCounts().certifications}
+                </div>
+                <div class='stat-desc'>
+                  {tabCounts().projects} projects, {tabCounts().certifications} certs
+                </div>
+              </div>
             </div>
           </div>
         </div>
