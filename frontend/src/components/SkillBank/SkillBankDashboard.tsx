@@ -144,76 +144,65 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
           </h1>
         </div>
 
-        {/* Stats Cards (moved from footer) */}
-        <div class='stats stats-horizontal shadow-lg bg-base-200 flex-shrink-0 m-2 p-2'>
-          <div class='stat p-2'>
-            <div class='stat-figure text-primary p-2'>
-              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
-                />
-              </svg>
-            </div>
-            <div class='stat-title p-2'>Total Skills</div>
-            <div class='stat-value text-primary p-2'>{tabCounts().skills}</div>
-            <div class='stat-desc p-2'>
-              {Object.keys(skillBank()?.skills || {}).length} categories
-            </div>
+        {/* Stats Cards (moved from footer) - Compact version */}
+        <div class='flex gap-1 items-center flex-wrap'>
+          <div class='bg-base-200 rounded px-2 py-1 flex items-center gap-1 text-sm shadow-sm'>
+            <svg class='w-3 h-3 text-primary' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
+              />
+            </svg>
+            <span class='font-medium text-primary'>{tabCounts().skills}</span>
+            <span class='text-xs opacity-70'>Skills</span>
           </div>
 
-          <div class='stat p-2'>
-            <div class='stat-figure text-secondary p-2'>
-              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-                />
-              </svg>
-            </div>
-            <div class='stat-title p-2'>Summary Variations</div>
-            <div class='stat-value text-secondary p-2'>{tabCounts().summaries}</div>
-            <div class='stat-desc p-2'>Ready for tailoring</div>
+          <div class='bg-base-200 rounded px-2 py-1 flex items-center gap-1 text-sm shadow-sm'>
+            <svg
+              class='w-3 h-3 text-secondary'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+              />
+            </svg>
+            <span class='font-medium text-secondary'>{tabCounts().summaries}</span>
+            <span class='text-xs opacity-70'>Summaries</span>
           </div>
 
-          <div class='stat p-2'>
-            <div class='stat-figure text-accent p-2'>
-              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z'
-                />
-              </svg>
-            </div>
-            <div class='stat-title p-2'>Work Experience</div>
-            <div class='stat-value text-accent p-2'>{tabCounts().experiences}</div>
-            <div class='stat-desc p-2'>Professional roles</div>
+          <div class='bg-base-200 rounded px-2 py-1 flex items-center gap-1 text-sm shadow-sm'>
+            <svg class='w-3 h-3 text-accent' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z'
+              />
+            </svg>
+            <span class='font-medium text-accent'>{tabCounts().experiences}</span>
+            <span class='text-xs opacity-70'>Experience</span>
           </div>
 
-          <div class='stat p-2'>
-            <div class='stat-figure text-info p-2'>
-              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
-                />
-              </svg>
-            </div>
-            <div class='stat-title p-2'>Projects & Certs</div>
-            <div class='stat-value text-info p-2'>
+          <div class='bg-base-200 rounded px-2 py-1 flex items-center gap-1 text-sm shadow-sm'>
+            <svg class='w-3 h-3 text-info' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
+              />
+            </svg>
+            <span class='font-medium text-info'>
               {tabCounts().projects + tabCounts().certifications}
-            </div>
-            <div class='stat-desc p-2'>
-              {tabCounts().projects} projects, {tabCounts().certifications} certs
-            </div>
+            </span>
+            <span class='text-xs opacity-70'>Projects</span>
           </div>
         </div>
       </div>
