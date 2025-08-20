@@ -26,6 +26,15 @@ from sqlalchemy.orm import relationship, sessionmaker
 
 from .base import Base
 
+# Import enhanced skill bank models
+try:
+    from .skill_bank_models import EnhancedSkillBankDB
+except ImportError:
+    # Fallback for development - create a placeholder
+    class EnhancedSkillBankDB:
+        pass
+
+
 # =====================================
 # Enums for Job-Related Classifications
 # =====================================
@@ -751,7 +760,9 @@ class UserProfileDB(Base):
     # Relationships
     applications = relationship("JobApplicationDB", back_populates="user_profile")
     resumes = relationship("ResumeDB", back_populates="user")
-    skill_bank = relationship("SkillBankDB", back_populates="user", uselist=False)
+    skill_bank = relationship(
+        "EnhancedSkillBankDB", back_populates="user", uselist=False
+    )
 
 
 class JobApplicationDB(Base):

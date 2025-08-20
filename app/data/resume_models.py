@@ -342,10 +342,14 @@ class ResumeTemplateDB(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
-class SkillBankDB(Base):
-    """Skills bank database model"""
+# NOTE: SkillBankDB has been replaced by EnhancedSkillBankDB in skill_bank_models.py
+# This class is kept for backward compatibility during migration
 
-    __tablename__ = "skill_banks"
+
+class SkillBankDB(Base):
+    """Skills bank database model (LEGACY - use EnhancedSkillBankDB for new features)"""
+
+    __tablename__ = "skill_banks_legacy"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = Column(String, ForeignKey("user_profiles.id"), nullable=False)
@@ -362,8 +366,8 @@ class SkillBankDB(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
-    user = relationship("UserProfileDB", back_populates="skill_bank")
+    # Relationships - REMOVED to avoid conflicts with EnhancedSkillBankDB
+    # user = relationship("UserProfileDB", back_populates="legacy_skill_bank")
 
 
 class ResumeVersionDB(Base):
