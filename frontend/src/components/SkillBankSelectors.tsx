@@ -143,9 +143,9 @@ interface ExperienceOption {
   id: string;
   company: string;
   position: string;
-  location?: string;
+  location?: string | null;
   start_date: string;
-  end_date?: string;
+  end_date?: string | null;
   is_current: boolean;
   description: string;
   achievements: string[];
@@ -161,14 +161,10 @@ interface ExperienceSelectorProps {
 }
 
 export const ExperienceSelector: Component<ExperienceSelectorProps> = props => {
-  const [variationSelections, setVariationSelections] = createSignal<Record<string, string>>({});
-
   const handleUseSelected = () => {
     const selectedExperiences = props.experienceOptions
       .filter(exp => props.selectedExperienceIds.includes(exp.id))
       .map(exp => {
-        const variationId = variationSelections()[exp.id];
-
         return {
           company: exp.company,
           position: exp.position,

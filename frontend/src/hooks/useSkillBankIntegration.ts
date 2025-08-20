@@ -1,14 +1,5 @@
 import { createSignal, createResource, createMemo } from 'solid-js';
 import { skillBankApiService } from '../services/skillBankApi';
-import type {
-  SkillBankResponse,
-  EnhancedSkill,
-  ExperienceEntry,
-  EducationEntry,
-  ProjectEntry,
-  Certification,
-  SummaryVariation,
-} from '../types';
 
 /**
  * Hook to manage Skill Bank integration for Resume Builder sections
@@ -154,7 +145,7 @@ export function useSkillBankIntegration(userId: string) {
     const skills: any[] = [];
 
     // Flatten skills from all categories
-    Object.entries(data.skills).forEach(([category, categorySkills]) => {
+    Object.entries(data.skills).forEach(([, categorySkills]) => {
       categorySkills.forEach(skill => {
         skills.push({
           name: skill.name,
@@ -273,6 +264,44 @@ export function useSkillBankIntegration(userId: string) {
     }));
   };
 
+  // Helper functions to set individual toggles
+  const setToggle = (section: string, enabled: boolean) => {
+    switch (section) {
+      case 'contact':
+        setUseSkillBankForContact(enabled);
+        break;
+      case 'summary':
+        setUseSkillBankForSummary(enabled);
+        break;
+      case 'experience':
+        setUseSkillBankForExperience(enabled);
+        break;
+      case 'education':
+        setUseSkillBankForEducation(enabled);
+        break;
+      case 'projects':
+        setUseSkillBankForProjects(enabled);
+        break;
+      case 'skills':
+        setUseSkillBankForSkills(enabled);
+        break;
+      case 'certifications':
+        setUseSkillBankForCertifications(enabled);
+        break;
+    }
+  };
+
+  // Helper function to get all toggles
+  const toggles = () => ({
+    contact: useSkillBankForContact(),
+    summary: useSkillBankForSummary(),
+    experience: useSkillBankForExperience(),
+    education: useSkillBankForEducation(),
+    projects: useSkillBankForProjects(),
+    skills: useSkillBankForSkills(),
+    certifications: useSkillBankForCertifications(),
+  });
+
   return {
     // Toggle states
     useSkillBankForContact,
@@ -290,6 +319,10 @@ export function useSkillBankIntegration(userId: string) {
     useSkillBankForCertifications,
     setUseSkillBankForCertifications,
 
+    // Aggregate toggle interface (expected by ResumeBuilder)
+    toggles,
+    setToggle,
+
     // Data
     skillBankData,
     skillBankContactInfo,
@@ -299,6 +332,11 @@ export function useSkillBankIntegration(userId: string) {
     skillBankProjectOptions,
     skillBankSkillsOptions,
     skillBankCertificationsOptions,
+
+    // Aliases expected by ResumeBuilder
+    summaries: skillBankSummaryOptions,
+    experiences: skillBankExperienceOptions,
+    skills: skillBankSkillsOptions,
 
     // Conversion utilities
     convertSkillBankSummaryToResume,
@@ -311,5 +349,6 @@ export function useSkillBankIntegration(userId: string) {
     // Loading states
     isLoading: () => skillBankData.loading,
     hasError: () => skillBankData.error,
+    loading: () => skillBankData.loading, // Alias expected by ResumeBuilder
   };
 }

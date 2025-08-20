@@ -45,6 +45,10 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   // Initialize Skill Bank integration
   const skillBank = useSkillBankIntegration(props.userId);
 
+  // State for managing skill bank selections
+  const [selectedExperienceIds, setSelectedExperienceIds] = createSignal<string[]>([]);
+  const [selectedSkills, setSelectedSkills] = createSignal<string[]>([]);
+
   // Load existing resume if editing, or populate with profile data for new resume
   onMount(async () => {
     if (props.resumeId) {
@@ -881,19 +885,30 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                 <div class='flex items-center justify-between mb-4'>
                   <h3 class='text-xl font-semibold'>📝 Professional Summary</h3>
                   <SkillBankToggle
-                    enabled={skillBank.toggles().summary}
-                    onChange={enabled => skillBank.setToggle('summary', enabled)}
-                    section='summary'
+                    label='Use Summary from Skill Bank'
+                    description='Choose from your saved professional summaries'
+                    isEnabled={skillBank.toggles().summary}
+                    onToggle={enabled => skillBank.setToggle('summary', enabled)}
+                    icon='📝'
                   />
                 </div>
 
                 <Show when={skillBank.toggles().summary && !skillBank.loading()}>
                   <SummarySelector
-                    summaries={skillBank.summaries()}
-                    onSelect={summary => {
+                    summaryOptions={skillBank.summaries()}
+                    selectedSummaryId={null}
+                    onSelect={summaryId => {
+                      // Find the selected summary option and use its content
+                      const selectedOption = skillBank
+                        .summaries()
+                        .find(opt => opt.id === summaryId);
+                      if (selectedOption) {
+                        setFormData(prev => ({ ...prev, summary: selectedOption.content }));
+                      }
+                    }}
+                    onUseSelected={summary => {
                       setFormData(prev => ({ ...prev, summary }));
                     }}
-                    currentSummary={formData().summary}
                   />
                 </Show>
 
@@ -918,20 +933,32 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                 <div class='flex items-center justify-between mb-4'>
                   <h3 class='text-xl font-semibold'>💼 Work Experience</h3>
                   <SkillBankToggle
-                    enabled={skillBank.toggles().experience}
-                    onChange={enabled => skillBank.setToggle('experience', enabled)}
-                    section='experience'
+                    label='Use Experience from Skill Bank'
+                    description='Import experiences from your saved work history'
+                    isEnabled={skillBank.toggles().experience}
+                    onToggle={enabled => skillBank.setToggle('experience', enabled)}
+                    icon='💼'
                   />
                 </div>
 
                 <Show when={skillBank.toggles().experience && !skillBank.loading()}>
                   <ExperienceSelector
-                    experiences={skillBank.experiences()}
-                    onSelect={selectedExperiences => {
+                    experienceOptions={skillBank.experiences()}
+                    selectedExperienceIds={selectedExperienceIds()}
+                    onToggleSelection={experienceId => {
+                      setSelectedExperienceIds(prev =>
+                        prev.includes(experienceId)
+                          ? prev.filter(id => id !== experienceId)
+                          : [...prev, experienceId]
+                      );
+                    }}
+                    onUseSelected={selectedExperiences => {
                       setFormData(prev => ({
                         ...prev,
                         work_experience: [...(prev.work_experience || []), ...selectedExperiences],
                       }));
+                      // Clear selections after using
+                      setSelectedExperienceIds([]);
                     }}
                   />
                 </Show>
@@ -1440,20 +1467,32 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
                 <div class='flex items-center justify-between mb-4'>
                   <h3 class='text-xl font-semibold'>🛠️ Skills</h3>
                   <SkillBankToggle
-                    enabled={skillBank.toggles().skills}
-                    onChange={enabled => skillBank.setToggle('skills', enabled)}
-                    section='skills'
+                    label='Use Skills from Skill Bank'
+                    description='Import skills from your saved skill categories'
+                    isEnabled={skillBank.toggles().skills}
+                    onToggle={enabled => skillBank.setToggle('skills', enabled)}
+                    icon='🛠️'
                   />
                 </div>
 
                 <Show when={skillBank.toggles().skills && !skillBank.loading()}>
                   <SkillsSelector
-                    skills={skillBank.skills()}
-                    onSelect={selectedSkills => {
+                    skillsOptions={skillBank.skills()}
+                    selectedSkills={selectedSkills()}
+                    onToggleSelection={skillName => {
+                      setSelectedSkills(prev =>
+                        prev.includes(skillName)
+                          ? prev.filter(name => name !== skillName)
+                          : [...prev, skillName]
+                      );
+                    }}
+                    onUseSelected={selectedSkillsData => {
                       setFormData(prev => ({
                         ...prev,
-                        skills: [...(prev.skills || []), ...selectedSkills],
+                        skills: [...(prev.skills || []), ...selectedSkillsData],
                       }));
+                      // Clear selections after using
+                      setSelectedSkills([]);
                     }}
                   />
                 </Show>
