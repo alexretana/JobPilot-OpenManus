@@ -11,8 +11,33 @@ from uuid import uuid4
 from sqlalchemy.orm import Session
 
 from app.data.database import DatabaseManager
-from app.data.models import UserProfileDB
-from app.data.resume_models import ExperienceType, SkillLevel
+from app.data.models import (
+    ApplicationStatus,
+    CompanyInfoDB,
+    CompanySizeCategory,
+    ExperienceLevel,
+    JobApplicationDB,
+    JobListingDB,
+    JobSourceDB,
+    JobStatus,
+    JobType,
+    RemoteType,
+    SavedJobDB,
+    SavedJobStatus,
+    SeniorityLevel,
+    TimelineEventDB,
+    TimelineEventType,
+    UserProfileDB,
+    VerificationStatus,
+)
+from app.data.resume_models import (
+    ExperienceType,
+    ResumeDB,
+    ResumeStatus,
+    ResumeTemplateDB,
+    ResumeType,
+    SkillLevel,
+)
 from app.data.skill_bank_models import (
     Certification,
     ContentFocusType,
@@ -1029,6 +1054,820 @@ class MockDataGenerator:
         return certifications
 
     # =========================================================================
+    # COMPREHENSIVE DATA CREATION
+    # =========================================================================
+
+    def create_companies(self) -> List[str]:
+        """Create sample companies."""
+        companies_data = [
+            {
+                "name": "TechFlow Solutions",
+                "industry": "Software Development",
+                "size": "201-500 employees",
+                "location": "San Francisco, CA",
+                "website": "https://techflowsolutions.com",
+                "description": "Leading provider of enterprise software solutions specializing in cloud-native applications and data analytics.",
+                "culture": "Fast-paced, collaborative environment with focus on innovation and continuous learning.",
+                "values": ["Innovation", "Collaboration", "Excellence", "Integrity"],
+                "benefits": [
+                    "Health Insurance",
+                    "401k Matching",
+                    "Flexible PTO",
+                    "Remote Work",
+                    "Learning Budget",
+                ],
+            },
+            {
+                "name": "DataVision Analytics",
+                "industry": "Data Analytics",
+                "size": "51-200 employees",
+                "location": "Seattle, WA",
+                "website": "https://datavisionanalytics.com",
+                "description": "Data-driven insights company helping businesses make smarter decisions through advanced analytics and machine learning.",
+                "culture": "Data-driven culture with emphasis on scientific methodology and evidence-based decisions.",
+                "values": [
+                    "Data-Driven",
+                    "Scientific Rigor",
+                    "Customer Success",
+                    "Transparency",
+                ],
+                "benefits": [
+                    "Health Insurance",
+                    "Stock Options",
+                    "Professional Development",
+                    "Remote Work",
+                    "Gym Membership",
+                ],
+            },
+            {
+                "name": "InnovateLabs Inc",
+                "industry": "Product Development",
+                "size": "101-250 employees",
+                "location": "Austin, TX",
+                "website": "https://innovatelabs.com",
+                "description": "Product innovation company focused on bringing cutting-edge consumer technology to market.",
+                "culture": "Creative, user-focused environment with rapid prototyping and iterative development.",
+                "values": ["User-Centric", "Innovation", "Speed", "Quality"],
+                "benefits": [
+                    "Health Insurance",
+                    "Equity",
+                    "Unlimited PTO",
+                    "Product Discounts",
+                    "Team Events",
+                ],
+            },
+            {
+                "name": "CloudScale Systems",
+                "industry": "Cloud Infrastructure",
+                "size": "501-1000 employees",
+                "location": "New York, NY",
+                "website": "https://cloudscalesystems.com",
+                "description": "Enterprise cloud infrastructure provider offering scalable solutions for modern businesses.",
+                "culture": "Engineering-focused culture with emphasis on reliability, scalability, and operational excellence.",
+                "values": ["Reliability", "Scalability", "Security", "Customer Trust"],
+                "benefits": [
+                    "Comprehensive Health",
+                    "401k",
+                    "Parental Leave",
+                    "Learning Budget",
+                    "Sabbatical",
+                ],
+            },
+            {
+                "name": "StartupVelocity",
+                "industry": "Startup Incubator",
+                "size": "11-50 employees",
+                "location": "Los Angeles, CA",
+                "website": "https://startupvelocity.com",
+                "description": "Early-stage startup incubator and accelerator helping entrepreneurs build the next generation of technology companies.",
+                "culture": "High-energy, entrepreneurial environment with focus on rapid growth and market disruption.",
+                "values": ["Entrepreneurship", "Risk-Taking", "Growth", "Disruption"],
+                "benefits": [
+                    "Equity Participation",
+                    "Flexible Schedule",
+                    "Startup Perks",
+                    "Networking Events",
+                    "Mentorship",
+                ],
+            },
+        ]
+
+        company_ids = []
+        with self._get_session() as session:
+            for company_data in companies_data:
+                # Check if company already exists
+                existing = (
+                    session.query(CompanyInfoDB)
+                    .filter(CompanyInfoDB.name == company_data["name"])
+                    .first()
+                )
+
+                if existing:
+                    company_ids.append(existing.id)
+                    continue
+
+                company = CompanyInfoDB(
+                    id=str(uuid4()),
+                    name=company_data["name"],
+                    industry=company_data["industry"],
+                    size=company_data["size"],
+                    location=company_data["location"],
+                    website=company_data["website"],
+                    description=company_data["description"],
+                    culture=company_data["culture"],
+                    values=company_data["values"],
+                    benefits=company_data["benefits"],
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow(),
+                )
+                session.add(company)
+                session.commit()
+                session.refresh(company)
+                company_ids.append(company.id)
+
+        print(f"   🏢 Created/found {len(company_ids)} companies")
+        return company_ids
+
+    def create_job_sources(self) -> List[str]:
+        """Create job board sources."""
+        sources_data = [
+            {
+                "name": "linkedin",
+                "display_name": "LinkedIn Jobs",
+                "base_url": "https://www.linkedin.com/jobs",
+                "api_available": False,
+                "is_active": True,
+            },
+            {
+                "name": "indeed",
+                "display_name": "Indeed",
+                "base_url": "https://www.indeed.com",
+                "api_available": True,
+                "is_active": True,
+            },
+            {
+                "name": "glassdoor",
+                "display_name": "Glassdoor",
+                "base_url": "https://www.glassdoor.com",
+                "api_available": False,
+                "is_active": True,
+            },
+        ]
+
+        source_ids = []
+        with self._get_session() as session:
+            for source_data in sources_data:
+                # Check if source already exists
+                existing = (
+                    session.query(JobSourceDB)
+                    .filter(JobSourceDB.name == source_data["name"])
+                    .first()
+                )
+
+                if existing:
+                    source_ids.append(existing.id)
+                    continue
+
+                source = JobSourceDB(
+                    id=str(uuid4()),
+                    name=source_data["name"],
+                    display_name=source_data["display_name"],
+                    base_url=source_data["base_url"],
+                    api_available=source_data["api_available"],
+                    is_active=source_data["is_active"],
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow(),
+                )
+                session.add(source)
+                session.commit()
+                session.refresh(source)
+                source_ids.append(source.id)
+
+        print(f"   🔗 Created/found {len(source_ids)} job sources")
+        return source_ids
+
+    def create_job_listings(self, company_ids: List[str]) -> List[str]:
+        """Create sample job listings."""
+        jobs_data = [
+            # Software Engineer Jobs
+            {
+                "title": "Senior Full Stack Engineer",
+                "description": "We're looking for an experienced full stack engineer to join our growing team. You'll work on building scalable web applications using modern technologies like React, Node.js, and cloud platforms.",
+                "requirements": "5+ years of experience with JavaScript, React, Node.js, and cloud platforms (AWS/GCP). Experience with TypeScript, GraphQL, and microservices architecture preferred.",
+                "responsibilities": "Design and develop scalable web applications, collaborate with product and design teams, mentor junior developers, participate in code reviews and architecture decisions.",
+                "job_type": JobType.FULL_TIME,
+                "remote_type": RemoteType.HYBRID,
+                "experience_level": ExperienceLevel.SENIOR_LEVEL,
+                "salary_min": 120000,
+                "salary_max": 160000,
+                "skills_required": [
+                    "JavaScript",
+                    "React",
+                    "Node.js",
+                    "AWS",
+                    "PostgreSQL",
+                ],
+                "skills_preferred": ["TypeScript", "GraphQL", "Docker", "Kubernetes"],
+                "benefits": [
+                    "Health Insurance",
+                    "401k Matching",
+                    "Stock Options",
+                    "Flexible PTO",
+                ],
+                "seniority_level": SeniorityLevel.INDIVIDUAL_CONTRIBUTOR,
+                "tech_stack": ["React", "Node.js", "TypeScript", "PostgreSQL", "AWS"],
+            },
+            {
+                "title": "Frontend Developer",
+                "description": "Join our frontend team to build beautiful, responsive user interfaces for our web applications. Work with modern frameworks and collaborate closely with our design team.",
+                "requirements": "3+ years experience with React, JavaScript, HTML/CSS. Experience with state management libraries and modern build tools.",
+                "responsibilities": "Develop responsive web interfaces, implement design systems, optimize for performance, collaborate with UX designers.",
+                "job_type": JobType.FULL_TIME,
+                "remote_type": RemoteType.REMOTE,
+                "experience_level": ExperienceLevel.MID_LEVEL,
+                "salary_min": 90000,
+                "salary_max": 120000,
+                "skills_required": ["React", "JavaScript", "HTML", "CSS"],
+                "skills_preferred": ["TypeScript", "Next.js", "Tailwind CSS"],
+                "benefits": ["Health Insurance", "Remote Work", "Learning Budget"],
+                "seniority_level": SeniorityLevel.INDIVIDUAL_CONTRIBUTOR,
+                "tech_stack": [
+                    "React",
+                    "JavaScript",
+                    "TypeScript",
+                    "Next.js",
+                    "Tailwind CSS",
+                ],
+            },
+            # Data Science Jobs
+            {
+                "title": "Data Scientist",
+                "description": "We're seeking a data scientist to help us unlock insights from our data and build predictive models that drive business decisions.",
+                "requirements": "PhD or Masters in Data Science, Statistics, or related field. 3+ years experience with Python, SQL, and machine learning frameworks.",
+                "responsibilities": "Analyze complex datasets, build machine learning models, create data visualizations, collaborate with product teams.",
+                "job_type": JobType.FULL_TIME,
+                "remote_type": RemoteType.HYBRID,
+                "experience_level": ExperienceLevel.MID_LEVEL,
+                "salary_min": 110000,
+                "salary_max": 140000,
+                "skills_required": ["Python", "SQL", "Machine Learning", "Statistics"],
+                "skills_preferred": [
+                    "TensorFlow",
+                    "PyTorch",
+                    "Tableau",
+                    "Apache Spark",
+                ],
+                "benefits": ["Health Insurance", "Stock Options", "Conference Budget"],
+                "seniority_level": SeniorityLevel.INDIVIDUAL_CONTRIBUTOR,
+                "tech_stack": ["Python", "TensorFlow", "Jupyter", "SQL", "Tableau"],
+            },
+            {
+                "title": "Senior Machine Learning Engineer",
+                "description": "Lead our ML engineering efforts to deploy and scale machine learning models in production environments.",
+                "requirements": "5+ years experience in ML engineering, Python, and cloud platforms. Experience with MLOps and model deployment.",
+                "responsibilities": "Design ML pipelines, deploy models to production, optimize model performance, mentor junior ML engineers.",
+                "job_type": JobType.FULL_TIME,
+                "remote_type": RemoteType.REMOTE,
+                "experience_level": ExperienceLevel.SENIOR_LEVEL,
+                "salary_min": 140000,
+                "salary_max": 180000,
+                "skills_required": ["Python", "TensorFlow", "Kubernetes", "AWS"],
+                "skills_preferred": ["MLflow", "Kubeflow", "Docker", "Apache Airflow"],
+                "benefits": ["Health Insurance", "Equity", "Flexible Schedule"],
+                "seniority_level": SeniorityLevel.INDIVIDUAL_CONTRIBUTOR,
+                "tech_stack": ["Python", "TensorFlow", "Kubernetes", "MLflow", "AWS"],
+            },
+            # Product Manager Jobs
+            {
+                "title": "Senior Product Manager",
+                "description": "Drive product strategy and roadmap for our core platform. Work closely with engineering, design, and business stakeholders.",
+                "requirements": "5+ years of product management experience, preferably in B2B SaaS. Strong analytical skills and user research experience.",
+                "responsibilities": "Define product strategy, manage product roadmap, conduct user research, work with engineering teams, analyze product metrics.",
+                "job_type": JobType.FULL_TIME,
+                "remote_type": RemoteType.HYBRID,
+                "experience_level": ExperienceLevel.SENIOR_LEVEL,
+                "salary_min": 130000,
+                "salary_max": 160000,
+                "skills_required": [
+                    "Product Strategy",
+                    "User Research",
+                    "Analytics",
+                    "Agile",
+                ],
+                "skills_preferred": ["SQL", "A/B Testing", "Figma", "Jira"],
+                "benefits": ["Health Insurance", "Stock Options", "Unlimited PTO"],
+                "seniority_level": SeniorityLevel.MANAGER,
+                "tech_stack": [
+                    "Jira",
+                    "Confluence",
+                    "Figma",
+                    "Google Analytics",
+                    "Mixpanel",
+                ],
+            },
+            {
+                "title": "Product Owner",
+                "description": "Own the product backlog and work closely with development teams to deliver value to our users.",
+                "requirements": "3+ years as Product Owner or similar role. Experience with Agile/Scrum methodologies. Strong communication skills.",
+                "responsibilities": "Manage product backlog, write user stories, prioritize features, work with development teams, gather user feedback.",
+                "job_type": JobType.FULL_TIME,
+                "remote_type": RemoteType.ON_SITE,
+                "experience_level": ExperienceLevel.MID_LEVEL,
+                "salary_min": 95000,
+                "salary_max": 125000,
+                "skills_required": [
+                    "Agile/Scrum",
+                    "User Stories",
+                    "Backlog Management",
+                ],
+                "skills_preferred": ["Jira", "User Research", "Data Analysis"],
+                "benefits": ["Health Insurance", "401k", "Team Events"],
+                "seniority_level": SeniorityLevel.INDIVIDUAL_CONTRIBUTOR,
+                "tech_stack": ["Jira", "Confluence", "Figma"],
+            },
+            # Additional diverse jobs
+            {
+                "title": "DevOps Engineer",
+                "description": "Build and maintain our cloud infrastructure and CI/CD pipelines. Help scale our platform to serve millions of users.",
+                "requirements": "4+ years experience with cloud platforms, containerization, and infrastructure as code. Strong scripting skills.",
+                "responsibilities": "Manage cloud infrastructure, build deployment pipelines, monitor system performance, ensure security compliance.",
+                "job_type": JobType.FULL_TIME,
+                "remote_type": RemoteType.REMOTE,
+                "experience_level": ExperienceLevel.SENIOR_LEVEL,
+                "salary_min": 115000,
+                "salary_max": 145000,
+                "skills_required": ["AWS", "Docker", "Kubernetes", "Terraform"],
+                "skills_preferred": ["Jenkins", "Ansible", "Monitoring", "Security"],
+                "benefits": ["Health Insurance", "Remote Work", "On-call Bonus"],
+                "seniority_level": SeniorityLevel.INDIVIDUAL_CONTRIBUTOR,
+                "tech_stack": ["AWS", "Docker", "Kubernetes", "Terraform", "Jenkins"],
+            },
+            {
+                "title": "UX Designer",
+                "description": "Design intuitive user experiences for our web and mobile applications. Conduct user research and create design systems.",
+                "requirements": "3+ years of UX design experience. Proficiency with design tools like Figma. Experience with user research methodologies.",
+                "responsibilities": "Create user interfaces, conduct usability testing, develop design systems, collaborate with product and engineering teams.",
+                "job_type": JobType.FULL_TIME,
+                "remote_type": RemoteType.HYBRID,
+                "experience_level": ExperienceLevel.MID_LEVEL,
+                "salary_min": 85000,
+                "salary_max": 110000,
+                "skills_required": [
+                    "UX Design",
+                    "Figma",
+                    "User Research",
+                    "Prototyping",
+                ],
+                "skills_preferred": [
+                    "Design Systems",
+                    "Usability Testing",
+                    "Adobe Creative Suite",
+                ],
+                "benefits": ["Health Insurance", "Creative Budget", "Flexible Hours"],
+                "seniority_level": SeniorityLevel.INDIVIDUAL_CONTRIBUTOR,
+                "tech_stack": ["Figma", "Adobe Creative Suite", "InVision", "Miro"],
+            },
+        ]
+
+        job_ids = []
+        with self._get_session() as session:
+            for i, job_data in enumerate(jobs_data):
+                # Assign company cyclically
+                company_id = company_ids[i % len(company_ids)]
+                company = (
+                    session.query(CompanyInfoDB)
+                    .filter(CompanyInfoDB.id == company_id)
+                    .first()
+                )
+
+                # Check if job already exists
+                existing = (
+                    session.query(JobListingDB)
+                    .filter(
+                        JobListingDB.title == job_data["title"],
+                        JobListingDB.company == company.name,
+                    )
+                    .first()
+                )
+
+                if existing:
+                    job_ids.append(existing.id)
+                    continue
+
+                job = JobListingDB(
+                    id=str(uuid4()),
+                    title=job_data["title"],
+                    company=company.name,
+                    location=company.location,
+                    description=job_data["description"],
+                    requirements=job_data["requirements"],
+                    responsibilities=job_data["responsibilities"],
+                    job_type=job_data["job_type"],
+                    remote_type=job_data["remote_type"],
+                    experience_level=job_data["experience_level"],
+                    salary_min=job_data["salary_min"],
+                    salary_max=job_data["salary_max"],
+                    salary_currency="USD",
+                    skills_required=job_data["skills_required"],
+                    skills_preferred=job_data["skills_preferred"],
+                    benefits=job_data["benefits"],
+                    company_size=company.size,
+                    industry=company.industry,
+                    job_url=f"{company.website}/jobs/{job_data['title'].lower().replace(' ', '-')}",
+                    company_url=company.website,
+                    application_url=f"{company.website}/apply/{str(uuid4())[:8]}",
+                    posted_date=datetime.utcnow()
+                    - timedelta(days=random.randint(1, 30)),
+                    application_deadline=datetime.utcnow()
+                    + timedelta(days=random.randint(30, 90)),
+                    source="mock_data",
+                    status=JobStatus.ACTIVE,
+                    source_count=1,
+                    data_quality_score=random.uniform(0.8, 1.0),
+                    scraped_at=datetime.utcnow() - timedelta(days=random.randint(1, 7)),
+                    last_verified=datetime.utcnow()
+                    - timedelta(days=random.randint(0, 3)),
+                    verification_status=VerificationStatus.ACTIVE,
+                    company_size_category=self._get_company_size_category(company.size),
+                    seniority_level=job_data["seniority_level"],
+                    tech_stack=job_data["tech_stack"],
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow(),
+                )
+                session.add(job)
+                session.commit()
+                session.refresh(job)
+                job_ids.append(job.id)
+
+        print(f"   💼 Created/found {len(job_ids)} job listings")
+        return job_ids
+
+    def _get_company_size_category(self, size_string: str) -> CompanySizeCategory:
+        """Convert size string to category enum."""
+        if "1-50" in size_string or "11-50" in size_string:
+            return CompanySizeCategory.STARTUP
+        elif "51-200" in size_string:
+            return CompanySizeCategory.SMALL
+        elif "201-500" in size_string or "101-250" in size_string:
+            return CompanySizeCategory.MEDIUM
+        elif "501-1000" in size_string:
+            return CompanySizeCategory.LARGE
+        else:
+            return CompanySizeCategory.ENTERPRISE
+
+    def create_resume_templates(self) -> List[str]:
+        """Create sample resume templates."""
+        templates_data = [
+            {
+                "name": "Modern Professional",
+                "description": "Clean, modern template perfect for tech professionals",
+                "sections": [
+                    "contact",
+                    "summary",
+                    "experience",
+                    "skills",
+                    "education",
+                    "projects",
+                ],
+                "section_order": [
+                    "contact",
+                    "summary",
+                    "experience",
+                    "skills",
+                    "education",
+                    "projects",
+                ],
+                "styling": {
+                    "font_family": "Inter",
+                    "color_scheme": "blue",
+                    "layout": "single_column",
+                },
+                "is_default": True,
+                "is_system": True,
+            },
+            {
+                "name": "Executive",
+                "description": "Professional template for senior leadership roles",
+                "sections": [
+                    "contact",
+                    "summary",
+                    "experience",
+                    "education",
+                    "skills",
+                    "certifications",
+                ],
+                "section_order": [
+                    "contact",
+                    "summary",
+                    "experience",
+                    "education",
+                    "skills",
+                    "certifications",
+                ],
+                "styling": {
+                    "font_family": "Times New Roman",
+                    "color_scheme": "black",
+                    "layout": "two_column",
+                },
+                "is_default": False,
+                "is_system": True,
+            },
+            {
+                "name": "Technical",
+                "description": "Template optimized for technical roles with emphasis on skills",
+                "sections": [
+                    "contact",
+                    "skills",
+                    "experience",
+                    "projects",
+                    "education",
+                    "certifications",
+                ],
+                "section_order": [
+                    "contact",
+                    "skills",
+                    "experience",
+                    "projects",
+                    "education",
+                    "certifications",
+                ],
+                "styling": {
+                    "font_family": "Source Code Pro",
+                    "color_scheme": "green",
+                    "layout": "single_column",
+                },
+                "is_default": False,
+                "is_system": True,
+            },
+        ]
+
+        template_ids = []
+        with self._get_session() as session:
+            for template_data in templates_data:
+                # Check if template already exists
+                existing = (
+                    session.query(ResumeTemplateDB)
+                    .filter(ResumeTemplateDB.name == template_data["name"])
+                    .first()
+                )
+
+                if existing:
+                    template_ids.append(existing.id)
+                    continue
+
+                template = ResumeTemplateDB(
+                    id=str(uuid4()),
+                    name=template_data["name"],
+                    description=template_data["description"],
+                    sections=template_data["sections"],
+                    section_order=template_data["section_order"],
+                    styling=template_data["styling"],
+                    is_default=template_data["is_default"],
+                    is_system=template_data["is_system"],
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow(),
+                )
+                session.add(template)
+                session.commit()
+                session.refresh(template)
+                template_ids.append(template.id)
+
+        print(f"   📄 Created/found {len(template_ids)} resume templates")
+        return template_ids
+
+    def create_resumes(self, user_ids: List[str], template_ids: List[str]) -> List[str]:
+        """Create sample resumes for users."""
+        resume_ids = []
+
+        with self._get_session() as session:
+            for i, user_id in enumerate(user_ids):
+                # Get user info
+                user = (
+                    session.query(UserProfileDB)
+                    .filter(UserProfileDB.id == user_id)
+                    .first()
+                )
+                if not user:
+                    continue
+
+                # Check if user already has a resume
+                existing = (
+                    session.query(ResumeDB).filter(ResumeDB.user_id == user_id).first()
+                )
+
+                if existing:
+                    resume_ids.append(existing.id)
+                    continue
+
+                # Create basic contact info
+                contact_info = {
+                    "full_name": f"{user.first_name} {user.last_name}",
+                    "email": user.email,
+                    "phone": user.phone,
+                    "location": (
+                        f"{user.city}, {user.state}"
+                        if user.city and user.state
+                        else None
+                    ),
+                    "linkedin_url": user.linkedin_url,
+                    "portfolio": user.portfolio_url,
+                }
+
+                # Create basic skills list
+                skills = (
+                    [
+                        {
+                            "name": "JavaScript",
+                            "level": "expert",
+                            "category": "Programming",
+                        },
+                        {
+                            "name": "Python",
+                            "level": "advanced",
+                            "category": "Programming",
+                        },
+                        {"name": "React", "level": "expert", "category": "Frameworks"},
+                    ]
+                    if i == 0
+                    else (
+                        [
+                            {
+                                "name": "Python",
+                                "level": "expert",
+                                "category": "Programming",
+                            },
+                            {"name": "SQL", "level": "expert", "category": "Database"},
+                            {
+                                "name": "Machine Learning",
+                                "level": "advanced",
+                                "category": "Domain",
+                            },
+                        ]
+                        if i == 1
+                        else [
+                            {
+                                "name": "Product Strategy",
+                                "level": "expert",
+                                "category": "Product",
+                            },
+                            {
+                                "name": "User Research",
+                                "level": "advanced",
+                                "category": "Research",
+                            },
+                            {
+                                "name": "Agile",
+                                "level": "expert",
+                                "category": "Methodology",
+                            },
+                        ]
+                    )
+                )
+
+                resume = ResumeDB(
+                    id=str(uuid4()),
+                    user_id=user_id,
+                    title=f"{user.current_title} Resume",
+                    resume_type=ResumeType.BASE.value,
+                    status=ResumeStatus.ACTIVE.value,
+                    contact_info=contact_info,
+                    summary=user.bio,
+                    work_experience=[],  # Will be populated from skill bank
+                    education=[],
+                    skills=skills,
+                    projects=[],
+                    certifications=[],
+                    custom_sections=[],
+                    template_id=template_ids[i % len(template_ids)],
+                    version=1,
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow(),
+                )
+                session.add(resume)
+                session.commit()
+                session.refresh(resume)
+                resume_ids.append(resume.id)
+
+        print(f"   📋 Created/found {len(resume_ids)} resumes")
+        return resume_ids
+
+    def create_applications_and_interactions(
+        self, user_ids: List[str], job_ids: List[str]
+    ) -> Dict[str, int]:
+        """Create job applications, saved jobs, and timeline events."""
+        results = {"applications": 0, "saved_jobs": 0, "timeline_events": 0}
+
+        with self._get_session() as session:
+            # Create applications for each user to some jobs
+            for user_id in user_ids:
+                # Each user applies to 2-4 jobs
+                user_job_count = random.randint(2, 4)
+                user_jobs = random.sample(job_ids, min(user_job_count, len(job_ids)))
+
+                for job_id in user_jobs:
+                    # Check if application already exists
+                    existing_app = (
+                        session.query(JobApplicationDB)
+                        .filter(
+                            JobApplicationDB.user_profile_id == user_id,
+                            JobApplicationDB.job_id == job_id,
+                        )
+                        .first()
+                    )
+
+                    if not existing_app:
+                        # Create application
+                        application = JobApplicationDB(
+                            id=str(uuid4()),
+                            job_id=job_id,
+                            user_profile_id=user_id,
+                            status=random.choice(list(ApplicationStatus)),
+                            applied_date=datetime.utcnow()
+                            - timedelta(days=random.randint(1, 30)),
+                            notes="Applied to this position through JobPilot. Tailored resume for the role.",
+                            created_at=datetime.utcnow(),
+                            updated_at=datetime.utcnow(),
+                        )
+                        session.add(application)
+                        session.commit()
+                        session.refresh(application)
+                        results["applications"] += 1
+
+                        # Create timeline event for application
+                        timeline_event = TimelineEventDB(
+                            id=str(uuid4()),
+                            job_id=job_id,
+                            application_id=application.id,
+                            user_profile_id=user_id,
+                            event_type=TimelineEventType.APPLICATION_SUBMITTED,
+                            title="Application Submitted",
+                            description=f"Applied to {session.query(JobListingDB).filter(JobListingDB.id == job_id).first().title}",
+                            event_data={"application_method": "JobPilot"},
+                            event_date=application.applied_date,
+                            is_milestone=True,
+                            created_at=datetime.utcnow(),
+                            updated_at=datetime.utcnow(),
+                        )
+                        session.add(timeline_event)
+                        session.commit()
+                        results["timeline_events"] += 1
+
+                # Each user saves 3-6 additional jobs
+                remaining_jobs = [j for j in job_ids if j not in user_jobs]
+                saved_job_count = random.randint(3, min(6, len(remaining_jobs)))
+                saved_jobs = random.sample(remaining_jobs, saved_job_count)
+
+                for job_id in saved_jobs:
+                    # Check if saved job already exists
+                    existing_saved = (
+                        session.query(SavedJobDB)
+                        .filter(
+                            SavedJobDB.user_profile_id == user_id,
+                            SavedJobDB.job_id == job_id,
+                        )
+                        .first()
+                    )
+
+                    if not existing_saved:
+                        saved_job = SavedJobDB(
+                            id=str(uuid4()),
+                            job_id=job_id,
+                            user_profile_id=user_id,
+                            status=SavedJobStatus.SAVED,
+                            notes="Interesting opportunity, need to review requirements more closely.",
+                            tags=["interesting", "remote-friendly"],
+                            saved_date=datetime.utcnow()
+                            - timedelta(days=random.randint(1, 14)),
+                            updated_at=datetime.utcnow(),
+                        )
+                        session.add(saved_job)
+                        session.commit()
+                        results["saved_jobs"] += 1
+
+                        # Create timeline event for saving job
+                        timeline_event = TimelineEventDB(
+                            id=str(uuid4()),
+                            job_id=job_id,
+                            user_profile_id=user_id,
+                            event_type=TimelineEventType.JOB_SAVED,
+                            title="Job Saved",
+                            description=f"Saved {session.query(JobListingDB).filter(JobListingDB.id == job_id).first().title} for later review",
+                            event_data={"tags": ["interesting", "remote-friendly"]},
+                            event_date=saved_job.saved_date,
+                            is_milestone=False,
+                            created_at=datetime.utcnow(),
+                            updated_at=datetime.utcnow(),
+                        )
+                        session.add(timeline_event)
+                        session.commit()
+                        results["timeline_events"] += 1
+
+        print(
+            f"   📝 Created {results['applications']} applications, {results['saved_jobs']} saved jobs, {results['timeline_events']} timeline events"
+        )
+        return results
+
+    # =========================================================================
     # DATABASE INITIALIZATION
     # =========================================================================
 
@@ -1038,46 +1877,105 @@ class MockDataGenerator:
             "timestamp": datetime.utcnow().isoformat(),
             "created_users": [],
             "created_skill_banks": [],
+            "created_companies": 0,
+            "created_job_sources": 0,
+            "created_jobs": 0,
+            "created_resume_templates": 0,
+            "created_resumes": 0,
+            "created_applications": 0,
+            "created_saved_jobs": 0,
+            "created_timeline_events": 0,
             "errors": [],
         }
 
-        roles = ["developer", "data_scientist", "product_manager"]
+        print("🌟 Creating comprehensive mock data...")
 
-        for i, user_data in enumerate(self.SAMPLE_USERS):
-            try:
-                # Create user profile
-                user_id = self.create_user_profile(user_data)
-                results["created_users"].append(
-                    {
-                        "user_id": user_id,
-                        "name": f"{user_data['first_name']} {user_data['last_name']}",
-                        "role": roles[i],
-                    }
-                )
+        try:
+            # 1. Create companies
+            print("\n🏢 Creating companies...")
+            company_ids = self.create_companies()
+            results["created_companies"] = len(company_ids)
 
-                # Create comprehensive skill bank
-                skill_bank = await self.create_comprehensive_skill_bank(
-                    user_id, roles[i]
-                )
-                results["created_skill_banks"].append(
-                    {
-                        "user_id": user_id,
-                        "skill_bank_id": skill_bank.id,
-                        "skills_count": sum(
-                            len(skills) for skills in skill_bank.skills.values()
-                        ),
-                        "experiences_count": len(skill_bank.work_experiences),
-                        "projects_count": len(skill_bank.projects),
-                        "certifications_count": len(skill_bank.certifications),
-                    }
-                )
+            # 2. Create job sources
+            print("\n🔗 Creating job sources...")
+            source_ids = self.create_job_sources()
+            results["created_job_sources"] = len(source_ids)
 
-            except Exception as e:
-                results["errors"].append({"user_data": user_data, "error": str(e)})
+            # 3. Create job listings
+            print("\n💼 Creating job listings...")
+            job_ids = self.create_job_listings(company_ids)
+            results["created_jobs"] = len(job_ids)
 
+            # 4. Create resume templates
+            print("\n📄 Creating resume templates...")
+            template_ids = self.create_resume_templates()
+            results["created_resume_templates"] = len(template_ids)
+
+            # 5. Create users and skill banks
+            print("\n👥 Creating users and skill banks...")
+            roles = ["developer", "data_scientist", "product_manager"]
+            user_ids = []
+
+            for i, user_data in enumerate(self.SAMPLE_USERS):
+                try:
+                    # Create user profile
+                    user_id = self.create_user_profile(user_data)
+                    user_ids.append(user_id)
+                    results["created_users"].append(
+                        {
+                            "user_id": user_id,
+                            "name": f"{user_data['first_name']} {user_data['last_name']}",
+                            "role": roles[i],
+                        }
+                    )
+
+                    # Create comprehensive skill bank
+                    skill_bank = await self.create_comprehensive_skill_bank(
+                        user_id, roles[i]
+                    )
+                    results["created_skill_banks"].append(
+                        {
+                            "user_id": user_id,
+                            "skill_bank_id": skill_bank.id,
+                            "skills_count": sum(
+                                len(skills) for skills in skill_bank.skills.values()
+                            ),
+                            "experiences_count": len(skill_bank.work_experiences),
+                            "projects_count": len(skill_bank.projects),
+                            "certifications_count": len(skill_bank.certifications),
+                        }
+                    )
+
+                except Exception as e:
+                    results["errors"].append({"user_data": user_data, "error": str(e)})
+
+            # 6. Create resumes
+            print("\n📋 Creating resumes...")
+            resume_ids = self.create_resumes(user_ids, template_ids)
+            results["created_resumes"] = len(resume_ids)
+
+            # 7. Create applications, saved jobs, and timeline events
+            print("\n📝 Creating applications and interactions...")
+            interaction_results = self.create_applications_and_interactions(
+                user_ids, job_ids
+            )
+            results["created_applications"] = interaction_results["applications"]
+            results["created_saved_jobs"] = interaction_results["saved_jobs"]
+            results["created_timeline_events"] = interaction_results["timeline_events"]
+
+        except Exception as e:
+            results["errors"].append(
+                {"operation": "comprehensive_data_creation", "error": str(e)}
+            )
+
+        # Calculate summary
         results["summary"] = {
             "total_users_created": len(results["created_users"]),
             "total_skill_banks_created": len(results["created_skill_banks"]),
+            "total_companies_created": results["created_companies"],
+            "total_jobs_created": results["created_jobs"],
+            "total_resumes_created": results["created_resumes"],
+            "total_applications_created": results["created_applications"],
             "total_errors": len(results["errors"]),
             "success_rate": (
                 len(results["created_users"]) / len(self.SAMPLE_USERS)
@@ -1134,3 +2032,54 @@ class MockDataGenerator:
                 else "partial_success"
             ),
         }
+
+
+if __name__ == "__main__":
+    import asyncio
+    import json
+
+    async def main():
+        # Initialize database manager
+        db_manager = DatabaseManager()
+
+        # Create mock data generator
+        generator = MockDataGenerator(db_manager)
+
+        print("🚀 Starting comprehensive database initialization...")
+
+        # Run full database initialization
+        result = await generator.full_database_initialization()
+
+        print("\n" + "=" * 80)
+        print("🎉 DATABASE INITIALIZATION COMPLETE")
+        print("=" * 80)
+
+        # Print summary
+        if "mock_data_creation" in result:
+            summary = result["mock_data_creation"]["summary"]
+            print("📊 SUMMARY:")
+            print(f"   Users created: {summary['total_users_created']}")
+            print(f"   Skill banks created: {summary['total_skill_banks_created']}")
+            print(f"   Companies created: {summary['total_companies_created']}")
+            print(f"   Jobs created: {summary['total_jobs_created']}")
+            print(f"   Resumes created: {summary['total_resumes_created']}")
+            print(f"   Applications created: {summary['total_applications_created']}")
+            print(f"   Success rate: {summary['success_rate']:.1%}")
+            print(f"   Errors: {summary['total_errors']}")
+
+            if summary["total_errors"] > 0:
+                print("\n⚠️  ERRORS:")
+                for error in result["mock_data_creation"]["errors"]:
+                    print(f"   {error}")
+
+        print(f"\nOverall Status: {result['overall_status'].upper()}")
+
+        # Save detailed results to file
+        with open("mock_data_results.json", "w") as f:
+            json.dump(result, f, indent=2, default=str)
+        print("\n💾 Detailed results saved to mock_data_results.json")
+
+        return result
+
+    # Run the async main function
+    asyncio.run(main())
