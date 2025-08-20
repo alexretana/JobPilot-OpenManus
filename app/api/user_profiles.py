@@ -23,6 +23,10 @@ class UserProfileCreate(BaseModel):
     last_name: str  # Required field
     email: EmailStr  # Required field
     phone: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
     current_title: Optional[str] = None
     experience_years: Optional[int] = None
     skills: List[str]  # Required field (must be non-empty list)
@@ -42,6 +46,10 @@ class UserProfileUpdate(BaseModel):
     last_name: Optional[str] = None
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
     current_title: Optional[str] = None
     experience_years: Optional[int] = None
     skills: Optional[List[str]] = None
@@ -62,6 +70,10 @@ class UserProfileResponse(BaseModel):
     last_name: Optional[str] = None
     email: Optional[str] = None
     phone: Optional[str] = None
+    city: Optional[str] = None
+    state: Optional[str] = None
+    linkedin_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
     current_title: Optional[str] = None
     experience_years: Optional[int] = None
     skills: List[str] = []
@@ -94,6 +106,10 @@ async def create_user_profile(user_data: UserProfileCreate):
             last_name=created_user.last_name,
             email=created_user.email,
             phone=created_user.phone,
+            city=created_user.city,
+            state=created_user.state,
+            linkedin_url=created_user.linkedin_url,
+            portfolio_url=created_user.portfolio_url,
             current_title=created_user.current_title,
             experience_years=created_user.experience_years,
             skills=created_user.skills,
@@ -138,6 +154,10 @@ async def list_user_profiles(
                     last_name=user.last_name,
                     email=user.email,
                     phone=user.phone,
+                    city=user.city,
+                    state=user.state,
+                    linkedin_url=user.linkedin_url,
+                    portfolio_url=user.portfolio_url,
                     current_title=user.current_title,
                     experience_years=user.experience_years,
                     skills=user.skills,
@@ -207,6 +227,10 @@ async def get_user_profile(user_id: str):
             last_name=user.last_name,
             email=user.email,
             phone=user.phone,
+            city=user.city,
+            state=user.state,
+            linkedin_url=user.linkedin_url,
+            portfolio_url=user.portfolio_url,
             current_title=user.current_title,
             experience_years=user.experience_years,
             skills=user.skills,
@@ -251,6 +275,10 @@ async def update_user_profile(user_id: str, user_data: UserProfileUpdate):
             last_name=updated_user.last_name,
             email=updated_user.email,
             phone=updated_user.phone,
+            city=updated_user.city,
+            state=updated_user.state,
+            linkedin_url=updated_user.linkedin_url,
+            portfolio_url=updated_user.portfolio_url,
             current_title=updated_user.current_title,
             experience_years=updated_user.experience_years,
             skills=updated_user.skills,
@@ -328,6 +356,10 @@ async def get_default_user_profile():
             last_name=user.last_name,
             email=user.email,
             phone=user.phone,
+            city=user.city,
+            state=user.state,
+            linkedin_url=user.linkedin_url,
+            portfolio_url=user.portfolio_url,
             current_title=user.current_title,
             experience_years=user.experience_years,
             skills=user.skills,
@@ -367,6 +399,10 @@ async def get_user_by_email(
             last_name=user.last_name,
             email=user.email,
             phone=user.phone,
+            city=user.city,
+            state=user.state,
+            linkedin_url=user.linkedin_url,
+            portfolio_url=user.portfolio_url,
             current_title=user.current_title,
             experience_years=user.experience_years,
             skills=user.skills,

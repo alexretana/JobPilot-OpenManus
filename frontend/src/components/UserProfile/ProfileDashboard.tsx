@@ -70,19 +70,6 @@ const ProfileDashboard: Component<ProfileDashboardProps> = props => {
     return `${years} years`;
   };
 
-  const getSkillsPreview = (
-    skills: string[],
-    maxShow = 5
-  ): { displayed: string[]; remaining: number } => {
-    if (skills.length <= maxShow) {
-      return { displayed: skills, remaining: 0 };
-    }
-    return {
-      displayed: skills.slice(0, maxShow),
-      remaining: skills.length - maxShow,
-    };
-  };
-
   const handleCreateResume = () => {
     if (!profile()) return;
 
@@ -104,17 +91,39 @@ const ProfileDashboard: Component<ProfileDashboardProps> = props => {
             Manage your professional profile and job preferences
           </p>
         </div>
-        <button class='btn btn-primary' onClick={handleEditProfile} disabled={profile.loading}>
-          <svg class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-            <path
-              stroke-linecap='round'
-              stroke-linejoin='round'
-              stroke-width='2'
-              d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
-            />
-          </svg>
-          Edit Profile
-        </button>
+        <div class='flex gap-2'>
+          <button class='btn btn-primary' onClick={handleEditProfile} disabled={profile.loading}>
+            <svg class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z'
+              />
+            </svg>
+            Edit Profile
+          </button>
+          <button
+            class='btn btn-secondary'
+            onClick={handleCreateResume}
+            disabled={isCreatingResume() || !profile()}
+          >
+            <Show
+              when={!isCreatingResume()}
+              fallback={<span class='loading loading-spinner loading-sm mr-2'></span>}
+            >
+              <svg class='w-4 h-4 mr-2' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                />
+              </svg>
+            </Show>
+            {isCreatingResume() ? 'Creating...' : 'Create Resume'}
+          </button>
+        </div>
       </div>
 
       <Show when={profile.loading}>
@@ -187,6 +196,48 @@ const ProfileDashboard: Component<ProfileDashboardProps> = props => {
                     <div class='text-base'>{profile()?.phone}</div>
                   </div>
                 </Show>
+
+                <Show when={profile()?.city || profile()?.state}>
+                  <div>
+                    <div class='text-sm font-medium text-base-content/70'>Location</div>
+                    <div class='text-base'>
+                      {[profile()?.city, profile()?.state].filter(Boolean).join(', ') ||
+                        'Not provided'}
+                    </div>
+                  </div>
+                </Show>
+
+                <Show when={profile()?.linkedin_url}>
+                  <div>
+                    <div class='text-sm font-medium text-base-content/70'>LinkedIn</div>
+                    <div class='text-base'>
+                      <a
+                        href={profile()?.linkedin_url}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        class='link link-primary'
+                      >
+                        {profile()?.linkedin_url}
+                      </a>
+                    </div>
+                  </div>
+                </Show>
+
+                <Show when={profile()?.portfolio_url}>
+                  <div>
+                    <div class='text-sm font-medium text-base-content/70'>Portfolio</div>
+                    <div class='text-base'>
+                      <a
+                        href={profile()?.portfolio_url}
+                        target='_blank'
+                        rel='noopener noreferrer'
+                        class='link link-primary'
+                      >
+                        {profile()?.portfolio_url}
+                      </a>
+                    </div>
+                  </div>
+                </Show>
               </div>
             </div>
           </div>
@@ -223,28 +274,6 @@ const ProfileDashboard: Component<ProfileDashboardProps> = props => {
                     <div class='text-base'>{profile()?.education}</div>
                   </div>
                 </Show>
-
-                <div>
-                  <div class='text-sm font-medium text-base-content/70 mb-2'>Skills</div>
-                  <Show
-                    when={profile()?.skills && (profile()?.skills?.length ?? 0) > 0}
-                    fallback={<div class='text-base-content/50'>No skills added</div>}
-                  >
-                    {(() => {
-                      const { displayed, remaining } = getSkillsPreview(profile()?.skills || [], 5);
-                      return (
-                        <div class='flex flex-wrap gap-2'>
-                          <For each={displayed}>
-                            {skill => <div class='badge badge-primary'>{skill}</div>}
-                          </For>
-                          <Show when={remaining > 0}>
-                            <div class='badge badge-ghost'>+{remaining} more</div>
-                          </Show>
-                        </div>
-                      );
-                    })()}
-                  </Show>
-                </div>
 
                 <Show when={profile()?.bio}>
                   <div>
@@ -342,75 +371,6 @@ const ProfileDashboard: Component<ProfileDashboardProps> = props => {
                       profile()?.desired_salary_max
                     )}
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div class='lg:col-span-3'>
-            <div class='card bg-base-100 shadow-xl'>
-              <div class='card-body'>
-                <h2 class='card-title'>Quick Actions</h2>
-                <div class='grid grid-cols-2 md:grid-cols-4 gap-4'>
-                  <button
-                    class='btn btn-primary flex flex-col gap-2 h-auto py-4'
-                    onClick={handleCreateResume}
-                    disabled={isCreatingResume() || !profile()}
-                  >
-                    <Show
-                      when={!isCreatingResume()}
-                      fallback={<span class='loading loading-spinner loading-sm'></span>}
-                    >
-                      <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                        <path
-                          stroke-linecap='round'
-                          stroke-linejoin='round'
-                          stroke-width='2'
-                          d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-                        />
-                      </svg>
-                    </Show>
-                    <span class='text-sm'>
-                      {isCreatingResume() ? 'Creating...' : 'Create Resume'}
-                    </span>
-                  </button>
-
-                  <button class='btn btn-outline flex flex-col gap-2 h-auto py-4'>
-                    <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path
-                        stroke-linecap='round'
-                        stroke-linejoin='round'
-                        stroke-width='2'
-                        d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
-                      />
-                    </svg>
-                    <span class='text-sm'>Find Jobs</span>
-                  </button>
-
-                  <button class='btn btn-outline flex flex-col gap-2 h-auto py-4'>
-                    <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path
-                        stroke-linecap='round'
-                        stroke-linejoin='round'
-                        stroke-width='2'
-                        d='M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
-                      />
-                    </svg>
-                    <span class='text-sm'>View Analytics</span>
-                  </button>
-
-                  <button class='btn btn-outline flex flex-col gap-2 h-auto py-4'>
-                    <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                      <path
-                        stroke-linecap='round'
-                        stroke-linejoin='round'
-                        stroke-width='2'
-                        d='M12 6v6m0 0v6m0-6h6m-6 0H6'
-                      />
-                    </svg>
-                    <span class='text-sm'>Add Skills</span>
-                  </button>
                 </div>
               </div>
             </div>

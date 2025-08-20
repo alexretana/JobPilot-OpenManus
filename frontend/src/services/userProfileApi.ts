@@ -20,6 +20,10 @@ export interface UserProfile {
   last_name?: string;
   email?: string;
   phone?: string;
+  city?: string;
+  state?: string;
+  linkedin_url?: string;
+  portfolio_url?: string;
   current_title?: string;
   experience_years?: number;
   skills: string[];
@@ -39,6 +43,10 @@ export interface UserProfileCreate {
   last_name: string; // Required
   email: string; // Required (EmailStr)
   phone?: string;
+  city?: string;
+  state?: string;
+  linkedin_url?: string;
+  portfolio_url?: string;
   current_title?: string;
   experience_years?: number;
   skills: string[]; // Required (non-empty)
@@ -56,6 +64,10 @@ export interface UserProfileUpdate {
   last_name?: string;
   email?: string;
   phone?: string;
+  city?: string;
+  state?: string;
+  linkedin_url?: string;
+  portfolio_url?: string;
   current_title?: string;
   experience_years?: number;
   skills?: string[];
@@ -214,11 +226,20 @@ class UserProfileApiService {
   calculateCompleteness(profile: UserProfile): ProfileCompleteness {
     const requiredFields = {
       personal: ['first_name', 'last_name', 'email'],
-      professional: ['current_title', 'experience_years', 'skills', 'bio'],
+      professional: ['current_title', 'experience_years', 'bio'], // Removed 'skills' - now handled by Skill Bank
       preferences: ['preferred_locations', 'preferred_job_types', 'preferred_remote_types'],
     };
 
-    const optionalFields = ['phone', 'education', 'desired_salary_min', 'desired_salary_max'];
+    const optionalFields = [
+      'phone',
+      'city',
+      'state',
+      'linkedin_url',
+      'portfolio_url',
+      'education',
+      'desired_salary_min',
+      'desired_salary_max',
+    ];
 
     let totalFields = 0;
     let completedFields = 0;
@@ -252,14 +273,7 @@ class UserProfileApiService {
     let professionalCompleted = 0;
     for (const field of requiredFields.professional) {
       const value = profile[field as keyof UserProfile];
-      if (field === 'skills') {
-        if (Array.isArray(value) && value.length > 0) {
-          professionalCompleted++;
-          completedFields++;
-        } else {
-          missing.push(this.getFieldDisplayName(field));
-        }
-      } else if (value && (typeof value === 'string' ? value.trim() : true)) {
+      if (value && (typeof value === 'string' ? value.trim() : true)) {
         professionalCompleted++;
         completedFields++;
       } else {
@@ -296,7 +310,9 @@ class UserProfileApiService {
 
     // Additional suggestions based on profile state
     if (!profile.skills || profile.skills.length < 3) {
-      suggestions.push('Add more skills to improve job matching (aim for at least 5 skills)');
+      suggestions.push(
+        'Visit the Skill Bank to add and manage your skills for better job matching'
+      );
     }
 
     if (!profile.bio || profile.bio.length < 50) {
@@ -326,6 +342,10 @@ class UserProfileApiService {
       last_name: 'Last Name',
       email: 'Email Address',
       phone: 'Phone Number',
+      city: 'City',
+      state: 'State',
+      linkedin_url: 'LinkedIn Profile',
+      portfolio_url: 'Portfolio URL',
       current_title: 'Current Job Title',
       experience_years: 'Years of Experience',
       skills: 'Skills',
@@ -401,9 +421,8 @@ class UserProfileApiService {
       errors.push('Please enter a valid email address');
     }
 
-    if (!profile.skills || profile.skills.length === 0) {
-      errors.push('At least one skill is required');
-    }
+    // Skills are now managed through the Skill Bank feature
+    // Keep backward compatibility but don't require skills in profile creation/update
 
     if (!profile.preferred_job_types || profile.preferred_job_types.length === 0) {
       errors.push('At least one preferred job type is required');

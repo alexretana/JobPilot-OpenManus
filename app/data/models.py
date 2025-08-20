@@ -309,6 +309,14 @@ class UserProfile(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
 
+    # Location information
+    city: Optional[str] = None
+    state: Optional[str] = None
+
+    # Professional links
+    linkedin_url: Optional[str] = None
+    portfolio_url: Optional[str] = None
+
     # Professional information
     current_title: Optional[str] = None
     experience_years: Optional[int] = None
@@ -713,6 +721,14 @@ class UserProfileDB(Base):
     last_name = Column(String)
     email = Column(String, unique=True)
     phone = Column(String)
+
+    # Location information
+    city = Column(String)
+    state = Column(String)
+
+    # Professional links
+    linkedin_url = Column(String)
+    portfolio_url = Column(String)
 
     # Professional information
     current_title = Column(String)

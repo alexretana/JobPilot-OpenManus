@@ -28,9 +28,13 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
     last_name: '',
     email: '',
     phone: '',
+    city: '',
+    state: '',
+    linkedin_url: '',
+    portfolio_url: '',
     current_title: '',
     experience_years: undefined,
-    skills: [],
+    skills: [], // Keep for backward compatibility with API, but don't manage in form
     education: '',
     bio: '',
     preferred_locations: [],
@@ -40,8 +44,7 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
     desired_salary_max: undefined,
   });
 
-  // Skills input management
-  const [skillInput, setSkillInput] = createSignal('');
+  // Location input management (for preferences)
   const [locationInput, setLocationInput] = createSignal('');
 
   // Initialize form with existing profile data
@@ -52,9 +55,13 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
         last_name: props.profile.last_name || '',
         email: props.profile.email || '',
         phone: props.profile.phone || '',
+        city: props.profile.city || '',
+        state: props.profile.state || '',
+        linkedin_url: props.profile.linkedin_url || '',
+        portfolio_url: props.profile.portfolio_url || '',
         current_title: props.profile.current_title || '',
         experience_years: props.profile.experience_years,
-        skills: [...(props.profile.skills || [])],
+        skills: props.profile.skills || [], // Keep existing skills but don't allow editing
         education: props.profile.education || '',
         bio: props.profile.bio || '',
         preferred_locations: [...(props.profile.preferred_locations || [])],
@@ -65,28 +72,6 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
       });
     }
   });
-
-  const handleAddSkill = () => {
-    const skill = skillInput().trim();
-    if (skill && !formData.skills.includes(skill)) {
-      setFormData('skills', [...formData.skills, skill]);
-      setSkillInput('');
-    }
-  };
-
-  const handleRemoveSkill = (skillToRemove: string) => {
-    setFormData(
-      'skills',
-      formData.skills.filter(skill => skill !== skillToRemove)
-    );
-  };
-
-  const handleSkillKeyPress = (e: KeyboardEvent) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddSkill();
-    }
-  };
 
   const handleAddLocation = () => {
     const location = locationInput().trim();
@@ -288,6 +273,58 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
               placeholder='+1 (555) 123-4567'
             />
           </div>
+
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>City</span>
+            </label>
+            <input
+              type='text'
+              class='input input-bordered'
+              value={formData.city}
+              onInput={e => setFormData('city', e.currentTarget.value)}
+              placeholder='e.g., San Francisco'
+            />
+          </div>
+
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>State</span>
+            </label>
+            <input
+              type='text'
+              class='input input-bordered'
+              value={formData.state}
+              onInput={e => setFormData('state', e.currentTarget.value)}
+              placeholder='e.g., CA'
+            />
+          </div>
+
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>LinkedIn Profile</span>
+            </label>
+            <input
+              type='url'
+              class='input input-bordered'
+              value={formData.linkedin_url}
+              onInput={e => setFormData('linkedin_url', e.currentTarget.value)}
+              placeholder='https://linkedin.com/in/your-profile'
+            />
+          </div>
+
+          <div class='form-control'>
+            <label class='label'>
+              <span class='label-text'>Portfolio URL</span>
+            </label>
+            <input
+              type='url'
+              class='input input-bordered'
+              value={formData.portfolio_url}
+              onInput={e => setFormData('portfolio_url', e.currentTarget.value)}
+              placeholder='https://your-portfolio.com'
+            />
+          </div>
         </div>
       </Show>
 
@@ -342,57 +379,20 @@ const ProfileEditForm: Component<ProfileEditFormProps> = props => {
             />
           </div>
 
-          {/* Skills Management */}
-          <div class='form-control'>
-            <label class='label'>
-              <span class='label-text'>Skills *</span>
-              <span class='label-text-alt'>{formData.skills.length} skills added</span>
-            </label>
-
-            <div class='flex gap-2 mb-2'>
-              <input
-                type='text'
-                class='input input-bordered flex-1'
-                value={skillInput()}
-                onInput={e => setSkillInput(e.currentTarget.value)}
-                onKeyPress={handleSkillKeyPress}
-                placeholder='Type a skill and press Enter'
+          {/* Note: Skills are now managed through the Skill Bank feature */}
+          <div class='alert alert-info'>
+            <svg class='stroke-current shrink-0 w-6 h-6' fill='none' viewBox='0 0 24 24'>
+              <path
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                stroke-width='2'
+                d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
               />
-              <button
-                type='button'
-                class='btn btn-primary'
-                onClick={handleAddSkill}
-                disabled={!skillInput().trim()}
-              >
-                Add
-              </button>
-            </div>
-
-            <Show when={formData.skills.length > 0}>
-              <div class='flex flex-wrap gap-2'>
-                <For each={formData.skills}>
-                  {skill => (
-                    <div class='badge badge-primary gap-2'>
-                      {skill}
-                      <button
-                        type='button'
-                        class='btn btn-ghost btn-circle btn-xs'
-                        onClick={() => handleRemoveSkill(skill)}
-                      >
-                        <svg class='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                          <path
-                            stroke-linecap='round'
-                            stroke-linejoin='round'
-                            stroke-width='2'
-                            d='M6 18L18 6M6 6l12 12'
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  )}
-                </For>
-              </div>
-            </Show>
+            </svg>
+            <span>
+              Skills are now managed through the dedicated Skill Bank feature. Visit your profile to
+              access the Skill Bank.
+            </span>
           </div>
 
           <div class='form-control'>
