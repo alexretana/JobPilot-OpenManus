@@ -527,7 +527,273 @@ class SkillBankRepository:
 
 
 def create_default_skill_bank(user_id: str) -> SkillBank:
-    """Create a default skill bank for a new user."""
+    """Create a default skill bank for a new user with comprehensive mock data."""
+    from datetime import date
+
+    # Create sample enhanced skills
+    technical_skills = [
+        EnhancedSkill(
+            name="Python",
+            level=SkillLevel.EXPERT,
+            category=SkillCategory.TECHNICAL,
+            subcategory="Programming Languages",
+            years_experience=5,
+            proficiency_score=0.9,
+            description="Expert in Python development with focus on web applications, data analysis, and automation",
+            keywords=["Django", "FastAPI", "NumPy", "Pandas", "Automation"],
+            is_featured=True,
+            display_order=1,
+        ),
+        EnhancedSkill(
+            name="JavaScript",
+            level=SkillLevel.EXPERT,
+            category=SkillCategory.TECHNICAL,
+            subcategory="Programming Languages",
+            years_experience=4,
+            proficiency_score=0.85,
+            description="Full-stack JavaScript development including modern ES6+, Node.js, and frontend frameworks",
+            keywords=["ES6+", "Node.js", "React", "Vue", "TypeScript"],
+            is_featured=True,
+            display_order=2,
+        ),
+        EnhancedSkill(
+            name="React",
+            level=SkillLevel.EXPERT,
+            category=SkillCategory.FRAMEWORK,
+            subcategory="Frontend Frameworks",
+            years_experience=3,
+            proficiency_score=0.8,
+            description="Advanced React development including hooks, context, state management, and modern patterns",
+            keywords=["Hooks", "Redux", "Context API", "JSX", "Components"],
+            is_featured=True,
+            display_order=3,
+        ),
+        EnhancedSkill(
+            name="SQL",
+            level=SkillLevel.ADVANCED,
+            category=SkillCategory.TECHNICAL,
+            subcategory="Database",
+            years_experience=4,
+            proficiency_score=0.75,
+            description="Database design, complex queries, performance optimization, and data modeling",
+            keywords=["PostgreSQL", "MySQL", "Query Optimization", "Database Design"],
+            is_featured=False,
+            display_order=4,
+        ),
+    ]
+
+    soft_skills = [
+        EnhancedSkill(
+            name="Project Management",
+            level=SkillLevel.ADVANCED,
+            category=SkillCategory.SOFT,
+            subcategory="Leadership",
+            years_experience=3,
+            proficiency_score=0.8,
+            description="Leading cross-functional teams, agile methodologies, and project delivery",
+            keywords=["Agile", "Scrum", "Team Leadership", "Planning"],
+            is_featured=True,
+            display_order=1,
+        ),
+        EnhancedSkill(
+            name="Communication",
+            level=SkillLevel.EXPERT,
+            category=SkillCategory.SOFT,
+            subcategory="Interpersonal",
+            years_experience=5,
+            proficiency_score=0.9,
+            description="Excellent written and verbal communication, presentation skills, and stakeholder management",
+            keywords=["Presentations", "Technical Writing", "Stakeholder Management"],
+            is_featured=True,
+            display_order=2,
+        ),
+    ]
+
+    tools_skills = [
+        EnhancedSkill(
+            name="Git",
+            level=SkillLevel.EXPERT,
+            category=SkillCategory.TOOL,
+            subcategory="Version Control",
+            years_experience=5,
+            proficiency_score=0.9,
+            description="Advanced Git workflows, branching strategies, and collaboration practices",
+            keywords=["GitHub", "GitLab", "Branching", "Merge Conflicts"],
+            is_featured=False,
+            display_order=1,
+        ),
+        EnhancedSkill(
+            name="Docker",
+            level=SkillLevel.ADVANCED,
+            category=SkillCategory.TOOL,
+            subcategory="DevOps",
+            years_experience=2,
+            proficiency_score=0.7,
+            description="Containerization, Docker Compose, and deployment strategies",
+            keywords=["Containerization", "Docker Compose", "Deployment"],
+            is_featured=False,
+            display_order=2,
+        ),
+    ]
+
+    # Create sample summary variations
+    summary_variations = [
+        SummaryVariation(
+            title="Technical Leadership Focus",
+            content="Experienced software engineer with 5+ years developing scalable web applications using Python, JavaScript, and modern frameworks. Proven track record of leading development teams and delivering high-quality solutions. Passionate about clean code, best practices, and mentoring junior developers.",
+            tone="professional",
+            length="standard",
+            focus=ContentFocusType.TECHNICAL,
+            target_industries=["Technology", "Software", "Startups"],
+            target_roles=["Senior Developer", "Tech Lead", "Engineering Manager"],
+            keywords_emphasized=[
+                "Python",
+                "JavaScript",
+                "Leadership",
+                "Scalable Applications",
+            ],
+        ),
+        SummaryVariation(
+            title="Full-Stack Developer Focus",
+            content="Full-stack developer specializing in modern web technologies including React, Python, and cloud platforms. Strong background in both frontend user experience and backend architecture. Experienced in agile development and cross-functional collaboration.",
+            tone="professional",
+            length="concise",
+            focus=ContentFocusType.GENERAL,
+            target_industries=["Technology", "E-commerce", "SaaS"],
+            target_roles=["Full Stack Developer", "Software Engineer", "Web Developer"],
+            keywords_emphasized=["React", "Python", "Full-Stack", "Agile"],
+        ),
+        SummaryVariation(
+            title="Results-Oriented Focus",
+            content="Results-driven software engineer with expertise in building high-performance applications that serve millions of users. Led projects that increased system efficiency by 40% and reduced deployment time by 60%. Strong focus on scalability, performance optimization, and user experience.",
+            tone="professional",
+            length="standard",
+            focus=ContentFocusType.RESULTS,
+            target_industries=["Technology", "Enterprise Software", "SaaS"],
+            target_roles=[
+                "Senior Engineer",
+                "Principal Developer",
+                "Technical Architect",
+            ],
+            keywords_emphasized=[
+                "Performance",
+                "Scalability",
+                "Results",
+                "Optimization",
+            ],
+        ),
+    ]
+
+    # Create sample work experiences
+    work_experiences = [
+        ExperienceEntry(
+            company="TechCorp Solutions",
+            position="Senior Software Engineer",
+            location="San Francisco, CA",
+            start_date=date(2022, 1, 15),
+            end_date=None,
+            is_current=True,
+            experience_type=ExperienceType.FULL_TIME,
+            default_description="Lead development of microservices architecture serving 2M+ daily active users. Architect and implement scalable solutions using Python, React, and cloud technologies.",
+            default_achievements=[
+                "Improved system performance by 40% through database optimization and caching strategies",
+                "Led a team of 5 developers in migrating legacy monolith to microservices architecture",
+                "Implemented CI/CD pipeline reducing deployment time from 2 hours to 15 minutes",
+                "Mentored 3 junior developers, with 2 receiving promotions within 18 months",
+            ],
+            skills_used=["Python", "React", "PostgreSQL", "Docker", "AWS"],
+            technologies=["FastAPI", "Redux", "Redis", "Kubernetes", "GitLab CI"],
+        ),
+        ExperienceEntry(
+            company="DataFlow Analytics",
+            position="Software Developer",
+            location="Austin, TX",
+            start_date=date(2020, 3, 1),
+            end_date=date(2022, 1, 10),
+            is_current=False,
+            experience_type=ExperienceType.FULL_TIME,
+            default_description="Full-stack development of data analytics platform processing 10TB+ daily. Built responsive web interfaces and robust API services.",
+            default_achievements=[
+                "Developed real-time dashboard displaying analytics for 500+ enterprise clients",
+                "Optimized data processing pipeline, reducing analysis time from hours to minutes",
+                "Built REST APIs handling 100K+ requests per day with 99.9% uptime",
+                "Collaborated with data science team to implement machine learning model integration",
+            ],
+            skills_used=["JavaScript", "Python", "SQL", "React", "Node.js"],
+            technologies=["Express.js", "MongoDB", "D3.js", "Pandas", "Scikit-learn"],
+        ),
+        ExperienceEntry(
+            company="WebSolutions Inc",
+            position="Junior Developer",
+            location="Remote",
+            start_date=date(2019, 6, 1),
+            end_date=date(2020, 2, 28),
+            is_current=False,
+            experience_type=ExperienceType.FULL_TIME,
+            default_description="Frontend development for e-commerce platform with focus on user experience and responsive design. Collaborated closely with design and backend teams.",
+            default_achievements=[
+                "Implemented responsive design improving mobile conversion rate by 25%",
+                "Built reusable component library adopted across 3 product teams",
+                "Reduced page load time by 30% through code optimization and lazy loading",
+            ],
+            skills_used=["JavaScript", "HTML", "CSS", "React", "Git"],
+            technologies=["Webpack", "Sass", "Jest", "Figma", "GitHub"],
+        ),
+    ]
+
+    # Create sample projects
+    projects = [
+        ProjectEntry(
+            name="Task Management SaaS Platform",
+            url="https://github.com/user/task-manager",
+            github_url="https://github.com/user/task-manager",
+            start_date=date(2023, 6, 1),
+            end_date=date(2023, 9, 15),
+            default_description="Full-stack SaaS application for team task management with real-time collaboration features",
+            default_achievements=[
+                "Built with React frontend and FastAPI backend serving 1000+ registered users",
+                "Implemented real-time updates using WebSockets and Redis pub/sub",
+                "Achieved 99.5% uptime with automated deployment and monitoring",
+            ],
+            technologies=["React", "FastAPI", "PostgreSQL", "Redis", "Docker", "AWS"],
+        ),
+        ProjectEntry(
+            name="AI-Powered Content Analyzer",
+            url="https://content-analyzer.demo.com",
+            github_url="https://github.com/user/content-analyzer",
+            start_date=date(2023, 1, 1),
+            end_date=date(2023, 3, 31),
+            default_description="Machine learning application that analyzes content sentiment and provides optimization suggestions",
+            default_achievements=[
+                "Integrated OpenAI GPT API for advanced content analysis",
+                "Achieved 85% accuracy in sentiment classification",
+                "Processed 10,000+ articles with average analysis time under 2 seconds",
+            ],
+            technologies=["Python", "Scikit-learn", "Flask", "OpenAI API", "React"],
+        ),
+    ]
+
+    # Create sample certifications
+    certifications = [
+        Certification(
+            name="AWS Solutions Architect Associate",
+            issuer="Amazon Web Services",
+            issue_date=date(2023, 5, 15),
+            expiry_date=date(2026, 5, 15),
+            credential_id="AWS-SAA-2023-051567",
+            url="https://aws.amazon.com/certification/",
+            description="Demonstrates expertise in designing distributed systems on AWS",
+        ),
+        Certification(
+            name="Professional Scrum Master I",
+            issuer="Scrum.org",
+            issue_date=date(2022, 11, 8),
+            expiry_date=None,
+            credential_id="PSM-I-2022-110834",
+            url="https://scrum.org/",
+            description="Validates knowledge of Scrum framework and agile principles",
+        ),
+    ]
 
     return SkillBank(
         user_id=user_id,
@@ -540,9 +806,16 @@ def create_default_skill_bank(user_id: str) -> SkillBank:
             "Methodologies",
             "Domain Knowledge",
         ],
-        skills={"Technical Skills": [], "Soft Skills": [], "Tools & Technologies": []},
-        default_summary="",
-        summary_variations=[],
+        skills={
+            "Technical Skills": technical_skills,
+            "Soft Skills": soft_skills,
+            "Tools & Technologies": tools_skills,
+        },
+        default_summary="Experienced software engineer with 5+ years developing scalable web applications. Strong background in Python, JavaScript, and modern development practices with a focus on clean code and team collaboration.",
+        summary_variations=summary_variations,
+        work_experiences=work_experiences,
+        projects=projects,
+        certifications=certifications,
     )
 
 
