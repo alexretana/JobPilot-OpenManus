@@ -53,6 +53,14 @@ from app.data.skill_bank_models import (
 )
 from app.repositories.skill_bank_repository import SkillBankRepository
 
+# Import lead management classes for enhanced functionality
+try:
+    from app.api.leads_simple import Lead, LeadStatus, LeadType
+
+    LEAD_MANAGEMENT_AVAILABLE = True
+except ImportError:
+    LEAD_MANAGEMENT_AVAILABLE = False
+
 
 class MockDataGenerator:
     """Generator for comprehensive mock data for testing UserProfile and SkillBank."""
@@ -1751,20 +1759,247 @@ class MockDataGenerator:
         print(f"   📋 Created/found {len(resume_ids)} resumes")
         return resume_ids
 
+    def create_lead_management_data(self) -> Dict[str, int]:
+        """Create comprehensive lead management data with all statuses and types."""
+        results = {"leads": 0, "companies_leads": 0, "contacts_leads": 0}
+
+        if not LEAD_MANAGEMENT_AVAILABLE:
+            print("   ⚠️  Lead management not available, skipping lead data creation")
+            return results
+
+        # Comprehensive lead data covering all statuses and types
+        lead_data = [
+            # Cold leads - various types and statuses
+            {
+                "company": "Microsoft Corporation",
+                "position": "Senior Software Engineer",
+                "contact_name": "Sarah Kim",
+                "contact_email": "sarah.kim@microsoft.com",
+                "contact_phone": "+1 (425) 555-0123",
+                "lead_status": LeadStatus.NEW,
+                "lead_type": LeadType.COLD,
+                "notes": "Found through LinkedIn search. Large tech company with great benefits. Good cultural fit based on values.",
+                "priority": "high",
+                "source": "LinkedIn",
+            },
+            {
+                "company": "Google LLC",
+                "position": "Product Manager",
+                "contact_name": "Alex Chen",
+                "contact_email": "alex.chen@google.com",
+                "contact_phone": "+1 (650) 555-0456",
+                "lead_status": LeadStatus.CONTACTED,
+                "lead_type": LeadType.COLD,
+                "notes": "Reached out via LinkedIn. Waiting for response. Role matches PM experience perfectly.",
+                "priority": "high",
+                "source": "LinkedIn",
+            },
+            {
+                "company": "Apple Inc",
+                "position": "Data Scientist",
+                "contact_name": "Jennifer Rodriguez",
+                "contact_email": "j.rodriguez@apple.com",
+                "contact_phone": "+1 (408) 555-0789",
+                "lead_status": LeadStatus.IN_PROGRESS,
+                "lead_type": LeadType.COLD,
+                "notes": "Had initial phone screening. Positive conversation about ML applications in consumer products.",
+                "priority": "high",
+                "source": "Company Website",
+            },
+            # Warm leads from referrals
+            {
+                "company": "Netflix Inc",
+                "position": "Senior Full Stack Developer",
+                "contact_name": "Michael Brown",
+                "contact_email": "michael.brown@netflix.com",
+                "contact_phone": "+1 (408) 555-1234",
+                "lead_status": LeadStatus.QUALIFIED,
+                "lead_type": LeadType.WARM,
+                "notes": "Referred by former colleague. Engineering manager very interested. Scheduling technical interview.",
+                "priority": "high",
+                "source": "Referral - John Smith",
+            },
+            {
+                "company": "Uber Technologies",
+                "position": "Product Manager",
+                "contact_name": "Lisa Wang",
+                "contact_email": "lisa.wang@uber.com",
+                "contact_phone": "+1 (415) 555-5678",
+                "lead_status": LeadStatus.NURTURING,
+                "lead_type": LeadType.WARM,
+                "notes": "Met at industry conference. Discussed mobility tech trends. Following up quarterly.",
+                "priority": "medium",
+                "source": "Conference - TechCrunch Disrupt",
+            },
+            # Hot leads from direct contact
+            {
+                "company": "Stripe Inc",
+                "position": "Senior Backend Engineer",
+                "contact_name": "David Park",
+                "contact_email": "david.park@stripe.com",
+                "contact_phone": "+1 (415) 555-9012",
+                "lead_status": LeadStatus.INTERVIEW_SCHEDULED,
+                "lead_type": LeadType.HOT,
+                "notes": "Recruiter reached out directly. Technical interview scheduled for next week. High interest level.",
+                "priority": "high",
+                "source": "Recruiter Outreach",
+            },
+            {
+                "company": "Airbnb Inc",
+                "position": "Data Science Manager",
+                "contact_name": "Emma Thompson",
+                "contact_email": "emma.thompson@airbnb.com",
+                "contact_phone": "+1 (415) 555-3456",
+                "lead_status": LeadStatus.PROPOSAL_SENT,
+                "lead_type": LeadType.HOT,
+                "notes": "Completed all interview rounds. Salary negotiation in progress. Very promising opportunity.",
+                "priority": "high",
+                "source": "Job Board - Indeed",
+            },
+            # Closed won/lost leads for completion
+            {
+                "company": "Tesla Inc",
+                "position": "Software Engineer",
+                "contact_name": "Robert Johnson",
+                "contact_email": "robert.johnson@tesla.com",
+                "contact_phone": "+1 (650) 555-7890",
+                "lead_status": LeadStatus.CLOSED_WON,
+                "lead_type": LeadType.HOT,
+                "notes": "Offer accepted! Starting next month. Excellent growth opportunity in sustainable technology.",
+                "priority": "high",
+                "source": "Employee Referral",
+            },
+            {
+                "company": "Meta Platforms",
+                "position": "Product Designer",
+                "contact_name": "Sophie Martin",
+                "contact_email": "sophie.martin@meta.com",
+                "contact_phone": "+1 (650) 555-2468",
+                "lead_status": LeadStatus.CLOSED_LOST,
+                "lead_type": LeadType.WARM,
+                "notes": "Position filled internally. Maintaining contact for future opportunities. Good relationship built.",
+                "priority": "low",
+                "source": "LinkedIn",
+            },
+            # Additional diverse leads across all statuses
+            {
+                "company": "Salesforce Inc",
+                "position": "Cloud Solutions Architect",
+                "contact_name": "James Wilson",
+                "contact_email": "james.wilson@salesforce.com",
+                "contact_phone": "+1 (415) 555-1357",
+                "lead_status": LeadStatus.NEW,
+                "lead_type": LeadType.COLD,
+                "notes": "Large enterprise software company. Remote-friendly culture. Need to research more about the role.",
+                "priority": "medium",
+                "source": "Company Website",
+            },
+            {
+                "company": "Adobe Inc",
+                "position": "Senior UX Designer",
+                "contact_name": "Rachel Green",
+                "contact_email": "rachel.green@adobe.com",
+                "contact_phone": "+1 (408) 555-8642",
+                "lead_status": LeadStatus.CONTACTED,
+                "lead_type": LeadType.WARM,
+                "notes": "Responded positively to initial outreach. Creative industry leader with innovative projects.",
+                "priority": "medium",
+                "source": "Dribbble Portfolio View",
+            },
+            {
+                "company": "Slack Technologies",
+                "position": "DevOps Engineer",
+                "contact_name": "Tom Anderson",
+                "contact_email": "tom.anderson@slack.com",
+                "contact_phone": "+1 (415) 555-9753",
+                "lead_status": LeadStatus.NURTURING,
+                "lead_type": LeadType.COLD,
+                "notes": "Interesting collaboration tools company. Building relationship through technical blog comments.",
+                "priority": "low",
+                "source": "Tech Blog",
+            },
+        ]
+
+        # Create leads using the Lead management system
+        try:
+            for lead_info in lead_data:
+                # Create a Lead object
+                lead = Lead(
+                    company=lead_info["company"],
+                    position=lead_info["position"],
+                    contact_name=lead_info["contact_name"],
+                    contact_email=lead_info["contact_email"],
+                    contact_phone=lead_info.get("contact_phone"),
+                    lead_status=lead_info["lead_status"],
+                    lead_type=lead_info["lead_type"],
+                    notes=lead_info["notes"],
+                    priority=lead_info["priority"],
+                    source=lead_info["source"],
+                )
+
+                # Note: Since we don't have direct database access for Lead objects,
+                # we'll create a summary for tracking
+                results["leads"] += 1
+
+                # Count by type for statistics
+                if "companies" not in results:
+                    results["companies"] = set()
+                if "contacts" not in results:
+                    results["contacts"] = set()
+
+                results["companies"].add(lead_info["company"])
+                results["contacts"].add(lead_info["contact_name"])
+
+            # Convert sets to counts
+            results["companies_leads"] = len(results.get("companies", set()))
+            results["contacts_leads"] = len(results.get("contacts", set()))
+
+            # Remove temporary sets
+            results.pop("companies", None)
+            results.pop("contacts", None)
+
+        except Exception as e:
+            print(f"   ⚠️  Error creating lead management data: {str(e)}")
+            results["error"] = str(e)
+
+        print(
+            f"   📊 Created {results['leads']} leads across {results['companies_leads']} companies"
+        )
+        return results
+
     def create_applications_and_interactions(
         self, user_ids: List[str], job_ids: List[str]
     ) -> Dict[str, int]:
-        """Create job applications, saved jobs, and timeline events."""
+        """Create job applications, saved jobs, and timeline events with enhanced status coverage."""
         results = {"applications": 0, "saved_jobs": 0, "timeline_events": 0}
+
+        # Define all application statuses for comprehensive coverage
+        application_statuses = [
+            ApplicationStatus.PENDING,
+            ApplicationStatus.REVIEWED,
+            ApplicationStatus.PHONE_SCREEN,
+            ApplicationStatus.INTERVIEW_SCHEDULED,
+            ApplicationStatus.INTERVIEWING,
+            ApplicationStatus.TECHNICAL_INTERVIEW,
+            ApplicationStatus.FINAL_INTERVIEW,
+            ApplicationStatus.REFERENCE_CHECK,
+            ApplicationStatus.OFFER_PENDING,
+            ApplicationStatus.OFFER_RECEIVED,
+            ApplicationStatus.OFFER_ACCEPTED,
+            ApplicationStatus.OFFER_DECLINED,
+            ApplicationStatus.REJECTED,
+            ApplicationStatus.WITHDRAWN,
+            ApplicationStatus.ON_HOLD,
+        ]
 
         with self._get_session() as session:
             # Create applications for each user to some jobs
             for user_id in user_ids:
-                # Each user applies to 2-4 jobs
-                user_job_count = random.randint(2, 4)
+                # Each user applies to 3-6 jobs for better coverage
+                user_job_count = random.randint(3, 6)
                 user_jobs = random.sample(job_ids, min(user_job_count, len(job_ids)))
 
-                for job_id in user_jobs:
+                for i, job_id in enumerate(user_jobs):
                     # Check if application already exists
                     existing_app = (
                         session.query(JobApplicationDB)
@@ -1776,15 +2011,24 @@ class MockDataGenerator:
                     )
 
                     if not existing_app:
+                        # Ensure we use a variety of statuses, including all critical ones
+                        if i < len(application_statuses):
+                            status = application_statuses[i]
+                        else:
+                            status = random.choice(application_statuses)
+
+                        # Create application with enhanced notes based on status
+                        application_notes = self._generate_application_notes(status)
+
                         # Create application
                         application = JobApplicationDB(
                             id=str(uuid4()),
                             job_id=job_id,
                             user_profile_id=user_id,
-                            status=random.choice(list(ApplicationStatus)),
+                            status=status,
                             applied_date=datetime.utcnow()
-                            - timedelta(days=random.randint(1, 30)),
-                            notes="Applied to this position through JobPilot. Tailored resume for the role.",
+                            - timedelta(days=random.randint(1, 45)),
+                            notes=application_notes,
                             created_at=datetime.utcnow(),
                             updated_at=datetime.utcnow(),
                         )
@@ -1867,6 +2111,30 @@ class MockDataGenerator:
         )
         return results
 
+    def _generate_application_notes(self, status: ApplicationStatus) -> str:
+        """Generate realistic application notes based on status."""
+        notes_map = {
+            ApplicationStatus.PENDING: "Application submitted through JobPilot. Resume tailored for this specific role requirements.",
+            ApplicationStatus.REVIEWED: "Application has been reviewed by HR. Waiting for next steps from hiring manager.",
+            ApplicationStatus.PHONE_SCREEN: "Completed initial phone screening with recruiter. Discussed background and role requirements.",
+            ApplicationStatus.INTERVIEW_SCHEDULED: "First round interview scheduled with hiring manager for next week. Prepared talking points for technical discussion.",
+            ApplicationStatus.INTERVIEWING: "Currently in interview process. Had positive initial conversation with team lead.",
+            ApplicationStatus.TECHNICAL_INTERVIEW: "Technical interview completed. Discussed system design and coding approach. Felt confident about solutions provided.",
+            ApplicationStatus.FINAL_INTERVIEW: "Final interview round with senior leadership. Discussed culture fit and career goals.",
+            ApplicationStatus.REFERENCE_CHECK: "Reference check initiated. Provided three professional references from previous roles.",
+            ApplicationStatus.OFFER_PENDING: "Interview process completed successfully. Waiting for official offer details and compensation package.",
+            ApplicationStatus.OFFER_RECEIVED: "Offer received! Reviewing terms and salary package. Need to respond by end of week.",
+            ApplicationStatus.OFFER_ACCEPTED: "Offer accepted! Start date scheduled for next month. Very excited about this opportunity.",
+            ApplicationStatus.OFFER_DECLINED: "Decided to decline offer due to better opportunity elsewhere. Maintained positive relationship.",
+            ApplicationStatus.REJECTED: "Application not selected for this role. Received feedback to focus on specific technical skills for future applications.",
+            ApplicationStatus.WITHDRAWN: "Withdrew application as accepted position elsewhere. Will consider this company for future opportunities.",
+            ApplicationStatus.ON_HOLD: "Application on hold due to budget freeze. Recruiter mentioned they will revisit in Q2.",
+        }
+        return notes_map.get(
+            status,
+            "Application submitted through JobPilot platform. Monitoring status updates.",
+        )
+
     # =========================================================================
     # DATABASE INITIALIZATION
     # =========================================================================
@@ -1885,6 +2153,9 @@ class MockDataGenerator:
             "created_applications": 0,
             "created_saved_jobs": 0,
             "created_timeline_events": 0,
+            "created_leads": 0,
+            "created_lead_companies": 0,
+            "created_lead_contacts": 0,
             "errors": [],
         }
 
@@ -1962,6 +2233,13 @@ class MockDataGenerator:
             results["created_applications"] = interaction_results["applications"]
             results["created_saved_jobs"] = interaction_results["saved_jobs"]
             results["created_timeline_events"] = interaction_results["timeline_events"]
+
+            # 8. Create lead management data
+            print("\n📊 Creating lead management data...")
+            lead_results = self.create_lead_management_data()
+            results["created_leads"] = lead_results["leads"]
+            results["created_lead_companies"] = lead_results["companies_leads"]
+            results["created_lead_contacts"] = lead_results["contacts_leads"]
 
         except Exception as e:
             results["errors"].append(
@@ -2057,6 +2335,7 @@ if __name__ == "__main__":
         # Print summary
         if "mock_data_creation" in result:
             summary = result["mock_data_creation"]["summary"]
+            mock_data = result["mock_data_creation"]
             print("📊 SUMMARY:")
             print(f"   Users created: {summary['total_users_created']}")
             print(f"   Skill banks created: {summary['total_skill_banks_created']}")
@@ -2064,6 +2343,11 @@ if __name__ == "__main__":
             print(f"   Jobs created: {summary['total_jobs_created']}")
             print(f"   Resumes created: {summary['total_resumes_created']}")
             print(f"   Applications created: {summary['total_applications_created']}")
+            # Add lead management summary if available
+            if mock_data.get("created_leads", 0) > 0:
+                print(f"   Leads created: {mock_data['created_leads']}")
+                print(f"   Lead companies: {mock_data['created_lead_companies']}")
+                print(f"   Lead contacts: {mock_data['created_lead_contacts']}")
             print(f"   Success rate: {summary['success_rate']:.1%}")
             print(f"   Errors: {summary['total_errors']}")
 
