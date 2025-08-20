@@ -143,6 +143,16 @@ class CompanySizeCategory(str, Enum):
     ENTERPRISE = "enterprise"  # 5000+ employees
 
 
+class InteractionType(str, Enum):
+    """Types of user interactions with jobs."""
+
+    VIEWED = "viewed"
+    SAVED = "saved"
+    APPLIED = "applied"
+    HIDDEN = "hidden"
+    REJECTED_BY_USER = "rejected_by_user"
+
+
 class SeniorityLevel(str, Enum):
     """Job seniority levels."""
 
@@ -257,12 +267,12 @@ class JobListingBase(BaseModel):
 
     # Additional information
     benefits: Optional[List[str]] = []
-    company_size: Optional[str] = None
-    industry: Optional[str] = None
+    # REMOVE: company_size - now in company relationship
+    # REMOVE: industry - now in company relationship
 
     # URLs and external references
     job_url: Optional[str] = None
-    company_url: Optional[str] = None
+    # REMOVE: company_url - now in company relationship as 'website'
     application_url: Optional[str] = None
 
     # Metadata
@@ -301,6 +311,16 @@ class JobListing(JobListingBase):
     """Complete job listing with metadata."""
 
     id: UUID = Field(default_factory=uuid4)
+
+    # ADD: Company relationship fields
+    company_id: Optional[UUID] = None
+    company_name: Optional[str] = (
+        None  # For display purposes, populated from relationship
+    )
+
+    # Keep existing company field for backward compatibility during migration
+    # company: str  # Will be populated from company.name - already inherited from JobListingBase
+
     status: JobStatus = JobStatus.ACTIVE
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
@@ -718,7 +738,10 @@ class JobListingDB(Base):
 
     # Relationships
     company = relationship("CompanyInfoDB", back_populates="job_listings")
-    applications = relationship("JobApplicationDB", back_populates="job")
+    # applications = relationship("JobApplicationDB", back_populates="job")  # DELETE - replaced by user_interactions
+    user_interactions = relationship(
+        "JobUserInteractionDB", back_populates="job"
+    )  # NEW: consolidated interactions
     source_listings = relationship("JobSourceListingDB", back_populates="job")
     embeddings = relationship("JobEmbeddingDB", back_populates="job")
     canonical_job = relationship("JobListingDB", remote_side=[id])
@@ -764,7 +787,10 @@ class UserProfileDB(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    applications = relationship("JobApplicationDB", back_populates="user_profile")
+    # applications = relationship("JobApplicationDB", back_populates="user_profile")  # DELETE - replaced by job_interactions
+    job_interactions = relationship(
+        "JobUserInteractionDB", back_populates="user"
+    )  # NEW: consolidated interactions
     resumes = relationship("ResumeDB", back_populates="user")
     skill_bank = relationship(
         "EnhancedSkillBankDB", back_populates="user", uselist=False
@@ -799,8 +825,8 @@ class JobApplicationDB(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    job = relationship("JobListingDB", back_populates="applications")
-    user_profile = relationship("UserProfileDB", back_populates="applications")
+    # job = relationship("JobListingDB", back_populates="applications")  # REMOVE - applications relationship no longer exists in JobListingDB
+    # user_profile = relationship("UserProfileDB", back_populates="applications")  # REMOVE - no longer valid relationship
 
 
 class SavedJobDB(Base):
@@ -824,6 +850,76 @@ class SavedJobDB(Base):
     # Relationships
     job = relationship("JobListingDB")
     user_profile = relationship("UserProfileDB")
+
+
+class JobUserInteractionDB(Base):
+    """Consolidated user-job interactions (replaces JobApplicationDB + SavedJobDB)."""
+
+    __tablename__ = "job_user_interactions"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
+    user_id = Column(String, ForeignKey("user_profiles.id"), nullable=False, index=True)
+    job_id = Column(String, ForeignKey("job_listings.id"), nullable=False, index=True)
+
+    # Interaction classification
+    interaction_type = Column(SQLEnum(InteractionType), nullable=False, index=True)
+
+    # Application-specific fields (used when interaction_type = APPLIED)
+    application_status = Column(SQLEnum(ApplicationStatus))
+    applied_date = Column(DateTime)
+    response_date = Column(DateTime)
+    resume_version = Column(String)  # Which resume was used
+    cover_letter = Column(Text)
+    follow_up_date = Column(DateTime)
+    interview_scheduled = Column(DateTime)
+
+    # Saved job specific fields (used when interaction_type = SAVED)
+    saved_date = Column(DateTime)
+    tags = Column(JSON, default=list)  # User organization tags
+
+    # Common fields
+    notes = Column(Text)  # User notes about this job/application
+    interaction_data = Column(
+        JSON, default=dict
+    )  # Flexible storage for interaction-specific data
+
+    # Tracking
+    first_interaction = Column(DateTime, default=datetime.utcnow)
+    last_interaction = Column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
+    interaction_count = Column(Integer, default=1)  # How many times user interacted
+
+    # Job snapshot (preserve job details at time of key interactions)
+    job_snapshot = Column(JSON)  # Store job details when applied/saved
+
+    # Relationships
+    user = relationship("UserProfileDB", back_populates="job_interactions")
+    job = relationship("JobListingDB", back_populates="user_interactions")
+
+    # Constraints
+    __table_args__ = (
+        UniqueConstraint(
+            "user_id", "job_id", "interaction_type", name="unique_user_job_interaction"
+        ),
+        Index(
+            "idx_user_interaction_type_date",
+            "user_id",
+            "interaction_type",
+            "last_interaction",
+        ),
+        Index("idx_job_interaction_type", "job_id", "interaction_type"),
+        # Ensure application fields are set when interaction_type is APPLIED
+        # CheckConstraint(
+        #     "interaction_type != 'applied' OR application_status IS NOT NULL",
+        #     name="applied_interactions_need_status"
+        # ),
+        # Ensure saved_date is set when interaction_type is SAVED
+        # CheckConstraint(
+        #     "interaction_type != 'saved' OR saved_date IS NOT NULL",
+        #     name="saved_interactions_need_date"
+        # ),
+    )
 
 
 class CompanyInfoDB(Base):

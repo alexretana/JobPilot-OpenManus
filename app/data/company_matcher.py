@@ -32,12 +32,22 @@ def normalize_company_name(name: str) -> str:
     if not name:
         return ""
 
-    # Remove common company suffixes/prefixes (case insensitive)
-    suffixes_pattern = r"\b(Inc|LLC|Corp|Corporation|Ltd|Limited|Co|Company|Group|Holdings|Enterprises|Solutions|Technologies|Tech|Systems|Services|International|Intl|& Co|LLP|LP|PLC|SA|AG|GmbH|Pty|Pvt)\b\.?"
-    name = re.sub(suffixes_pattern, "", name, flags=re.IGNORECASE)
+    # First, normalize ampersands to 'and'
+    name = re.sub(r"\s*&\s*", " and ", name)
 
-    # Remove common punctuation and special characters
-    name = re.sub(r"[,\.&\-_\(\)\[\]{}]", " ", name)
+    # Remove common company suffixes/prefixes (case insensitive)
+    # Be careful with order - more specific patterns first
+    suffixes_patterns = [
+        r"\b(and Co|& Co)\b\.?",  # Handle "& Co" first
+        r"\b(Inc|LLC|Corp|Corporation|Ltd|Limited|Company|Group|Holdings|Enterprises|Technologies|Systems|Services|International|Intl|LLP|LP|PLC|SA|AG|GmbH|Pty|Pvt)\b\.?",
+        r"\bCo\b\.?$",  # Only remove "Co" at the end to avoid removing from "Tech Solutions Co"
+    ]
+
+    for pattern in suffixes_patterns:
+        name = re.sub(pattern, "", name, flags=re.IGNORECASE)
+
+    # Remove common punctuation and special characters (but keep spaces for words)
+    name = re.sub(r"[,\.\-_\(\)\[\]{}]", " ", name)
 
     # Remove extra whitespace and convert to lowercase
     normalized = " ".join(name.split()).lower().strip()
@@ -326,6 +336,9 @@ def get_company_size_category_from_string(size_string: str) -> Optional[str]:
     # Extract numbers from size string
     numbers = re.findall(r"\d+", size_string.replace(",", ""))
 
+    # Check for "+" indicating "or more"
+    has_plus = "+" in size_string
+
     if not numbers:
         # Try to match keywords
         size_lower = size_string.lower()
@@ -347,6 +360,10 @@ def get_company_size_category_from_string(size_string: str) -> Optional[str]:
 
     # Use the largest number found as the employee count
     max_employees = max(int(num) for num in numbers)
+
+    # If it has "+" and is 5000+, it's enterprise
+    if has_plus and max_employees >= 5000:
+        return "enterprise"
 
     if max_employees <= 50:
         return "startup"
