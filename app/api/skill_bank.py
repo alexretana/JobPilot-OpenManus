@@ -467,6 +467,306 @@ async def add_experience_content_variation(
 
 
 # =============================================================================
+# EDUCATION MANAGEMENT ENDPOINTS
+# =============================================================================
+
+
+@router.post("/{user_id}/education", response_model=EducationEntry, status_code=201)
+async def add_education(
+    education_request: ExperienceEntryRequest,  # Reuse request model temporarily
+    user_id: str = Path(..., description="User ID"),
+):
+    """Add a new education entry."""
+    try:
+        db_manager = get_database_manager()
+        skill_bank_repo = SkillBankRepository(db_manager)
+
+        # Convert to EducationEntry (simplified for now)
+        from app.data.skill_bank_models import EducationEntry
+
+        education = EducationEntry(
+            institution=education_request.company,  # Map company to institution
+            degree=education_request.position,  # Map position to degree
+            location=education_request.location,
+            start_date=education_request.start_date,
+            end_date=education_request.end_date,
+            default_description=education_request.default_description,
+        )
+
+        # For now, add to education_entries in skill bank (simplified)
+        skill_bank = await skill_bank_repo.get_or_create_skill_bank(user_id)
+        skill_bank.education_entries.append(education)
+
+        await skill_bank_repo._update_full_skill_bank(user_id, skill_bank)
+        return education
+
+    except Exception as e:
+        logger.error(f"Error adding education for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/{user_id}/education/{education_id}", response_model=EducationEntry)
+async def update_education(
+    education_request: ExperienceEntryRequest,  # Reuse request model temporarily
+    user_id: str = Path(..., description="User ID"),
+    education_id: str = Path(..., description="Education ID"),
+):
+    """Update an education entry."""
+    try:
+        db_manager = get_database_manager()
+        skill_bank_repo = SkillBankRepository(db_manager)
+
+        skill_bank = await skill_bank_repo.get_or_create_skill_bank(user_id)
+
+        for education in skill_bank.education_entries:
+            if education.id == education_id:
+                education.institution = education_request.company
+                education.degree = education_request.position
+                education.location = education_request.location
+                education.start_date = education_request.start_date
+                education.end_date = education_request.end_date
+                education.default_description = education_request.default_description
+
+                await skill_bank_repo._update_full_skill_bank(user_id, skill_bank)
+                return education
+
+        raise ValueError(f"Education with ID '{education_id}' not found")
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error updating education {education_id} for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/{user_id}/education/{education_id}", status_code=204)
+async def delete_education(
+    user_id: str = Path(..., description="User ID"),
+    education_id: str = Path(..., description="Education ID"),
+):
+    """Delete an education entry."""
+    try:
+        db_manager = get_database_manager()
+        skill_bank_repo = SkillBankRepository(db_manager)
+
+        skill_bank = await skill_bank_repo.get_or_create_skill_bank(user_id)
+
+        for i, education in enumerate(skill_bank.education_entries):
+            if education.id == education_id:
+                del skill_bank.education_entries[i]
+                await skill_bank_repo._update_full_skill_bank(user_id, skill_bank)
+                return
+
+        raise HTTPException(status_code=404, detail="Education not found")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting education {education_id} for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# =============================================================================
+# PROJECTS MANAGEMENT ENDPOINTS
+# =============================================================================
+
+
+@router.post("/{user_id}/projects", response_model=ProjectEntry, status_code=201)
+async def add_project(
+    project_request: ExperienceEntryRequest,  # Reuse request model temporarily
+    user_id: str = Path(..., description="User ID"),
+):
+    """Add a new project entry."""
+    try:
+        db_manager = get_database_manager()
+        skill_bank_repo = SkillBankRepository(db_manager)
+
+        # Convert to ProjectEntry (simplified for now)
+        from app.data.skill_bank_models import ProjectEntry
+
+        project = ProjectEntry(
+            name=project_request.company,  # Map company to project name
+            start_date=project_request.start_date,
+            end_date=project_request.end_date,
+            default_description=project_request.default_description,
+            technologies=project_request.technologies,
+        )
+
+        # Add to projects in skill bank
+        skill_bank = await skill_bank_repo.get_or_create_skill_bank(user_id)
+        skill_bank.projects.append(project)
+
+        await skill_bank_repo._update_full_skill_bank(user_id, skill_bank)
+        return project
+
+    except Exception as e:
+        logger.error(f"Error adding project for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put("/{user_id}/projects/{project_id}", response_model=ProjectEntry)
+async def update_project(
+    project_request: ExperienceEntryRequest,  # Reuse request model temporarily
+    user_id: str = Path(..., description="User ID"),
+    project_id: str = Path(..., description="Project ID"),
+):
+    """Update a project entry."""
+    try:
+        db_manager = get_database_manager()
+        skill_bank_repo = SkillBankRepository(db_manager)
+
+        skill_bank = await skill_bank_repo.get_or_create_skill_bank(user_id)
+
+        for project in skill_bank.projects:
+            if project.id == project_id:
+                project.name = project_request.company
+                project.start_date = project_request.start_date
+                project.end_date = project_request.end_date
+                project.default_description = project_request.default_description
+                project.technologies = project_request.technologies
+
+                await skill_bank_repo._update_full_skill_bank(user_id, skill_bank)
+                return project
+
+        raise ValueError(f"Project with ID '{project_id}' not found")
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(f"Error updating project {project_id} for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/{user_id}/projects/{project_id}", status_code=204)
+async def delete_project(
+    user_id: str = Path(..., description="User ID"),
+    project_id: str = Path(..., description="Project ID"),
+):
+    """Delete a project entry."""
+    try:
+        db_manager = get_database_manager()
+        skill_bank_repo = SkillBankRepository(db_manager)
+
+        skill_bank = await skill_bank_repo.get_or_create_skill_bank(user_id)
+
+        for i, project in enumerate(skill_bank.projects):
+            if project.id == project_id:
+                del skill_bank.projects[i]
+                await skill_bank_repo._update_full_skill_bank(user_id, skill_bank)
+                return
+
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error deleting project {project_id} for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# =============================================================================
+# CERTIFICATIONS MANAGEMENT ENDPOINTS
+# =============================================================================
+
+
+@router.post("/{user_id}/certifications", response_model=Certification, status_code=201)
+async def add_certification(
+    cert_request: ExperienceEntryRequest,  # Reuse request model temporarily
+    user_id: str = Path(..., description="User ID"),
+):
+    """Add a new certification entry."""
+    try:
+        db_manager = get_database_manager()
+        skill_bank_repo = SkillBankRepository(db_manager)
+
+        # Convert to Certification (simplified for now)
+        certification = Certification(
+            name=cert_request.company,  # Map company to cert name
+            issuer=cert_request.position,  # Map position to issuer
+            issue_date=cert_request.start_date,
+            expiry_date=cert_request.end_date,
+            description=cert_request.default_description,
+        )
+
+        # Add to certifications in skill bank
+        skill_bank = await skill_bank_repo.get_or_create_skill_bank(user_id)
+        skill_bank.certifications.append(certification)
+
+        await skill_bank_repo._update_full_skill_bank(user_id, skill_bank)
+        return certification
+
+    except Exception as e:
+        logger.error(f"Error adding certification for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.put(
+    "/{user_id}/certifications/{certification_id}", response_model=Certification
+)
+async def update_certification(
+    cert_request: ExperienceEntryRequest,  # Reuse request model temporarily
+    user_id: str = Path(..., description="User ID"),
+    certification_id: str = Path(..., description="Certification ID"),
+):
+    """Update a certification entry."""
+    try:
+        db_manager = get_database_manager()
+        skill_bank_repo = SkillBankRepository(db_manager)
+
+        skill_bank = await skill_bank_repo.get_or_create_skill_bank(user_id)
+
+        for certification in skill_bank.certifications:
+            if certification.id == certification_id:
+                certification.name = cert_request.company
+                certification.issuer = cert_request.position
+                certification.issue_date = cert_request.start_date
+                certification.expiry_date = cert_request.end_date
+                certification.description = cert_request.default_description
+
+                await skill_bank_repo._update_full_skill_bank(user_id, skill_bank)
+                return certification
+
+        raise ValueError(f"Certification with ID '{certification_id}' not found")
+
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        logger.error(
+            f"Error updating certification {certification_id} for user {user_id}: {e}"
+        )
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.delete("/{user_id}/certifications/{certification_id}", status_code=204)
+async def delete_certification(
+    user_id: str = Path(..., description="User ID"),
+    certification_id: str = Path(..., description="Certification ID"),
+):
+    """Delete a certification entry."""
+    try:
+        db_manager = get_database_manager()
+        skill_bank_repo = SkillBankRepository(db_manager)
+
+        skill_bank = await skill_bank_repo.get_or_create_skill_bank(user_id)
+
+        for i, certification in enumerate(skill_bank.certifications):
+            if certification.id == certification_id:
+                del skill_bank.certifications[i]
+                await skill_bank_repo._update_full_skill_bank(user_id, skill_bank)
+                return
+
+        raise HTTPException(status_code=404, detail="Certification not found")
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(
+            f"Error deleting certification {certification_id} for user {user_id}: {e}"
+        )
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# =============================================================================
 # DATA MIGRATION ENDPOINTS
 # =============================================================================
 

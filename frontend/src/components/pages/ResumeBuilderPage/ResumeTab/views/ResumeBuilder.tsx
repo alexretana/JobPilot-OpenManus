@@ -2,6 +2,13 @@ import { Component, createSignal, onMount, For, Show } from 'solid-js';
 import { ResumeService, CreateResumeRequest } from '../../../../../services/resumeService';
 import { userProfileApi } from '../../../../../services/userProfileApi';
 import { ResumeImportService } from '../../../../../services/resumeImportService';
+import { useSkillBankIntegration } from '../../../../../hooks/useSkillBankIntegration';
+import {
+  SkillBankToggle,
+  SummarySelector,
+  ExperienceSelector,
+  SkillsSelector,
+} from '../../../../../components/SkillBankSelectors';
 
 interface ResumeBuilderProps {
   resumeId?: string; // undefined for new resume, string for editing existing
@@ -34,6 +41,9 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
   const [saving, setSaving] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
   const [activeSection, setActiveSection] = createSignal<string>('contact');
+
+  // Initialize Skill Bank integration
+  const skillBank = useSkillBankIntegration(props.userId);
 
   // Load existing resume if editing, or populate with profile data for new resume
   onMount(async () => {
@@ -868,7 +878,25 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
             {/* Professional Summary Section */}
             {activeSection() === 'summary' && (
               <div class='space-y-4'>
-                <h3 class='text-xl font-semibold mb-4'>📝 Professional Summary</h3>
+                <div class='flex items-center justify-between mb-4'>
+                  <h3 class='text-xl font-semibold'>📝 Professional Summary</h3>
+                  <SkillBankToggle
+                    enabled={skillBank.toggles().summary}
+                    onChange={enabled => skillBank.setToggle('summary', enabled)}
+                    section='summary'
+                  />
+                </div>
+
+                <Show when={skillBank.toggles().summary && !skillBank.loading()}>
+                  <SummarySelector
+                    summaries={skillBank.summaries()}
+                    onSelect={summary => {
+                      setFormData(prev => ({ ...prev, summary }));
+                    }}
+                    currentSummary={formData().summary}
+                  />
+                </Show>
+
                 <div>
                   <label class='block text-sm font-medium mb-2'>Summary</label>
                   <textarea
@@ -887,7 +915,26 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
             {/* Work Experience Section */}
             {activeSection() === 'experience' && (
               <div class='space-y-4'>
-                <h3 class='text-xl font-semibold mb-4'>💼 Work Experience</h3>
+                <div class='flex items-center justify-between mb-4'>
+                  <h3 class='text-xl font-semibold'>💼 Work Experience</h3>
+                  <SkillBankToggle
+                    enabled={skillBank.toggles().experience}
+                    onChange={enabled => skillBank.setToggle('experience', enabled)}
+                    section='experience'
+                  />
+                </div>
+
+                <Show when={skillBank.toggles().experience && !skillBank.loading()}>
+                  <ExperienceSelector
+                    experiences={skillBank.experiences()}
+                    onSelect={selectedExperiences => {
+                      setFormData(prev => ({
+                        ...prev,
+                        work_experience: [...(prev.work_experience || []), ...selectedExperiences],
+                      }));
+                    }}
+                  />
+                </Show>
 
                 <div class='space-y-6'>
                   {/* Add New Experience Button */}
@@ -1390,7 +1437,26 @@ const ResumeBuilder: Component<ResumeBuilderProps> = props => {
             {/* Skills Section */}
             {activeSection() === 'skills' && (
               <div class='space-y-4'>
-                <h3 class='text-xl font-semibold mb-4'>🛠️ Skills</h3>
+                <div class='flex items-center justify-between mb-4'>
+                  <h3 class='text-xl font-semibold'>🛠️ Skills</h3>
+                  <SkillBankToggle
+                    enabled={skillBank.toggles().skills}
+                    onChange={enabled => skillBank.setToggle('skills', enabled)}
+                    section='skills'
+                  />
+                </div>
+
+                <Show when={skillBank.toggles().skills && !skillBank.loading()}>
+                  <SkillsSelector
+                    skills={skillBank.skills()}
+                    onSelect={selectedSkills => {
+                      setFormData(prev => ({
+                        ...prev,
+                        skills: [...(prev.skills || []), ...selectedSkills],
+                      }));
+                    }}
+                  />
+                </Show>
 
                 <div class='space-y-6'>
                   {/* Add New Skill Button */}
