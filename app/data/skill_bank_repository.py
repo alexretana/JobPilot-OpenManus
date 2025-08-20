@@ -372,6 +372,44 @@ class SkillBankRepository:
         await self._update_education_in_db(user_id, skill_bank.education_entries)
         return education
 
+    async def update_education(
+        self, user_id: str, education_id: str, updates: Dict[str, Any]
+    ) -> EducationEntry:
+        """Update an education entry."""
+        skill_bank = await self.get_or_create_skill_bank(user_id)
+
+        for education in skill_bank.education_entries:
+            if education.id == education_id:
+                for field, value in updates.items():
+                    if hasattr(education, field):
+                        setattr(education, field, value)
+
+                await self._update_education_in_db(
+                    user_id, skill_bank.education_entries
+                )
+                return education
+
+        raise ValueError(f"Education with ID '{education_id}' not found")
+
+    async def delete_education(self, user_id: str, education_id: str) -> bool:
+        """Delete an education entry."""
+        skill_bank = await self.get_or_create_skill_bank(user_id)
+
+        for i, education in enumerate(skill_bank.education_entries):
+            if education.id == education_id:
+                del skill_bank.education_entries[i]
+
+                # Also remove any content variations for this education
+                if education_id in skill_bank.education_content_variations:
+                    del skill_bank.education_content_variations[education_id]
+
+                await self._update_education_in_db(
+                    user_id, skill_bank.education_entries
+                )
+                return True
+
+        return False
+
     # ===========================================
     # PROJECT MANAGEMENT
     # ===========================================
@@ -383,6 +421,40 @@ class SkillBankRepository:
 
         await self._update_projects_in_db(user_id, skill_bank.projects)
         return project
+
+    async def update_project(
+        self, user_id: str, project_id: str, updates: Dict[str, Any]
+    ) -> ProjectEntry:
+        """Update a project entry."""
+        skill_bank = await self.get_or_create_skill_bank(user_id)
+
+        for project in skill_bank.projects:
+            if project.id == project_id:
+                for field, value in updates.items():
+                    if hasattr(project, field):
+                        setattr(project, field, value)
+
+                await self._update_projects_in_db(user_id, skill_bank.projects)
+                return project
+
+        raise ValueError(f"Project with ID '{project_id}' not found")
+
+    async def delete_project(self, user_id: str, project_id: str) -> bool:
+        """Delete a project entry."""
+        skill_bank = await self.get_or_create_skill_bank(user_id)
+
+        for i, project in enumerate(skill_bank.projects):
+            if project.id == project_id:
+                del skill_bank.projects[i]
+
+                # Also remove any content variations for this project
+                if project_id in skill_bank.project_content_variations:
+                    del skill_bank.project_content_variations[project_id]
+
+                await self._update_projects_in_db(user_id, skill_bank.projects)
+                return True
+
+        return False
 
     # ===========================================
     # CERTIFICATION MANAGEMENT
@@ -397,6 +469,40 @@ class SkillBankRepository:
 
         await self._update_certifications_in_db(user_id, skill_bank.certifications)
         return certification
+
+    async def update_certification(
+        self, user_id: str, certification_id: str, updates: Dict[str, Any]
+    ) -> Certification:
+        """Update a certification entry."""
+        skill_bank = await self.get_or_create_skill_bank(user_id)
+
+        for certification in skill_bank.certifications:
+            if certification.id == certification_id:
+                for field, value in updates.items():
+                    if hasattr(certification, field):
+                        setattr(certification, field, value)
+
+                await self._update_certifications_in_db(
+                    user_id, skill_bank.certifications
+                )
+                return certification
+
+        raise ValueError(f"Certification with ID '{certification_id}' not found")
+
+    async def delete_certification(self, user_id: str, certification_id: str) -> bool:
+        """Delete a certification entry."""
+        skill_bank = await self.get_or_create_skill_bank(user_id)
+
+        for i, certification in enumerate(skill_bank.certifications):
+            if certification.id == certification_id:
+                del skill_bank.certifications[i]
+
+                await self._update_certifications_in_db(
+                    user_id, skill_bank.certifications
+                )
+                return True
+
+        return False
 
     # ===========================================
     # DATA MIGRATION
@@ -556,23 +662,40 @@ class SkillBankRepository:
         # Convert skills to JSON serializable format
         skills_json = {}
         for category, skill_list in skill_bank.skills.items():
-            skills_json[category] = [skill.dict() for skill in skill_list]
+            skills_json[category] = [skill.model_dump() for skill in skill_list]
 
         return EnhancedSkillBankDB(
             id=skill_bank.id,
             user_id=skill_bank.user_id,
-            skills=skills_json,
+            skills=json.dumps(skills_json, cls=DateTimeEncoder),
             skill_categories=skill_bank.skill_categories,
             default_summary=skill_bank.default_summary,
-            summary_variations=[var.dict() for var in skill_bank.summary_variations],
-            work_experiences=[exp.dict() for exp in skill_bank.work_experiences],
-            education_entries=[edu.dict() for edu in skill_bank.education_entries],
-            projects=[proj.dict() for proj in skill_bank.projects],
-            certifications=[cert.dict() for cert in skill_bank.certifications],
-            experience_content_variations={
-                exp_id: [var.dict() for var in variations]
-                for exp_id, variations in skill_bank.experience_content_variations.items()
-            },
+            summary_variations=json.dumps(
+                [var.model_dump() for var in skill_bank.summary_variations],
+                cls=DateTimeEncoder,
+            ),
+            work_experiences=json.dumps(
+                [exp.model_dump() for exp in skill_bank.work_experiences],
+                cls=DateTimeEncoder,
+            ),
+            education_entries=json.dumps(
+                [edu.model_dump() for edu in skill_bank.education_entries],
+                cls=DateTimeEncoder,
+            ),
+            projects=json.dumps(
+                [proj.model_dump() for proj in skill_bank.projects], cls=DateTimeEncoder
+            ),
+            certifications=json.dumps(
+                [cert.model_dump() for cert in skill_bank.certifications],
+                cls=DateTimeEncoder,
+            ),
+            experience_content_variations=json.dumps(
+                {
+                    exp_id: [var.model_dump() for var in variations]
+                    for exp_id, variations in skill_bank.experience_content_variations.items()
+                },
+                cls=DateTimeEncoder,
+            ),
             education_content_variations=skill_bank.education_content_variations,
             project_content_variations=skill_bank.project_content_variations,
             experience_keywords=skill_bank.experience_keywords,

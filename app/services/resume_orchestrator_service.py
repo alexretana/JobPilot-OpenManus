@@ -9,8 +9,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from app.data.models import JobListingDB, UserProfileDB
 from app.data.resume_models import Resume
+from app.data.resume_repository import ResumeRepository
 from app.logger import logger
-from app.repositories.resume_repository import ResumeRepository
 from app.services.llm_service import LLMService, create_llm_service
 from app.services.pdf_generation_service import (
     PDFGenerationService,

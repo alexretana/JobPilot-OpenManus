@@ -26,8 +26,8 @@ from app.data.skill_bank_models import (
     SkillLevel,
     SummaryVariation,
 )
+from app.data.skill_bank_repository import SkillBankRepository
 from app.logger import logger
-from app.repositories.skill_bank_repository import SkillBankRepository
 
 router = APIRouter(prefix="/api/skill-bank", tags=["Skill Bank"])
 

@@ -5,13 +5,13 @@ Test suite for Skill Bank API endpoints
 import pytest
 from fastapi.testclient import TestClient
 
-from app.main import app
+import web_server
 
 
 @pytest.fixture
 def client():
     """Create a test client for the FastAPI app."""
-    return TestClient(app)
+    return TestClient(web_server.app)
 
 
 @pytest.fixture

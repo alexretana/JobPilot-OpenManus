@@ -51,7 +51,7 @@ from app.data.skill_bank_models import (
     SkillCategory,
     SummaryVariation,
 )
-from app.repositories.skill_bank_repository import SkillBankRepository
+from app.data.skill_bank_repository import SkillBankRepository
 
 # Import lead management classes for enhanced functionality
 try:
