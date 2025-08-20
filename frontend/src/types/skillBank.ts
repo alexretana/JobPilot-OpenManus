@@ -268,6 +268,40 @@ export interface ExperienceContentVariationRequest {
   keywords_emphasized?: string[];
 }
 
+export interface EducationEntryRequest {
+  institution: string;
+  degree: string;
+  field_of_study?: string | null;
+  location?: string | null;
+  start_date?: string | null; // ISO date string
+  end_date?: string | null; // ISO date string
+  gpa?: number | null;
+  honors?: string[];
+  relevant_coursework?: string[];
+  default_description?: string | null;
+}
+
+export interface ProjectEntryRequest {
+  name: string;
+  url?: string | null;
+  github_url?: string | null;
+  start_date?: string | null; // ISO date string
+  end_date?: string | null; // ISO date string
+  default_description?: string | null;
+  default_achievements?: string[];
+  technologies?: string[];
+}
+
+export interface CertificationRequest {
+  name: string;
+  issuer: string;
+  issue_date?: string | null; // ISO date string
+  expiry_date?: string | null; // ISO date string
+  credential_id?: string | null;
+  url?: string | null;
+  description?: string | null;
+}
+
 // =============================================================================
 // UTILITY TYPES
 // =============================================================================

@@ -3,6 +3,9 @@ import { skillBankApiService } from '../../services/skillBankApi';
 import SkillsSection from './SkillsSection';
 import SummariesSection from './SummariesSection';
 import ExperienceSection from './ExperienceSection';
+import EducationSection from './EducationSection';
+import ProjectsSection from './ProjectsSection';
+import CertificationsSection from './CertificationsSection';
 
 interface SkillBankProps {
   userId?: string;
@@ -15,7 +18,9 @@ const skillBankApi = skillBankApiService;
  * Manages skills, professional summaries, and work experience
  */
 const SkillBankDashboard: Component<SkillBankProps> = props => {
-  const [activeTab, setActiveTab] = createSignal<'skills' | 'summaries' | 'experience'>('skills');
+  const [activeTab, setActiveTab] = createSignal<
+    'skills' | 'summaries' | 'experience' | 'education' | 'projects' | 'certifications'
+  >('skills');
   const [refreshTrigger, setRefreshTrigger] = createSignal(0);
 
   const userId = () => props.userId || 'demo-user-123';
@@ -53,7 +58,15 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
   // Computed values for tab counts
   const tabCounts = createMemo(() => {
     const data = skillBank();
-    if (!data) return { skills: 0, summaries: 0, experiences: 0, projects: 0, certifications: 0 };
+    if (!data)
+      return {
+        skills: 0,
+        summaries: 0,
+        experiences: 0,
+        education: 0,
+        projects: 0,
+        certifications: 0,
+      };
 
     const skillsCount = Object.values(data.skills).reduce(
       (total, skillArray) => total + skillArray.length,
@@ -64,12 +77,15 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
       skills: skillsCount,
       summaries: data.summary_variations?.length || 0,
       experiences: data.work_experiences?.length || 0,
+      education: data.education_entries?.length || 0,
       projects: data.projects?.length || 0,
       certifications: data.certifications?.length || 0,
     };
   });
 
-  const handleTabChange = (tab: 'skills' | 'summaries' | 'experience') => {
+  const handleTabChange = (
+    tab: 'skills' | 'summaries' | 'experience' | 'education' | 'projects' | 'certifications'
+  ) => {
     setActiveTab(tab);
   };
 
@@ -226,6 +242,66 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
               Work Experience
               <div class='badge badge-accent badge-sm'>{tabCounts().experiences}</div>
             </button>
+
+            <button
+              class={`tab tab-lg gap-2 ${activeTab() === 'education' ? 'tab-active' : ''}`}
+              onClick={() => handleTabChange('education')}
+            >
+              <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M12 14l9-5-9-5-9 5 9 5z'
+                ></path>
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M12 14l6.16-3.422A12.083 12.083 0 0121 18.782V12M4.84 10.578A12.083 12.083 0 003 12v6.782'
+                ></path>
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M12 21v-7'
+                ></path>
+              </svg>
+              Education
+              <div class='badge badge-info badge-sm'>{tabCounts().education}</div>
+            </button>
+
+            <button
+              class={`tab tab-lg gap-2 ${activeTab() === 'projects' ? 'tab-active' : ''}`}
+              onClick={() => handleTabChange('projects')}
+            >
+              <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
+                ></path>
+              </svg>
+              Projects
+              <div class='badge badge-info badge-sm'>{tabCounts().projects}</div>
+            </button>
+
+            <button
+              class={`tab tab-lg gap-2 ${activeTab() === 'certifications' ? 'tab-active' : ''}`}
+              onClick={() => handleTabChange('certifications')}
+            >
+              <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'
+                ></path>
+              </svg>
+              Certifications
+              <div class='badge badge-info badge-sm'>{tabCounts().certifications}</div>
+            </button>
           </div>
 
           {/* Tab Content */}
@@ -248,6 +324,30 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
 
             <Show when={activeTab() === 'experience'}>
               <ExperienceSection
+                skillBank={skillBank()!}
+                onUpdate={handleRefresh}
+                loading={skillBank.loading}
+              />
+            </Show>
+
+            <Show when={activeTab() === 'education'}>
+              <EducationSection
+                skillBank={skillBank()!}
+                onUpdate={handleRefresh}
+                loading={skillBank.loading}
+              />
+            </Show>
+
+            <Show when={activeTab() === 'projects'}>
+              <ProjectsSection
+                skillBank={skillBank()!}
+                onUpdate={handleRefresh}
+                loading={skillBank.loading}
+              />
+            </Show>
+
+            <Show when={activeTab() === 'certifications'}>
+              <CertificationsSection
                 skillBank={skillBank()!}
                 onUpdate={handleRefresh}
                 loading={skillBank.loading}

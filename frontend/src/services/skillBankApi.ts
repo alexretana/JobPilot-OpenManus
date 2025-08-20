@@ -11,6 +11,12 @@ import type {
   ExperienceContentVariation,
   ExperienceContentVariationRequest,
   SkillBankStats,
+  EducationEntry,
+  EducationEntryRequest,
+  ProjectEntry,
+  ProjectEntryRequest,
+  Certification,
+  CertificationRequest,
 } from '../types';
 
 const API_BASE_URL = '/api/skill-bank';
@@ -201,6 +207,120 @@ class SkillBankApiService {
         body: JSON.stringify(variation),
       }
     );
+  }
+
+  // =============================================================================
+  // EDUCATION MANAGEMENT
+  // =============================================================================
+
+  /**
+   * Add a new education entry
+   */
+  async addEducation(userId: string, education: EducationEntryRequest): Promise<EducationEntry> {
+    return this.fetchApi<EducationEntry>(`/${userId}/education`, {
+      method: 'POST',
+      body: JSON.stringify(education),
+    });
+  }
+
+  /**
+   * Update an education entry
+   */
+  async updateEducation(
+    userId: string,
+    educationId: string,
+    updates: EducationEntryRequest
+  ): Promise<EducationEntry> {
+    return this.fetchApi<EducationEntry>(`/${userId}/education/${educationId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  /**
+   * Delete an education entry
+   */
+  async deleteEducation(userId: string, educationId: string): Promise<void> {
+    await this.fetchApi<void>(`/${userId}/education/${educationId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // =============================================================================
+  // PROJECTS MANAGEMENT
+  // =============================================================================
+
+  /**
+   * Add a new project entry
+   */
+  async addProject(userId: string, project: ProjectEntryRequest): Promise<ProjectEntry> {
+    return this.fetchApi<ProjectEntry>(`/${userId}/projects`, {
+      method: 'POST',
+      body: JSON.stringify(project),
+    });
+  }
+
+  /**
+   * Update a project entry
+   */
+  async updateProject(
+    userId: string,
+    projectId: string,
+    updates: ProjectEntryRequest
+  ): Promise<ProjectEntry> {
+    return this.fetchApi<ProjectEntry>(`/${userId}/projects/${projectId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  /**
+   * Delete a project entry
+   */
+  async deleteProject(userId: string, projectId: string): Promise<void> {
+    await this.fetchApi<void>(`/${userId}/projects/${projectId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // =============================================================================
+  // CERTIFICATIONS MANAGEMENT
+  // =============================================================================
+
+  /**
+   * Add a new certification entry
+   */
+  async addCertification(
+    userId: string,
+    certification: CertificationRequest
+  ): Promise<Certification> {
+    return this.fetchApi<Certification>(`/${userId}/certifications`, {
+      method: 'POST',
+      body: JSON.stringify(certification),
+    });
+  }
+
+  /**
+   * Update a certification entry
+   */
+  async updateCertification(
+    userId: string,
+    certificationId: string,
+    updates: CertificationRequest
+  ): Promise<Certification> {
+    return this.fetchApi<Certification>(`/${userId}/certifications/${certificationId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  /**
+   * Delete a certification entry
+   */
+  async deleteCertification(userId: string, certificationId: string): Promise<void> {
+    await this.fetchApi<void>(`/${userId}/certifications/${certificationId}`, {
+      method: 'DELETE',
+    });
   }
 
   // =============================================================================
