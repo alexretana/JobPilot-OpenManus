@@ -1,12 +1,12 @@
 import { Component, createSignal, onMount, onCleanup, Show } from 'solid-js';
 import Header from './components/UI/Header';
-import Chat from './components/UI/Chat';
-import { JobDetailsModal } from './components/Jobs/JobDetailsModal';
+import ChatPage from './components/pages/ChatPage';
+import { JobDetailsModal } from './components/pages/JobSearchPage/JobsTab/JobDetailsModal';
 import BrowserViewport from './components/UI/BrowserViewport';
 import TimelineModal from './components/Timeline/TimelineModal';
 import StatusPanel from './components/UI/StatusPanel';
-import JobSearchManager from './components/Jobs/JobSearchManager';
-import ResumeBuilderPage from './components/ResumeBuilderPage';
+import JobSearchManager from './components/pages/JobSearchPage';
+import ResumeBuilderPage from './components/pages/ResumeBuilderPage';
 import { webSocketService } from './services/websocket';
 import type {
   ChatMessage,
@@ -199,7 +199,7 @@ const App: Component = () => {
           <div class='flex flex-col lg:flex-row gap-2 h-full'>
             {/* Chat Column */}
             <div class='flex-1 flex flex-col min-h-0'>
-              <Chat
+              <ChatPage
                 messages={messages}
                 onMessageSend={handleMessageSend}
                 isProcessing={isProcessing}
