@@ -324,6 +324,12 @@ class SkillBankRepository:
 
         return False
 
+    async def add_experience_content_variation(
+        self, user_id: str, experience_id: str, variation: ExperienceContentVariation
+    ) -> ExperienceContentVariation:
+        """Add a content variation to a work experience entry."""
+        return await self.add_experience_variation(user_id, variation)
+
     async def add_experience_variation(
         self, user_id: str, variation: ExperienceContentVariation
     ) -> ExperienceContentVariation:
@@ -351,6 +357,46 @@ class SkillBankRepository:
             user_id, skill_bank.experience_content_variations
         )
         return variation
+
+    # ===========================================
+    # EDUCATION MANAGEMENT
+    # ===========================================
+
+    async def add_education(
+        self, user_id: str, education: EducationEntry
+    ) -> EducationEntry:
+        """Add an education entry."""
+        skill_bank = await self.get_or_create_skill_bank(user_id)
+        skill_bank.education_entries.append(education)
+
+        await self._update_education_in_db(user_id, skill_bank.education_entries)
+        return education
+
+    # ===========================================
+    # PROJECT MANAGEMENT
+    # ===========================================
+
+    async def add_project(self, user_id: str, project: ProjectEntry) -> ProjectEntry:
+        """Add a project entry."""
+        skill_bank = await self.get_or_create_skill_bank(user_id)
+        skill_bank.projects.append(project)
+
+        await self._update_projects_in_db(user_id, skill_bank.projects)
+        return project
+
+    # ===========================================
+    # CERTIFICATION MANAGEMENT
+    # ===========================================
+
+    async def add_certification(
+        self, user_id: str, certification: Certification
+    ) -> Certification:
+        """Add a certification entry."""
+        skill_bank = await self.get_or_create_skill_bank(user_id)
+        skill_bank.certifications.append(certification)
+
+        await self._update_certifications_in_db(user_id, skill_bank.certifications)
+        return certification
 
     # ===========================================
     # DATA MIGRATION
@@ -590,3 +636,22 @@ class SkillBankRepository:
             "certifications": [cert.dict() for cert in skill_bank.certifications],
         }
         await self.update_skill_bank(user_id, updates)
+
+    async def _update_education_in_db(
+        self, user_id: str, education_entries: List[EducationEntry]
+    ):
+        """Update education entries in database."""
+        education_json = [edu.dict() for edu in education_entries]
+        await self.update_skill_bank(user_id, {"education_entries": education_json})
+
+    async def _update_projects_in_db(self, user_id: str, projects: List[ProjectEntry]):
+        """Update project entries in database."""
+        projects_json = [proj.dict() for proj in projects]
+        await self.update_skill_bank(user_id, {"projects": projects_json})
+
+    async def _update_certifications_in_db(
+        self, user_id: str, certifications: List[Certification]
+    ):
+        """Update certifications in database."""
+        certifications_json = [cert.dict() for cert in certifications]
+        await self.update_skill_bank(user_id, {"certifications": certifications_json})

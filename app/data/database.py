@@ -66,6 +66,19 @@ class DatabaseManager:
             logger.error(f"Error creating database tables: {e}")
             raise
 
+    def create_all_tables(self):
+        """Create all database tables (alias for create_tables)."""
+        return self.create_tables()
+
+    def drop_all_tables(self):
+        """Drop all database tables (DANGEROUS - for development only)."""
+        try:
+            Base.metadata.drop_all(self.engine)
+            logger.info("All database tables dropped successfully")
+        except Exception as e:
+            logger.error(f"Error dropping database tables: {e}")
+            raise
+
     @retry_db_critical(max_retries=5, base_delay=2.0)
     @contextmanager
     def get_session(self):

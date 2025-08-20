@@ -289,10 +289,24 @@ class MockDataGenerator:
     # =========================================================================
 
     def create_user_profile(self, user_data: Dict[str, Any]) -> str:
-        """Create a user profile with given data."""
-        user_id = str(uuid4())
+        """Create a user profile with given data, or return existing user ID if email exists."""
 
         with self._get_session() as session:
+            # Check if user already exists
+            existing_user = (
+                session.query(UserProfileDB)
+                .filter(UserProfileDB.email == user_data["email"])
+                .first()
+            )
+
+            if existing_user:
+                print(
+                    f"   📧 User with email {user_data['email']} already exists, using existing user"
+                )
+                return existing_user.id
+
+            # Create new user
+            user_id = str(uuid4())
             user_profile = UserProfileDB(
                 id=user_id,
                 first_name=user_data["first_name"],
@@ -331,6 +345,24 @@ class MockDataGenerator:
     ) -> SkillBank:
         """Create a comprehensive skill bank with realistic data."""
 
+        # Check if skill bank already exists and has content
+        existing_skill_bank = await self.skill_bank_repo.get_skill_bank(user_id)
+        if existing_skill_bank:
+            # Check if it already has skills
+            total_skills = sum(
+                len(skills) for skills in existing_skill_bank.skills.values()
+            )
+            if total_skills > 0:
+                print(
+                    f"   🏦 Skill bank for user {user_id} already exists with {total_skills} skills, skipping"
+                )
+                return existing_skill_bank
+
+            # If skill bank exists but is empty, we'll populate it
+            print(
+                f"   🏦 Found empty skill bank for user {user_id}, populating with mock data"
+            )
+
         # Select skills based on role
         if role == "developer":
             primary_skills = self.TECHNICAL_SKILLS[:7]
@@ -368,12 +400,21 @@ class MockDataGenerator:
             )
             enhanced_skills.append(enhanced_skill)
 
-        # Create skill bank
-        skill_bank = await self.skill_bank_repo.create_skill_bank(user_id)
+        # Create skill bank or get existing one
+        skill_bank = await self.skill_bank_repo.get_or_create_skill_bank(user_id)
 
-        # Add skills to skill bank
+        # Add skills to skill bank (with duplicate checking)
+        skills_added = 0
         for skill in enhanced_skills:
-            await self.skill_bank_repo.add_skill(user_id, skill)
+            try:
+                await self.skill_bank_repo.add_skill(user_id, skill)
+                skills_added += 1
+            except ValueError as e:
+                # Skill already exists, skip it
+                print(f"   ⚠️  {str(e)}")
+                continue
+
+        print(f"   ✅ Added {skills_added} new skills to skill bank")
 
         # Create summary variations
         summaries = self._generate_summary_variations(role)
