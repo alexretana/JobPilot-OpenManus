@@ -651,10 +651,13 @@ class JobListingDB(Base):
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
 
+    # ADD: Foreign key to companies table
+    company_id = Column(String, ForeignKey("companies.id"), nullable=False, index=True)
+
     # Basic information
     title = Column(String, nullable=False)
-    company = Column(String, nullable=False)
-    location = Column(String)
+    # REMOVE: company = Column(String, nullable=False)  # DELETE - now in company table
+    location = Column(String)  # Job location (can differ from company HQ)
     description = Column(Text)
     requirements = Column(Text)
     responsibilities = Column(Text)
@@ -676,12 +679,12 @@ class JobListingDB(Base):
 
     # Additional information
     benefits = Column(JSON)
-    company_size = Column(String)
-    industry = Column(String)
+    # REMOVE: company_size = Column(String)  # DELETE - now in company table
+    # REMOVE: industry = Column(String)  # DELETE - now in company table
 
     # URLs and external references
     job_url = Column(String)
-    company_url = Column(String)
+    # REMOVE: company_url = Column(String)  # DELETE - now in company table as 'website'
     application_url = Column(String)
 
     # Dates
@@ -714,6 +717,7 @@ class JobListingDB(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
+    company = relationship("CompanyInfoDB", back_populates="job_listings")
     applications = relationship("JobApplicationDB", back_populates="job")
     source_listings = relationship("JobSourceListingDB", back_populates="job")
     embeddings = relationship("JobEmbeddingDB", back_populates="job")
