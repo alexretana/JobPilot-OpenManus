@@ -45,7 +45,9 @@ const Header: Component<HeaderProps> = props => {
       <div class='navbar-center'>
         <div class='tabs tabs-boxed'>
           <button
-            class={`tab ${props.activeTab() === 'chat' ? 'tab-active' : ''}`}
+            class={`tab ${
+              props.activeTab() === 'chat' ? 'tab-active bg-ai-color-gradient text-white' : ''
+            }`}
             onClick={() => props.onTabChange('chat')}
           >
             AI Chat

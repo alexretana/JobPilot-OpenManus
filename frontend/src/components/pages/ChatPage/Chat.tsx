@@ -63,7 +63,7 @@ const Chat: Component<ChatProps> = props => {
 
   return (
     <div class='card bg-base-100 shadow-xl h-full flex flex-col'>
-      <div class='card-header bg-primary text-primary-content p-2 rounded-t-xl'>
+      <div class='card-header bg-ai-color-gradient text-white p-2 rounded-t-xl'>
         <div class='flex justify-between items-center'>
           <div class='flex items-center space-x-2'>
             <span class='text-xl'>💬</span>

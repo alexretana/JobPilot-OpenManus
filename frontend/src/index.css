@@ -103,17 +103,6 @@ body,
     @apply border-primary scale-105;
   }
 
-  /* AI Chat specific gradient styling */
-  .ai-chat-btn {
-    @apply bg-gradient-to-tr from-primary to-accent text-primary-content;
-    border: none;
-  }
-
-  .ai-chat-btn.active {
-    @apply border-secondary;
-    border: 2px solid;
-  }
-
   /* Job Search and Resume Builder neutral styling */
   .tab-neutral {
     @apply bg-base-100 text-base-content;
@@ -121,5 +110,10 @@ body,
 
   .tab-neutral.active {
     @apply bg-base-200;
+  }
+
+  /* AI Color Gradient - 45 degree angle from primary to accent */
+  .bg-ai-color-gradient {
+    @apply bg-gradient-to-tr from-primary to-accent text-primary-content;
   }
 }
