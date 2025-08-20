@@ -1551,8 +1551,8 @@ def test_skill_bank_operations():
 ### Phase 1: Company Normalization ✅
 
 - [x] Task 1.1: Update CompanyInfoDB Model
-- [ ] Task 1.2: Update JobListingDB Model
-- [ ] Task 1.3: Create Company Matching Utility
+- [x] Task 1.2: Update JobListingDB Model
+- [x] Task 1.3: Create Company Matching Utility
 - [ ] Task 1.4: Update JobListing Pydantic Model
 
 ### Phase 2: User-Job Interaction Consolidation ✅
