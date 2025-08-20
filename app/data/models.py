@@ -16,9 +16,11 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
+    UniqueConstraint,
     create_engine,
 )
 from sqlalchemy import Enum as SQLEnum
@@ -826,21 +828,40 @@ class CompanyInfoDB(Base):
     __tablename__ = "companies"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    name = Column(String, nullable=False, unique=True)
-    industry = Column(String)
+    name = Column(String, nullable=False, index=True)
+    normalized_name = Column(
+        String, nullable=False, index=True
+    )  # ADD: For fuzzy matching
+    domain = Column(String, unique=True, index=True)  # ADD: Company domain for matching
+    industry = Column(String, index=True)
     size = Column(String)
+    size_category = Column(
+        SQLEnum(CompanySizeCategory), index=True
+    )  # ADD: Enum version
     location = Column(String)
+    headquarters_location = Column(String)  # ADD: More specific
+    founded_year = Column(Integer)  # ADD: Company age
     website = Column(String)
     description = Column(Text)
+    logo_url = Column(String)  # ADD: Company logo
 
-    # Additional details (stored as JSON)
+    # Additional details (keep existing)
     culture = Column(Text)
-    values = Column(JSON)
-    benefits = Column(JSON)
+    values = Column(JSON, default=list)
+    benefits = Column(JSON, default=list)
 
     # Metadata
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # NEW RELATIONSHIP: Back reference to jobs
+    job_listings = relationship("JobListingDB", back_populates="company")
+
+    # ADD: Unique constraint on normalized name + domain
+    __table_args__ = (
+        UniqueConstraint("normalized_name", "domain", name="unique_company_identity"),
+        Index("idx_company_name_domain", "name", "domain"),
+    )
 
 
 class TimelineEventDB(Base):
