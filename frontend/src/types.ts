@@ -111,3 +111,6 @@ export interface UpdateTimelineEventRequest {
   event_date?: string;
   is_milestone?: boolean;
 }
+
+// Re-export skill bank types
+export * from './types/skillBank';

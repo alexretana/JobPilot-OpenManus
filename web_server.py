@@ -20,6 +20,7 @@ from app.api.applications_simple import router as applications_router
 from app.api.enhanced_jobs_api import router as enhanced_jobs_router
 from app.api.leads_simple import router as leads_router
 from app.api.resume_api import router as resume_router
+from app.api.skill_bank import router as skill_bank_router
 from app.api.timeline import router as timeline_router
 from app.api.user_profiles import router as user_profiles_router
 from app.logger import logger
@@ -88,6 +89,7 @@ app.include_router(leads_router)
 app.include_router(enhanced_jobs_router)
 app.include_router(user_profiles_router)
 app.include_router(resume_router)
+app.include_router(skill_bank_router)
 
 # Store chat history
 chat_history: List[ChatMessage] = []
