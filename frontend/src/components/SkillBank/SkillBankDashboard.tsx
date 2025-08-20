@@ -6,6 +6,7 @@ import ExperienceSection from './ExperienceSection';
 import EducationSection from './EducationSection';
 import ProjectsSection from './ProjectsSection';
 import CertificationsSection from './CertificationsSection';
+import ContactInfoSection from './ContactInfoSection';
 
 interface SkillBankProps {
   userId?: string;
@@ -19,8 +20,8 @@ const skillBankApi = skillBankApiService;
  */
 const SkillBankDashboard: Component<SkillBankProps> = props => {
   const [activeTab, setActiveTab] = createSignal<
-    'skills' | 'summaries' | 'experience' | 'education' | 'projects' | 'certifications'
-  >('skills');
+    'contact' | 'skills' | 'summaries' | 'experience' | 'education' | 'projects' | 'certifications'
+  >('contact');
   const [refreshTrigger, setRefreshTrigger] = createSignal(0);
 
   const userId = () => props.userId || 'demo-user-123';
@@ -84,7 +85,14 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
   });
 
   const handleTabChange = (
-    tab: 'skills' | 'summaries' | 'experience' | 'education' | 'projects' | 'certifications'
+    tab:
+      | 'contact'
+      | 'skills'
+      | 'summaries'
+      | 'experience'
+      | 'education'
+      | 'projects'
+      | 'certifications'
   ) => {
     setActiveTab(tab);
   };
@@ -196,6 +204,21 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
           {/* Tab Navigation */}
           <div class='tabs tabs-boxed mb-6 self-start'>
             <button
+              class={`tab tab-lg gap-2 ${activeTab() === 'contact' ? 'tab-active' : ''}`}
+              onClick={() => handleTabChange('contact')}
+            >
+              <svg class='h-5 w-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'
+                ></path>
+              </svg>
+              Contact Info
+            </button>
+
+            <button
               class={`tab tab-lg gap-2 ${activeTab() === 'skills' ? 'tab-active' : ''}`}
               onClick={() => handleTabChange('skills')}
             >
@@ -306,6 +329,14 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
 
           {/* Tab Content */}
           <div class='flex-1'>
+            <Show when={activeTab() === 'contact'}>
+              <ContactInfoSection
+                skillBank={skillBank()!}
+                onUpdate={handleRefresh}
+                loading={skillBank.loading}
+              />
+            </Show>
+
             <Show when={activeTab() === 'skills'}>
               <SkillsSection
                 skillBank={skillBank()!}
