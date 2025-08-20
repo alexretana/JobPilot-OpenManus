@@ -116,4 +116,12 @@ body,
   .bg-ai-color-gradient {
     @apply bg-gradient-to-tr from-primary to-accent text-primary-content;
   }
+
+  /* Text AI Color Gradient - for gradient text effects using Tailwind */
+  .text-ai-gradient {
+    @apply bg-gradient-to-t from-primary to-accent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 }

@@ -39,7 +39,7 @@ const Header: Component<HeaderProps> = props => {
     <div class='navbar bg-base-300 border-b border-base-content/10 px-4'>
       <div class='navbar-start flex items-center gap-3'>
         <img src='/JobPilotIcon-Alpha.png' alt='JobPilot Icon' class='w-8 h-8' />
-        <h1 class='text-xl font-bold text-primary'>JobPilot</h1>
+        <h1 class='text-xl font-bold text-primary text-ai-gradient'>JobPilot</h1>
       </div>
 
       <div class='navbar-center'>
@@ -90,7 +90,7 @@ const Header: Component<HeaderProps> = props => {
                 <input
                   type='radio'
                   name='theme-dropdown'
-                  class='theme-controller w-full btn btn-sm btn-block btn-ghost justify-start'
+                  class='theme-controller btn btn-sm btn-block btn-ghost justify-start'
                   aria-label={theme.label}
                   value={theme.name}
                   checked={currentTheme() === theme.name}
