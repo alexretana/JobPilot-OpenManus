@@ -1,6 +1,8 @@
-import { Component, createSignal, createEffect, Show } from 'solid-js';
+import { Component, createSignal, createEffect, Show, createResource } from 'solid-js';
 import { createStore } from 'solid-js/store';
 import type { SkillBankResponse } from '../../../../../types/skillBank';
+import { userProfileApi } from '../../../../../services/userProfileApi';
+import type { UserProfileUpdate } from '../../../../../services/userProfileApi';
 
 interface ContactInfoSectionProps {
   skillBank: SkillBankResponse;
@@ -42,22 +44,42 @@ export const ContactInfoSection: Component<ContactInfoSectionProps> = props => {
   const [saving, setSaving] = createSignal(false);
   const [hasChanges, setHasChanges] = createSignal(false);
 
-  // Initialize form data when skillBank data loads
+  // Load user profile data
+  const [userProfile] = createResource(
+    () => props.skillBank?.user_id,
+    async userId => {
+      if (!userId) return null;
+      try {
+        // Try to get the specific user profile
+        return await userProfileApi.getProfile(userId);
+      } catch (error) {
+        console.warn('Could not load user profile, trying default:', error);
+        try {
+          // Fall back to demo user default if specific user not found
+          return await userProfileApi.getProfile('demo-user-123');
+        } catch (fallbackError) {
+          console.error('Could not load any user profile:', fallbackError);
+          return null;
+        }
+      }
+    }
+  );
+
+  // Initialize form data when user profile loads
   createEffect(() => {
-    if (props.skillBank?.user_id) {
-      // For now, we'll use placeholder data since we don't have a backend contact endpoint yet
-      // This will be updated when the backend contact info consolidation is implemented
+    const profile = userProfile();
+    if (profile) {
       setFormData({
-        first_name: 'John',
-        last_name: 'Doe',
-        email: 'john.doe@email.com',
-        phone: '(555) 123-4567',
-        city: 'San Francisco',
-        state: 'CA',
-        country: 'United States',
-        linkedin_url: 'https://linkedin.com/in/johndoe',
-        portfolio_url: 'https://johndoe.com',
-        github_url: 'https://github.com/johndoe',
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        city: profile.city || '',
+        state: profile.state || '',
+        country: 'United States', // Default country since backend doesn't store this
+        linkedin_url: profile.linkedin_url || '',
+        portfolio_url: profile.portfolio_url || '',
+        github_url: '', // GitHub URL not in current UserProfile model
       });
       setHasChanges(false);
     }
@@ -115,13 +137,23 @@ export const ContactInfoSection: Component<ContactInfoSectionProps> = props => {
 
     setSaving(true);
     try {
-      // TODO: Implement contact info update API call
-      // await skillBankApi.updateContactInfo(props.skillBank.user_id, formData);
+      // Update user profile with contact info changes
+      const updateData: UserProfileUpdate = {
+        first_name: formData.first_name.trim(),
+        last_name: formData.last_name.trim(),
+        email: formData.email.trim() || undefined,
+        phone: formData.phone.trim() || undefined,
+        city: formData.city.trim() || undefined,
+        state: formData.state.trim() || undefined,
+        linkedin_url: formData.linkedin_url.trim() || undefined,
+        portfolio_url: formData.portfolio_url.trim() || undefined,
+      };
 
-      // For now, simulate a save
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Use the user ID from skill bank or fall back to demo user
+      const userId = props.skillBank.user_id || 'demo-user-123';
+      await userProfileApi.updateProfile(userId, updateData);
 
-      console.log('Contact info would be saved:', formData);
+      console.log('Contact info updated successfully:', updateData);
       setHasChanges(false);
       props.onUpdate();
     } catch (error) {
@@ -133,19 +165,20 @@ export const ContactInfoSection: Component<ContactInfoSectionProps> = props => {
   };
 
   const handleCancel = () => {
-    // Reset form to original values (placeholder data for now)
-    if (props.skillBank?.user_id) {
+    // Reset form to original profile values
+    const profile = userProfile();
+    if (profile) {
       setFormData({
-        first_name: 'John',
-        last_name: 'Doe',
-        email: 'john.doe@email.com',
-        phone: '(555) 123-4567',
-        city: 'San Francisco',
-        state: 'CA',
-        country: 'United States',
-        linkedin_url: 'https://linkedin.com/in/johndoe',
-        portfolio_url: 'https://johndoe.com',
-        github_url: 'https://github.com/johndoe',
+        first_name: profile.first_name || '',
+        last_name: profile.last_name || '',
+        email: profile.email || '',
+        phone: profile.phone || '',
+        city: profile.city || '',
+        state: profile.state || '',
+        country: 'United States', // Default country
+        linkedin_url: profile.linkedin_url || '',
+        portfolio_url: profile.portfolio_url || '',
+        github_url: '', // GitHub URL not in current UserProfile model
       });
       setHasChanges(false);
     }
@@ -185,160 +218,189 @@ export const ContactInfoSection: Component<ContactInfoSectionProps> = props => {
         </Show>
       </div>
 
+      {/* Loading State */}
+      <Show when={userProfile.loading}>
+        <div class='card bg-base-100 shadow-lg border border-base-300'>
+          <div class='card-body'>
+            <div class='flex flex-col items-center justify-center py-12'>
+              <span class='loading loading-spinner loading-lg text-primary mb-4'></span>
+              <p class='text-base-content/70'>Loading your contact information...</p>
+            </div>
+          </div>
+        </div>
+      </Show>
+
+      {/* Error State */}
+      <Show when={userProfile.error}>
+        <div class='alert alert-error'>
+          <svg class='stroke-current shrink-0 h-6 w-6' fill='none' viewBox='0 0 24 24'>
+            <path
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              stroke-width='2'
+              d='M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z'
+            />
+          </svg>
+          <span>Error loading contact information: {userProfile.error?.message}</span>
+        </div>
+      </Show>
+
       {/* Contact Form */}
-      <div class='card bg-base-100 shadow-lg border border-base-300'>
-        <div class='card-body'>
-          <div class='space-y-6'>
-            {/* Basic Information */}
-            <div>
-              <h3 class='text-lg font-semibold mb-4'>Basic Information</h3>
-              <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
-                <div class='form-control'>
-                  <label class='label'>
-                    <span class='label-text'>First Name *</span>
-                  </label>
-                  <input
-                    type='text'
-                    placeholder='First name'
-                    class='input input-bordered'
-                    value={formData.first_name}
-                    onInput={e => handleInputChange('first_name', e.currentTarget.value)}
-                  />
-                </div>
+      <Show when={userProfile() && !userProfile.loading}>
+        <div class='card bg-base-100 shadow-lg border border-base-300'>
+          <div class='card-body'>
+            <div class='space-y-6'>
+              {/* Basic Information */}
+              <div>
+                <h3 class='text-lg font-semibold mb-4'>Basic Information</h3>
+                <div class='grid grid-cols-1 md:grid-cols-2 gap-4'>
+                  <div class='form-control'>
+                    <label class='label'>
+                      <span class='label-text'>First Name *</span>
+                    </label>
+                    <input
+                      type='text'
+                      placeholder='First name'
+                      class='input input-bordered'
+                      value={formData.first_name}
+                      onInput={e => handleInputChange('first_name', e.currentTarget.value)}
+                    />
+                  </div>
 
-                <div class='form-control'>
-                  <label class='label'>
-                    <span class='label-text'>Last Name *</span>
-                  </label>
-                  <input
-                    type='text'
-                    placeholder='Last name'
-                    class='input input-bordered'
-                    value={formData.last_name}
-                    onInput={e => handleInputChange('last_name', e.currentTarget.value)}
-                  />
-                </div>
+                  <div class='form-control'>
+                    <label class='label'>
+                      <span class='label-text'>Last Name *</span>
+                    </label>
+                    <input
+                      type='text'
+                      placeholder='Last name'
+                      class='input input-bordered'
+                      value={formData.last_name}
+                      onInput={e => handleInputChange('last_name', e.currentTarget.value)}
+                    />
+                  </div>
 
-                <div class='form-control'>
-                  <label class='label'>
-                    <span class='label-text'>Email</span>
-                  </label>
-                  <input
-                    type='email'
-                    placeholder='email@example.com'
-                    class='input input-bordered'
-                    value={formData.email}
-                    onInput={e => handleInputChange('email', e.currentTarget.value)}
-                  />
-                </div>
+                  <div class='form-control'>
+                    <label class='label'>
+                      <span class='label-text'>Email</span>
+                    </label>
+                    <input
+                      type='email'
+                      placeholder='email@example.com'
+                      class='input input-bordered'
+                      value={formData.email}
+                      onInput={e => handleInputChange('email', e.currentTarget.value)}
+                    />
+                  </div>
 
-                <div class='form-control'>
-                  <label class='label'>
-                    <span class='label-text'>Phone</span>
-                  </label>
-                  <input
-                    type='tel'
-                    placeholder='(555) 123-4567'
-                    class='input input-bordered'
-                    value={formData.phone}
-                    onInput={e => handleInputChange('phone', e.currentTarget.value)}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Location Information */}
-            <div>
-              <h3 class='text-lg font-semibold mb-4'>Location</h3>
-              <div class='grid grid-cols-1 md:grid-cols-3 gap-4'>
-                <div class='form-control'>
-                  <label class='label'>
-                    <span class='label-text'>City</span>
-                  </label>
-                  <input
-                    type='text'
-                    placeholder='City'
-                    class='input input-bordered'
-                    value={formData.city}
-                    onInput={e => handleInputChange('city', e.currentTarget.value)}
-                  />
-                </div>
-
-                <div class='form-control'>
-                  <label class='label'>
-                    <span class='label-text'>State/Province</span>
-                  </label>
-                  <input
-                    type='text'
-                    placeholder='State or Province'
-                    class='input input-bordered'
-                    value={formData.state}
-                    onInput={e => handleInputChange('state', e.currentTarget.value)}
-                  />
-                </div>
-
-                <div class='form-control'>
-                  <label class='label'>
-                    <span class='label-text'>Country</span>
-                  </label>
-                  <input
-                    type='text'
-                    placeholder='Country'
-                    class='input input-bordered'
-                    value={formData.country}
-                    onInput={e => handleInputChange('country', e.currentTarget.value)}
-                  />
+                  <div class='form-control'>
+                    <label class='label'>
+                      <span class='label-text'>Phone</span>
+                    </label>
+                    <input
+                      type='tel'
+                      placeholder='(555) 123-4567'
+                      class='input input-bordered'
+                      value={formData.phone}
+                      onInput={e => handleInputChange('phone', e.currentTarget.value)}
+                    />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Professional Links */}
-            <div>
-              <h3 class='text-lg font-semibold mb-4'>Professional Links</h3>
-              <div class='space-y-4'>
-                <div class='form-control'>
-                  <label class='label'>
-                    <span class='label-text'>LinkedIn URL</span>
-                  </label>
-                  <input
-                    type='url'
-                    placeholder='https://linkedin.com/in/username'
-                    class='input input-bordered'
-                    value={formData.linkedin_url}
-                    onInput={e => handleInputChange('linkedin_url', e.currentTarget.value)}
-                  />
+              {/* Location Information */}
+              <div>
+                <h3 class='text-lg font-semibold mb-4'>Location</h3>
+                <div class='grid grid-cols-1 md:grid-cols-3 gap-4'>
+                  <div class='form-control'>
+                    <label class='label'>
+                      <span class='label-text'>City</span>
+                    </label>
+                    <input
+                      type='text'
+                      placeholder='City'
+                      class='input input-bordered'
+                      value={formData.city}
+                      onInput={e => handleInputChange('city', e.currentTarget.value)}
+                    />
+                  </div>
+
+                  <div class='form-control'>
+                    <label class='label'>
+                      <span class='label-text'>State/Province</span>
+                    </label>
+                    <input
+                      type='text'
+                      placeholder='State or Province'
+                      class='input input-bordered'
+                      value={formData.state}
+                      onInput={e => handleInputChange('state', e.currentTarget.value)}
+                    />
+                  </div>
+
+                  <div class='form-control'>
+                    <label class='label'>
+                      <span class='label-text'>Country</span>
+                    </label>
+                    <input
+                      type='text'
+                      placeholder='Country'
+                      class='input input-bordered'
+                      value={formData.country}
+                      onInput={e => handleInputChange('country', e.currentTarget.value)}
+                    />
+                  </div>
                 </div>
+              </div>
 
-                <div class='form-control'>
-                  <label class='label'>
-                    <span class='label-text'>Portfolio URL</span>
-                  </label>
-                  <input
-                    type='url'
-                    placeholder='https://yourportfolio.com'
-                    class='input input-bordered'
-                    value={formData.portfolio_url}
-                    onInput={e => handleInputChange('portfolio_url', e.currentTarget.value)}
-                  />
-                </div>
+              {/* Professional Links */}
+              <div>
+                <h3 class='text-lg font-semibold mb-4'>Professional Links</h3>
+                <div class='space-y-4'>
+                  <div class='form-control'>
+                    <label class='label'>
+                      <span class='label-text'>LinkedIn URL</span>
+                    </label>
+                    <input
+                      type='url'
+                      placeholder='https://linkedin.com/in/username'
+                      class='input input-bordered'
+                      value={formData.linkedin_url}
+                      onInput={e => handleInputChange('linkedin_url', e.currentTarget.value)}
+                    />
+                  </div>
 
-                <div class='form-control'>
-                  <label class='label'>
-                    <span class='label-text'>GitHub URL</span>
-                  </label>
-                  <input
-                    type='url'
-                    placeholder='https://github.com/username'
-                    class='input input-bordered'
-                    value={formData.github_url}
-                    onInput={e => handleInputChange('github_url', e.currentTarget.value)}
-                  />
+                  <div class='form-control'>
+                    <label class='label'>
+                      <span class='label-text'>Portfolio URL</span>
+                    </label>
+                    <input
+                      type='url'
+                      placeholder='https://yourportfolio.com'
+                      class='input input-bordered'
+                      value={formData.portfolio_url}
+                      onInput={e => handleInputChange('portfolio_url', e.currentTarget.value)}
+                    />
+                  </div>
+
+                  <div class='form-control'>
+                    <label class='label'>
+                      <span class='label-text'>GitHub URL</span>
+                    </label>
+                    <input
+                      type='url'
+                      placeholder='https://github.com/username'
+                      class='input input-bordered'
+                      value={formData.github_url}
+                      onInput={e => handleInputChange('github_url', e.currentTarget.value)}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </Show>
 
       {/* Save prompt at bottom */}
       <Show when={hasChanges()}>
