@@ -120,11 +120,11 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
   };
 
   return (
-    <div class='w-full h-full flex flex-col space-y-6'>
+    <div class='w-full h-full flex flex-col space-y-2'>
       {/* Header */}
-      <div class='flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4'>
+      <div class='flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 m-2'>
         <div>
-          <h1 class='text-3xl font-bold text-base-content flex items-center gap-3'>
+          <h1 class='text-3xl font-bold text-base-content flex items-center gap-3 p-2'>
             <div class='w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center'>
               <svg
                 class='w-6 h-6 text-primary'
@@ -142,36 +142,85 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
             </div>
             Skill Bank
           </h1>
-          <p class='text-base-content/70 mt-1'>
-            Manage your skills, professional summaries, and work experience for targeted job
-            applications
-          </p>
-          <div class='mt-2 text-sm text-base-content/60'>Last updated: {getLastUpdated()}</div>
         </div>
 
-        {/* Action Buttons */}
-        <div class='flex gap-2'>
-          <button
-            class='btn btn-ghost btn-sm gap-2'
-            onClick={handleRefresh}
-            disabled={skillBank.loading}
-          >
-            <svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-              <path
-                stroke-linecap='round'
-                stroke-linejoin='round'
-                stroke-width='2'
-                d='M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15'
-              />
-            </svg>
-            Refresh
-          </button>
+        {/* Stats Cards (moved from footer) */}
+        <div class='stats stats-horizontal shadow-lg bg-base-200 flex-shrink-0 m-2 p-2'>
+          <div class='stat p-2'>
+            <div class='stat-figure text-primary p-2'>
+              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
+                />
+              </svg>
+            </div>
+            <div class='stat-title p-2'>Total Skills</div>
+            <div class='stat-value text-primary p-2'>{tabCounts().skills}</div>
+            <div class='stat-desc p-2'>
+              {Object.keys(skillBank()?.skills || {}).length} categories
+            </div>
+          </div>
+
+          <div class='stat p-2'>
+            <div class='stat-figure text-secondary p-2'>
+              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
+                />
+              </svg>
+            </div>
+            <div class='stat-title p-2'>Summary Variations</div>
+            <div class='stat-value text-secondary p-2'>{tabCounts().summaries}</div>
+            <div class='stat-desc p-2'>Ready for tailoring</div>
+          </div>
+
+          <div class='stat p-2'>
+            <div class='stat-figure text-accent p-2'>
+              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z'
+                />
+              </svg>
+            </div>
+            <div class='stat-title p-2'>Work Experience</div>
+            <div class='stat-value text-accent p-2'>{tabCounts().experiences}</div>
+            <div class='stat-desc p-2'>Professional roles</div>
+          </div>
+
+          <div class='stat p-2'>
+            <div class='stat-figure text-info p-2'>
+              <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                <path
+                  stroke-linecap='round'
+                  stroke-linejoin='round'
+                  stroke-width='2'
+                  d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
+                />
+              </svg>
+            </div>
+            <div class='stat-title p-2'>Projects & Certs</div>
+            <div class='stat-value text-info p-2'>
+              {tabCounts().projects + tabCounts().certifications}
+            </div>
+            <div class='stat-desc p-2'>
+              {tabCounts().projects} projects, {tabCounts().certifications} certs
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Loading State */}
       <Show when={skillBank.loading}>
-        <div class='flex flex-col items-center justify-center py-20'>
+        <div class='flex flex-col items-center justify-center py-20 m-2 p-2'>
           <span class='loading loading-spinner loading-lg text-primary mb-4'></span>
           <p class='text-base-content/70'>Loading your skill bank...</p>
         </div>
@@ -179,7 +228,7 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
 
       {/* Error State */}
       <Show when={skillBank.error}>
-        <div class='alert alert-error'>
+        <div class='alert alert-error m-2 p-2'>
           <svg class='stroke-current shrink-0 h-6 w-6' fill='none' viewBox='0 0 24 24'>
             <path
               stroke-linecap='round'
@@ -192,7 +241,7 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
             <h3 class='font-bold'>Error Loading Skill Bank</h3>
             <div class='text-xs'>{skillBank.error?.message}</div>
           </div>
-          <button class='btn btn-sm' onClick={handleRefresh}>
+          <button class='btn btn-sm m-2 p-2' onClick={handleRefresh}>
             Try Again
           </button>
         </div>
@@ -200,9 +249,9 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
 
       {/* Main Content */}
       <Show when={skillBank() && !skillBank.loading}>
-        <div class='flex-1 flex gap-6'>
+        <div class='flex-1 flex gap-2 m-2'>
           {/* Left Sidebar Menu */}
-          <ul class='menu bg-base-200 rounded-box w-64 p-2 h-fit sticky top-0'>
+          <ul class='menu bg-base-200 rounded-box w-64 p-2 h-fit sticky top-0 m-2'>
             <li>
               <button
                 class={activeTab() === 'contact' ? 'active' : ''}
@@ -342,9 +391,9 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
           </ul>
 
           {/* Main Content Area with Scrolling */}
-          <div class='flex-1 flex flex-col min-h-0'>
+          <div class='flex-1 flex flex-col min-h-0 m-2'>
             {/* Tab Content - Scrollable */}
-            <div class='flex-1 overflow-y-auto pr-2'>
+            <div class='flex-1 overflow-y-auto pr-2 p-2'>
               <Show when={activeTab() === 'contact'}>
                 <ContactInfoSection
                   skillBank={skillBank()!}
@@ -402,78 +451,7 @@ const SkillBankDashboard: Component<SkillBankProps> = props => {
               </Show>
             </div>
 
-            {/* Summary Stats Footer - Fixed at bottom */}
-            <div class='mt-6 stats stats-vertical lg:stats-horizontal shadow-lg bg-base-200 flex-shrink-0'>
-              <div class='stat'>
-                <div class='stat-figure text-primary'>
-                  <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
-                      stroke-width='2'
-                      d='M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
-                    />
-                  </svg>
-                </div>
-                <div class='stat-title'>Total Skills</div>
-                <div class='stat-value text-primary'>{tabCounts().skills}</div>
-                <div class='stat-desc'>
-                  {Object.keys(skillBank()?.skills || {}).length} categories
-                </div>
-              </div>
-
-              <div class='stat'>
-                <div class='stat-figure text-secondary'>
-                  <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
-                      stroke-width='2'
-                      d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'
-                    />
-                  </svg>
-                </div>
-                <div class='stat-title'>Summary Variations</div>
-                <div class='stat-value text-secondary'>{tabCounts().summaries}</div>
-                <div class='stat-desc'>Ready for tailoring</div>
-              </div>
-
-              <div class='stat'>
-                <div class='stat-figure text-accent'>
-                  <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
-                      stroke-width='2'
-                      d='M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2V6z'
-                    />
-                  </svg>
-                </div>
-                <div class='stat-title'>Work Experience</div>
-                <div class='stat-value text-accent'>{tabCounts().experiences}</div>
-                <div class='stat-desc'>Professional roles</div>
-              </div>
-
-              <div class='stat'>
-                <div class='stat-figure text-info'>
-                  <svg class='w-8 h-8' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                    <path
-                      stroke-linecap='round'
-                      stroke-linejoin='round'
-                      stroke-width='2'
-                      d='M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
-                    />
-                  </svg>
-                </div>
-                <div class='stat-title'>Projects & Certs</div>
-                <div class='stat-value text-info'>
-                  {tabCounts().projects + tabCounts().certifications}
-                </div>
-                <div class='stat-desc'>
-                  {tabCounts().projects} projects, {tabCounts().certifications} certs
-                </div>
-              </div>
-            </div>
+            {/* Footer - Empty now that stats are moved to header */}
           </div>
         </div>
       </Show>

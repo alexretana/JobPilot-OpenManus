@@ -230,11 +230,11 @@ export const SkillsSection: Component<SkillsSectionProps> = props => {
   };
 
   return (
-    <div class='space-y-6'>
+    <div class='space-y-2'>
       {/* Header with Actions */}
-      <div class='flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4'>
+      <div class='flex flex-col lg:flex-row justify-between items-start lg:items-center gap-2 m-2 p-2'>
         <div>
-          <h2 class='text-2xl font-bold text-base-content flex items-center gap-2'>
+          <h2 class='text-2xl font-bold text-base-content flex items-center gap-2 p-2'>
             <svg class='w-6 h-6 text-primary' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
               <path
                 stroke-linecap='round'
@@ -245,11 +245,11 @@ export const SkillsSection: Component<SkillsSectionProps> = props => {
             </svg>
             Skills ({allSkills().length})
           </h2>
-          <p class='text-base-content/70'>
+          <p class='text-base-content/70 p-2'>
             Manage your technical and soft skills with proficiency levels and descriptions
           </p>
         </div>
-        <button class='btn btn-primary gap-2' onClick={handleAddSkill} disabled={saving()}>
+        <button class='btn btn-primary gap-2 m-2 p-2' onClick={handleAddSkill} disabled={saving()}>
           <svg class='w-4 h-4' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
             <path
               stroke-linecap='round'
@@ -263,30 +263,18 @@ export const SkillsSection: Component<SkillsSectionProps> = props => {
       </div>
 
       {/* Search and Filter */}
-      <div class='flex flex-col sm:flex-row gap-4'>
+      <div class='flex flex-col sm:flex-row gap-2 m-2 p-2'>
         <div class='form-control flex-1'>
-          <div class='input-group'>
-            <input
-              type='text'
-              placeholder='Search skills...'
-              class='input input-bordered w-full'
-              value={searchTerm()}
-              onInput={e => setSearchTerm(e.currentTarget.value)}
-            />
-            <button class='btn btn-square'>
-              <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-                <path
-                  stroke-linecap='round'
-                  stroke-linejoin='round'
-                  stroke-width='2'
-                  d='m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
-                />
-              </svg>
-            </button>
-          </div>
+          <input
+            type='text'
+            placeholder='Search skills...'
+            class='input input-bordered w-full m-2 p-2'
+            value={searchTerm()}
+            onInput={e => setSearchTerm(e.currentTarget.value)}
+          />
         </div>
         <select
-          class='select select-bordered w-full sm:w-auto'
+          class='select select-bordered w-full sm:w-auto m-2 p-2'
           value={selectedCategory()}
           onChange={e => setSelectedCategory(e.currentTarget.value)}
         >
@@ -295,6 +283,16 @@ export const SkillsSection: Component<SkillsSectionProps> = props => {
             {category => <option value={category.value}>{category.label}</option>}
           </For>
         </select>
+        <button class='btn btn-square m-2 p-2'>
+          <svg class='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+            <path
+              stroke-linecap='round'
+              stroke-linejoin='round'
+              stroke-width='2'
+              d='m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'
+            />
+          </svg>
+        </button>
       </div>
 
       {/* Add/Edit Form Modal */}
