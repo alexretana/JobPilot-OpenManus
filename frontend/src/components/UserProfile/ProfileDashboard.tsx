@@ -22,7 +22,6 @@ const ProfileDashboard: Component<ProfileDashboardProps> = props => {
     missing_fields: [],
     suggestions: [],
   });
-  const [isCreatingResume] = createSignal(false);
 
   // Fetch user profile - use specific user ID or default profile for single-user mode
   const [profile, { refetch: refetchProfile }] = createResource(async () => {
@@ -68,17 +67,6 @@ const ProfileDashboard: Component<ProfileDashboardProps> = props => {
     if (!years) return 'Not specified';
     if (years === 1) return '1 year';
     return `${years} years`;
-  };
-
-  const handleCreateResume = () => {
-    if (!profile()) return;
-
-    // Simply navigate to resume creation
-    if (props.onNavigateToResume) {
-      props.onNavigateToResume();
-    } else {
-      alert('Navigation to resume not configured.');
-    }
   };
 
   return (
