@@ -328,19 +328,76 @@ class SkillBank(BaseModel):
         default_factory=dict
     )
 
-    # LEGACY FIELDS (For backward compatibility)
-    experience_keywords: List[str] = Field(default_factory=list)
-    industry_keywords: List[str] = Field(default_factory=list)
-    technical_keywords: List[str] = Field(default_factory=list)
-    soft_skills: List[str] = Field(default_factory=list)
+    # LEGACY FIELDS - REMOVED: Now handled by enhanced skills system
+    # experience_keywords: List[str] = Field(default_factory=list)  # DELETE - use enhanced skills with keywords
+    # industry_keywords: List[str] = Field(default_factory=list)    # DELETE - use enhanced skills with keywords
+    # technical_keywords: List[str] = Field(default_factory=list)   # DELETE - use enhanced skills with keywords
+    # soft_skills: List[str] = Field(default_factory=list)          # DELETE - use enhanced skills with category
 
-    # AI EXTRACTION & SUGGESTION
-    auto_extracted_skills: List[str] = Field(default_factory=list)
-    skill_confidence: Dict[str, float] = Field(default_factory=dict)
+    # AI EXTRACTION & SUGGESTION - REMOVED: Now handled by individual skill metadata
+    # auto_extracted_skills: List[str] = Field(default_factory=list)  # DELETE - use skill.source = EXTRACTED
+    # skill_confidence: Dict[str, float] = Field(default_factory=dict)  # DELETE - use skill.confidence field
 
     # Metadata
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # Task 3.3 SKIPPED: No computed properties needed in development mode
+    # Legacy compatibility properties were not implemented since we're working with fresh mock data
+
+    def get_skills_by_category(self, category: SkillCategory) -> List[EnhancedSkill]:
+        """Get all skills for a specific category."""
+        all_skills = []
+        for skill_list in self.skills.values():
+            all_skills.extend(
+                [skill for skill in skill_list if skill.category == category]
+            )
+        return sorted(
+            all_skills, key=lambda s: (s.is_featured, s.display_order), reverse=True
+        )
+
+    def get_featured_skills(self) -> List[EnhancedSkill]:
+        """Get all featured skills across all categories."""
+        featured = []
+        for skill_list in self.skills.values():
+            featured.extend([skill for skill in skill_list if skill.is_featured])
+        return sorted(featured, key=lambda s: s.display_order)
+
+    def get_all_skill_names(self) -> List[str]:
+        """Get all skill names as a flat list."""
+        all_names = []
+        for skill_list in self.skills.values():
+            all_names.extend([skill.name for skill in skill_list])
+        return sorted(all_names)
+
+    def get_skills_for_resume_section(
+        self, max_skills: int = 10, prefer_featured: bool = True
+    ) -> List[str]:
+        """Get skills formatted for resume sections."""
+        if prefer_featured:
+            # Start with featured skills
+            skills = self.get_featured_skills()
+            if len(skills) >= max_skills:
+                return [skill.name for skill in skills[:max_skills]]
+
+            # Fill remaining with non-featured skills by proficiency
+            remaining_count = max_skills - len(skills)
+            all_skills = []
+            for skill_list in self.skills.values():
+                all_skills.extend([s for s in skill_list if not s.is_featured])
+
+            # Sort by proficiency score (highest first)
+            all_skills.sort(key=lambda s: s.proficiency_score or 0, reverse=True)
+            skills.extend(all_skills[:remaining_count])
+        else:
+            # Get all skills and sort by proficiency
+            all_skills = []
+            for skill_list in self.skills.values():
+                all_skills.extend(skill_list)
+            all_skills.sort(key=lambda s: s.proficiency_score or 0, reverse=True)
+            skills = all_skills[:max_skills]
+
+        return [skill.name for skill in skills]
 
     class Config:
         schema_extra = {
@@ -428,13 +485,24 @@ class EnhancedSkillBankDB(Base):
         JSON, default=dict
     )  # Dict[project_id, List[ContentVariation]]
 
-    # LEGACY FIELDS (For backward compatibility)
-    experience_keywords = Column(JSON, default=list)
-    industry_keywords = Column(JSON, default=list)
-    technical_keywords = Column(JSON, default=list)
-    soft_skills = Column(JSON, default=list)
-    auto_extracted_skills = Column(JSON, default=list)
-    skill_confidence = Column(JSON, default=dict)
+    # LEGACY FIELDS - TO BE REMOVED: Now handled by enhanced skills system
+    # TODO: Remove these fields in next database migration - functionality moved to enhanced skills
+    experience_keywords = Column(
+        JSON, default=list
+    )  # DELETE - use enhanced skills with keywords
+    industry_keywords = Column(
+        JSON, default=list
+    )  # DELETE - use enhanced skills with keywords
+    technical_keywords = Column(
+        JSON, default=list
+    )  # DELETE - use enhanced skills with keywords
+    soft_skills = Column(
+        JSON, default=list
+    )  # DELETE - use enhanced skills with category='soft'
+    auto_extracted_skills = Column(
+        JSON, default=list
+    )  # DELETE - use skill.source='extracted'
+    skill_confidence = Column(JSON, default=dict)  # DELETE - use skill.confidence field
 
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -582,7 +650,7 @@ def create_default_skill_bank(user_id: str) -> SkillBank:
         ),
     ]
 
-    soft_skills = [
+    interpersonal_skills = [
         EnhancedSkill(
             name="Project Management",
             level=SkillLevel.ADVANCED,
@@ -808,7 +876,7 @@ def create_default_skill_bank(user_id: str) -> SkillBank:
         ],
         skills={
             "Technical Skills": technical_skills,
-            "Soft Skills": soft_skills,
+            "Soft Skills": interpersonal_skills,
             "Tools & Technologies": tools_skills,
         },
         default_summary="Experienced software engineer with 5+ years developing scalable web applications. Strong background in Python, JavaScript, and modern development practices with a focus on clean code and team collaboration.",

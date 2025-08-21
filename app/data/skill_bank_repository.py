@@ -646,12 +646,9 @@ class SkillBankRepository:
             education_content_variations=skill_bank_db.education_content_variations
             or {},
             project_content_variations=skill_bank_db.project_content_variations or {},
-            experience_keywords=skill_bank_db.experience_keywords or [],
-            industry_keywords=skill_bank_db.industry_keywords or [],
-            technical_keywords=skill_bank_db.technical_keywords or [],
-            soft_skills=skill_bank_db.soft_skills or [],
-            auto_extracted_skills=skill_bank_db.auto_extracted_skills or [],
-            skill_confidence=skill_bank_db.skill_confidence or {},
+            # REMOVED: Legacy field references no longer exist in SkillBank Pydantic model
+            # experience_keywords, industry_keywords, technical_keywords, soft_skills,
+            # auto_extracted_skills, skill_confidence - functionality moved to enhanced skills
             created_at=skill_bank_db.created_at,
             updated_at=skill_bank_db.updated_at,
         )
@@ -698,12 +695,14 @@ class SkillBankRepository:
             ),
             education_content_variations=skill_bank.education_content_variations,
             project_content_variations=skill_bank.project_content_variations,
-            experience_keywords=skill_bank.experience_keywords,
-            industry_keywords=skill_bank.industry_keywords,
-            technical_keywords=skill_bank.technical_keywords,
-            soft_skills=skill_bank.soft_skills,
-            auto_extracted_skills=skill_bank.auto_extracted_skills,
-            skill_confidence=skill_bank.skill_confidence,
+            # REMOVED: Legacy field assignments - these fields don't exist in SkillBank Pydantic model
+            # Set legacy fields to empty values since they're still in database but not used
+            experience_keywords=[],
+            industry_keywords=[],
+            technical_keywords=[],
+            soft_skills=[],
+            auto_extracted_skills=[],
+            skill_confidence={},
             created_at=skill_bank.created_at,
             updated_at=skill_bank.updated_at,
         )

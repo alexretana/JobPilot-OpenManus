@@ -351,7 +351,7 @@ class UserProfile(BaseModel):
     # Professional information
     current_title: Optional[str] = None
     experience_years: Optional[int] = None
-    skills: List[str] = Field(default_factory=list)
+    # skills: List[str] = Field(default_factory=list)  # DELETE - use skill_bank relationship only
     education: Optional[str] = None
     bio: Optional[str] = None
 
@@ -771,7 +771,7 @@ class UserProfileDB(Base):
     # Professional information
     current_title = Column(String)
     experience_years = Column(Integer)
-    skills = Column(JSON)
+    # skills = Column(JSON)  # DELETE - use skill_bank relationship only
     education = Column(String)
     bio = Column(Text)
 
