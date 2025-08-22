@@ -1201,14 +1201,15 @@ saved_job_repo = None
 application_repo = None
 resume_repo = None
 interaction_repo = None
-# company_repo = None  # Will be added in Task 6.4
+company_repo = None
 
 
 def initialize_database(database_url: str = None):
     """Initialize global database instances."""
-    global db_manager, job_repo, user_repo, saved_job_repo, application_repo, resume_repo, interaction_repo
+    global db_manager, job_repo, user_repo, saved_job_repo, application_repo, resume_repo, interaction_repo, company_repo
 
     # Import here to avoid circular imports
+    from app.data.company_repository import CompanyRepository
     from app.data.interaction_repository import JobUserInteractionRepository
 
     db_manager = DatabaseManager(database_url)
@@ -1218,6 +1219,7 @@ def initialize_database(database_url: str = None):
     application_repo = ApplicationRepository(db_manager)
     resume_repo = ResumeRepository(db_manager)
     interaction_repo = JobUserInteractionRepository(db_manager)
+    company_repo = CompanyRepository(db_manager)
 
     logger.info("Database repositories initialized")
 
@@ -1276,3 +1278,11 @@ def get_interaction_repository():
     if interaction_repo is None:
         initialize_database()
     return interaction_repo
+
+
+def get_company_repository():
+    """Get or create company repository."""
+    global company_repo
+    if company_repo is None:
+        initialize_database()
+    return company_repo

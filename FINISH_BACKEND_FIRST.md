@@ -1546,8 +1546,8 @@ def test_skill_bank_operations():
 
 - [x] Task 6.1: Update JobRepository Methods
 - [x] Task 6.2: Create JobUserInteractionRepository
-- [ ] Task 6.3: Update get_database_manager Function
-- [ ] Task 6.4: Create CompanyRepository
+- [x] Task 6.3: Update get_database_manager Function
+- [x] Task 6.4: Create CompanyRepository
 
 ### Phase 7: Update Mock Data Generator ✅
 
