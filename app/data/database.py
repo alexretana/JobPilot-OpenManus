@@ -12,10 +12,16 @@ from uuid import UUID
 from sqlalchemy import and_, create_engine, desc, or_, text
 from sqlalchemy.orm import sessionmaker
 
+from app.data.company_matcher import (
+    extract_domain_from_url,
+    find_existing_company,
+    validate_company_data,
+)
 from app.data.models import (
     ApplicationStatus,
     Base,
     CompanyInfoDB,
+    CompanySizeCategory,
     ExperienceLevel,
     JobApplication,
     JobApplicationDB,
@@ -222,18 +228,23 @@ class JobRepository:
         limit: int = 50,
         offset: int = 0,
     ) -> Tuple[List[JobListing], int]:
-        """Search jobs with filters."""
+        """Search jobs with filters using company relationship."""
         try:
             with self.db_manager.get_session() as session:
-                query_obj = session.query(JobListingDB).filter(
-                    JobListingDB.status == JobStatus.ACTIVE
+                # Join with CompanyInfoDB to get company information
+                query_obj = (
+                    session.query(JobListingDB)
+                    .join(CompanyInfoDB)
+                    .filter(JobListingDB.status == JobStatus.ACTIVE)
                 )
 
-                # Text search across title, company, and description
+                # Text search across title, company name, and description
                 if query:
                     search_filter = or_(
                         JobListingDB.title.ilike(f"%{query}%"),
-                        JobListingDB.company.ilike(f"%{query}%"),
+                        CompanyInfoDB.name.ilike(
+                            f"%{query}%"
+                        ),  # Search company name from relationship
                         JobListingDB.description.ilike(f"%{query}%"),
                         JobListingDB.requirements.ilike(f"%{query}%"),
                     )
@@ -262,9 +273,9 @@ class JobRepository:
                     ]
                     query_obj = query_obj.filter(or_(*location_filters))
 
-                # Filter by companies
+                # Filter by companies using company name from relationship
                 if companies:
-                    query_obj = query_obj.filter(JobListingDB.company.in_(companies))
+                    query_obj = query_obj.filter(CompanyInfoDB.name.in_(companies))
 
                 # Salary filters
                 if min_salary is not None:
@@ -299,10 +310,13 @@ class JobRepository:
                     .all()
                 )
 
-                # Convert to Pydantic models
-                jobs = [
-                    sqlalchemy_to_pydantic(job_db, JobListing) for job_db in jobs_db
-                ]
+                # Convert to Pydantic models with company name populated
+                jobs = []
+                for job_db in jobs_db:
+                    job_dict = sqlalchemy_to_pydantic(job_db, JobListing).dict()
+                    # Populate company name from relationship
+                    job_dict["company_name"] = job_db.company.name
+                    jobs.append(JobListing(**job_dict))
 
                 logger.info(
                     f"Search returned {len(jobs)} jobs out of {total_count} total"
@@ -336,14 +350,15 @@ class JobRepository:
             return []
 
     def get_jobs_by_company(self, company: str, limit: int = 20) -> List[JobListing]:
-        """Get jobs by company name."""
+        """Get jobs by company name using company relationship."""
         try:
             with self.db_manager.get_session() as session:
                 jobs_db = (
                     session.query(JobListingDB)
+                    .join(CompanyInfoDB)
                     .filter(
                         and_(
-                            JobListingDB.company.ilike(f"%{company}%"),
+                            CompanyInfoDB.name.ilike(f"%{company}%"),
                             JobListingDB.status == JobStatus.ACTIVE,
                         )
                     )
@@ -352,9 +367,14 @@ class JobRepository:
                     .all()
                 )
 
-                jobs = [
-                    sqlalchemy_to_pydantic(job_db, JobListing) for job_db in jobs_db
-                ]
+                # Convert to Pydantic models with company name populated
+                jobs = []
+                for job_db in jobs_db:
+                    job_dict = sqlalchemy_to_pydantic(job_db, JobListing).dict()
+                    # Populate company name from relationship
+                    job_dict["company_name"] = job_db.company.name
+                    jobs.append(JobListing(**job_dict))
+
                 logger.info(f"Retrieved {len(jobs)} jobs for company: {company}")
                 return jobs
 
@@ -380,6 +400,75 @@ class JobRepository:
 
         except Exception as e:
             logger.error(f"Error bulk creating jobs: {e}")
+            raise
+
+    def get_or_create_company(
+        self, name: str, domain: str = None, **kwargs
+    ) -> CompanyInfoDB:
+        """Get existing company or create new one with matching."""
+        try:
+            with self.db_manager.get_session() as session:
+                # Extract domain from website if provided in kwargs
+                website = kwargs.get("website")
+                if website and not domain:
+                    domain = extract_domain_from_url(website)
+
+                # Validate company data
+                normalized_name, validated_domain, errors = validate_company_data(
+                    name=name, domain=domain, website=website
+                )
+
+                if errors:
+                    raise ValueError(f"Invalid company data: {', '.join(errors)}")
+
+                # Try to find existing company
+                existing_id = find_existing_company(session, name, validated_domain)
+                if existing_id:
+                    existing = (
+                        session.query(CompanyInfoDB)
+                        .filter(CompanyInfoDB.id == existing_id)
+                        .first()
+                    )
+                    if existing:
+                        logger.info(f"Found existing company: {existing.name}")
+                        # Create detached copy with all attributes loaded
+                        session.expunge(existing)
+                        return existing
+
+                # Create new company
+                company_data = {
+                    "name": name.strip(),
+                    "normalized_name": normalized_name,
+                    "domain": validated_domain,
+                    **kwargs,
+                }
+
+                # Handle size_category conversion if size is provided
+                if "size" in kwargs and "size_category" not in kwargs:
+                    from app.data.company_matcher import (
+                        get_company_size_category_from_string,
+                    )
+
+                    size_category = get_company_size_category_from_string(
+                        kwargs["size"]
+                    )
+                    if size_category:
+                        company_data["size_category"] = CompanySizeCategory(
+                            size_category
+                        )
+
+                company = CompanyInfoDB(**company_data)
+                session.add(company)
+                session.flush()
+                session.refresh(company)
+
+                logger.info(f"Created new company: {company.name} (ID: {company.id})")
+                # Create detached copy with all attributes loaded
+                session.expunge(company)
+                return company
+
+        except Exception as e:
+            logger.error(f"Error getting/creating company {name}: {e}")
             raise
 
     def update_job_status(self, job_id: str, status: JobStatus) -> bool:

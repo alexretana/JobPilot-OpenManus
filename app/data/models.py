@@ -255,7 +255,7 @@ class JobListingBase(BaseModel):
     """Base job listing data structure."""
 
     title: str
-    company: str
+    # company field removed - now handled via company relationship
     location: Optional[str] = None
     description: Optional[str] = None
     requirements: Optional[str] = None
@@ -323,14 +323,11 @@ class JobListing(JobListingBase):
 
     id: UUID = Field(default_factory=uuid4)
 
-    # ADD: Company relationship fields
+    # Company relationship fields
     company_id: Optional[UUID] = None
     company_name: Optional[str] = (
         None  # For display purposes, populated from relationship
     )
-
-    # Keep existing company field for backward compatibility during migration
-    # company: str  # Will be populated from company.name - already inherited from JobListingBase
 
     status: JobStatus = JobStatus.ACTIVE
     created_at: datetime = Field(default_factory=datetime.utcnow)
