@@ -1533,8 +1533,8 @@ def test_skill_bank_operations():
 
 - [x] Task 4.1: Simplify ResumeDB Foreign Key Relationships
 - [x] Task 4.2: Add Missing Back References
-- [ ] Task 4.3: Update Resume Pydantic Model
-- [ ] Task 4.4: Add Resume Relationship Validation
+- [x] Task 4.3: Update Resume Pydantic Model
+- [x] Task 4.4: Add Resume Relationship Validation
 
 ### Phase 5: Database Constraints & Integrity ✅
 

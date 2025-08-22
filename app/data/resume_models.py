@@ -10,10 +10,12 @@ from pydantic import BaseModel, Field, validator
 from sqlalchemy import (
     JSON,
     Boolean,
+    CheckConstraint,
     Column,
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     String,
     Text,
@@ -342,6 +344,26 @@ class ResumeDB(Base):
     child_resumes = relationship("ResumeDB", back_populates="parent_resume")
     target_job = relationship("JobListingDB", back_populates="tailored_resumes")
     generations = relationship("ResumeGenerationDB", back_populates="resume")
+
+    # ADD: Table constraints for data integrity
+    __table_args__ = (
+        # Prevent circular parent relationships
+        CheckConstraint("parent_resume_id != id", name="no_self_parent"),
+        # Ensure tailored resumes have a parent or are base types
+        CheckConstraint(
+            "resume_type = 'base' OR parent_resume_id IS NOT NULL",
+            name="tailored_resumes_need_parent",
+        ),
+        # Ensure template resumes don't have parents or targets
+        CheckConstraint(
+            "resume_type != 'template' OR (parent_resume_id IS NULL AND target_job_id IS NULL)",
+            name="templates_are_standalone",
+        ),
+        # Index for common queries
+        Index("idx_user_resume_type_status", "user_id", "resume_type", "status"),
+        Index("idx_parent_resume", "parent_resume_id"),
+        Index("idx_target_job", "target_job_id"),
+    )
 
 
 class ResumeTemplateDB(Base):
