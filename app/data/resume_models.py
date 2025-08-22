@@ -353,6 +353,9 @@ class ResumeTemplateDB(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+    # ADD: Back reference to resumes using this template
+    resumes = relationship("ResumeDB", back_populates="template")
+
 
 # NOTE: SkillBankDB has been replaced by EnhancedSkillBankDB in skill_bank_models.py
 # This class is kept for backward compatibility during migration

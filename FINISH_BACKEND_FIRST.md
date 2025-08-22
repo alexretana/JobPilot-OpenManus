@@ -1531,8 +1531,8 @@ def test_skill_bank_operations():
 
 ### Phase 4: Resume Relationship Simplification ✅
 
-- [ ] Task 4.1: Simplify ResumeDB Foreign Key Relationships
-- [ ] Task 4.2: Add Missing Back References
+- [x] Task 4.1: Simplify ResumeDB Foreign Key Relationships
+- [x] Task 4.2: Add Missing Back References
 - [ ] Task 4.3: Update Resume Pydantic Model
 - [ ] Task 4.4: Add Resume Relationship Validation
 

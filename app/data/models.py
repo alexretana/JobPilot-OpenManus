@@ -745,6 +745,8 @@ class JobListingDB(Base):
     source_listings = relationship("JobSourceListingDB", back_populates="job")
     embeddings = relationship("JobEmbeddingDB", back_populates="job")
     canonical_job = relationship("JobListingDB", remote_side=[id])
+    # ADD: Back reference to tailored resumes
+    tailored_resumes = relationship("ResumeDB", back_populates="target_job")
 
 
 class UserProfileDB(Base):
