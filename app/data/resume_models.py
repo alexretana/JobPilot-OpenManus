@@ -223,8 +223,17 @@ class Resume(BaseModel):
 
     # Metadata and configuration
     template_id: Optional[str] = None
-    based_on_resume_id: Optional[str] = None  # For tailored resumes
-    job_id: Optional[str] = None  # If tailored for specific job
+    parent_resume_id: Optional[str] = (
+        None  # RENAME from based_on_resume_id - For versions/tailoring
+    )
+    target_job_id: Optional[str] = (
+        None  # RENAME from job_id - If tailored for specific job
+    )
+
+    # REMOVED: Redundant fields
+    # based_on_resume_id: Optional[str] = None  # DELETED - renamed to parent_resume_id
+    # job_id: Optional[str] = None              # DELETED - renamed to target_job_id
+    # parent_version_id: Optional[str] = None   # DELETED - redundant with parent_resume_id
 
     # Analysis and scoring
     ats_score: Optional[ATSScore] = None
@@ -237,7 +246,6 @@ class Resume(BaseModel):
 
     # Version control
     version: int = 1
-    parent_version_id: Optional[str] = None
 
 
 # =============================================================================
