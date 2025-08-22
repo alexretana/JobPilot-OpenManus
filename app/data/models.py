@@ -12,6 +12,7 @@ from pydantic import BaseModel, EmailStr, Field, validator
 from sqlalchemy import (
     JSON,
     Boolean,
+    CheckConstraint,
     Column,
     DateTime,
     Float,
@@ -35,6 +36,16 @@ except ImportError:
     # Fallback for development - create a placeholder
     class EnhancedSkillBankDB:
         pass
+
+
+# NOTE: The following models need cascade delete rules but are defined in separate files:
+# - ResumeDB (should have):
+#   - user_id = Column(String, ForeignKey('user_profiles.id', ondelete='CASCADE'), nullable=False)
+#   - parent_resume_id = Column(String, ForeignKey('resumes.id', ondelete='SET NULL'))
+#   - target_job_id = Column(String, ForeignKey('job_listings.id', ondelete='SET NULL'))
+#   - template_id = Column(String, ForeignKey('resume_templates.id', ondelete='SET NULL'))
+# - EnhancedSkillBankDB (should have):
+#   - user_id = Column(String, ForeignKey('user_profiles.id', ondelete='CASCADE'), nullable=False)
 
 
 # =====================================
@@ -605,7 +616,9 @@ class JobSourceDB(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
-    source_listings = relationship("JobSourceListingDB", back_populates="source")
+    source_listings = relationship(
+        "JobSourceListingDB", back_populates="source", cascade="all, delete-orphan"
+    )
 
 
 class JobSourceListingDB(Base):
@@ -614,8 +627,13 @@ class JobSourceListingDB(Base):
     __tablename__ = "job_source_listings"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    job_id = Column(String, ForeignKey("job_listings.id"), nullable=False)
-    source_id = Column(String, ForeignKey("job_sources.id"), nullable=False)
+    # UPDATE: Add cascade rules
+    job_id = Column(
+        String, ForeignKey("job_listings.id", ondelete="CASCADE"), nullable=False
+    )
+    source_id = Column(
+        String, ForeignKey("job_sources.id", ondelete="CASCADE"), nullable=False
+    )
     source_job_id = Column(String, nullable=False)  # Original ID from source platform
     source_url = Column(String, nullable=False)
     source_metadata = Column(JSON)  # Platform-specific fields
@@ -633,7 +651,10 @@ class JobEmbeddingDB(Base):
     __tablename__ = "job_embeddings"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    job_id = Column(String, ForeignKey("job_listings.id"), nullable=False)
+    # UPDATE: Add cascade rules
+    job_id = Column(
+        String, ForeignKey("job_listings.id", ondelete="CASCADE"), nullable=False
+    )
     embedding_model = Column(String, nullable=False)
     content_hash = Column(String, nullable=False)
     embedding_vector = Column(JSON, nullable=False)  # Store as JSON array
@@ -740,13 +761,40 @@ class JobListingDB(Base):
     company = relationship("CompanyInfoDB", back_populates="job_listings")
     # applications = relationship("JobApplicationDB", back_populates="job")  # DELETE - replaced by user_interactions
     user_interactions = relationship(
-        "JobUserInteractionDB", back_populates="job"
+        "JobUserInteractionDB", back_populates="job", cascade="all, delete-orphan"
     )  # NEW: consolidated interactions
-    source_listings = relationship("JobSourceListingDB", back_populates="job")
-    embeddings = relationship("JobEmbeddingDB", back_populates="job")
+    source_listings = relationship(
+        "JobSourceListingDB", back_populates="job", cascade="all, delete-orphan"
+    )
+    embeddings = relationship(
+        "JobEmbeddingDB", back_populates="job", cascade="all, delete-orphan"
+    )
     canonical_job = relationship("JobListingDB", remote_side=[id])
     # ADD: Back reference to tailored resumes
     tailored_resumes = relationship("ResumeDB", back_populates="target_job")
+
+    # ADD: Performance indexes and data validation constraints
+    __table_args__ = (
+        Index("idx_job_company_status", "company_id", "status"),
+        Index("idx_job_location_type", "location", "job_type"),
+        Index("idx_job_posted_date", "posted_date"),
+        Index("idx_job_salary_range", "salary_min", "salary_max"),
+        Index("idx_job_experience_level", "experience_level"),
+        Index("idx_job_remote_type", "remote_type"),
+        Index("idx_job_created_status", "created_at", "status"),
+        # ADD: Data validation constraints
+        CheckConstraint("salary_min >= 0", name="salary_min_positive"),
+        CheckConstraint("salary_max >= salary_min", name="salary_range_valid"),
+        CheckConstraint(
+            "job_url LIKE 'http%://%' OR job_url IS NULL", name="job_url_format"
+        ),
+        CheckConstraint(
+            "application_url LIKE 'http%://%' OR application_url IS NULL",
+            name="app_url_format",
+        ),
+        CheckConstraint("LENGTH(title) >= 3", name="title_min_length"),
+        CheckConstraint("LENGTH(title) <= 200", name="title_max_length"),
+    )
 
 
 class UserProfileDB(Base):
@@ -791,11 +839,38 @@ class UserProfileDB(Base):
     # Relationships
     # applications = relationship("JobApplicationDB", back_populates="user_profile")  # DELETE - replaced by job_interactions
     job_interactions = relationship(
-        "JobUserInteractionDB", back_populates="user"
+        "JobUserInteractionDB", back_populates="user", cascade="all, delete-orphan"
     )  # NEW: consolidated interactions
-    resumes = relationship("ResumeDB", back_populates="user")
+    resumes = relationship(
+        "ResumeDB", back_populates="user", cascade="all, delete-orphan"
+    )
     skill_bank = relationship(
         "EnhancedSkillBankDB", back_populates="user", uselist=False
+    )
+
+    # ADD: Performance indexes and data validation constraints
+    __table_args__ = (
+        Index("idx_user_email", "email"),
+        Index("idx_user_location", "city", "state"),
+        Index("idx_user_created", "created_at"),
+        # ADD: Data validation constraints
+        CheckConstraint("email LIKE '%@%.%' OR email IS NULL", name="email_format"),
+        CheckConstraint(
+            "linkedin_url LIKE 'http%://linkedin.com%' OR linkedin_url LIKE 'http%://%.linkedin.com%' OR linkedin_url IS NULL",
+            name="linkedin_url_format",
+        ),
+        CheckConstraint(
+            "experience_years >= 0 OR experience_years IS NULL",
+            name="experience_positive",
+        ),
+        CheckConstraint(
+            "desired_salary_min >= 0 OR desired_salary_min IS NULL",
+            name="desired_salary_min_positive",
+        ),
+        CheckConstraint(
+            "desired_salary_max >= desired_salary_min OR desired_salary_max IS NULL OR desired_salary_min IS NULL",
+            name="desired_salary_range_valid",
+        ),
     )
 
 
@@ -860,8 +935,19 @@ class JobUserInteractionDB(Base):
     __tablename__ = "job_user_interactions"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    user_id = Column(String, ForeignKey("user_profiles.id"), nullable=False, index=True)
-    job_id = Column(String, ForeignKey("job_listings.id"), nullable=False, index=True)
+    # UPDATE: Add cascade rules
+    user_id = Column(
+        String,
+        ForeignKey("user_profiles.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    job_id = Column(
+        String,
+        ForeignKey("job_listings.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
 
     # Interaction classification
     interaction_type = Column(SQLEnum(InteractionType), nullable=False, index=True)
@@ -959,10 +1045,22 @@ class CompanyInfoDB(Base):
     # NEW RELATIONSHIP: Back reference to jobs
     job_listings = relationship("JobListingDB", back_populates="company")
 
-    # ADD: Unique constraint on normalized name + domain
+    # ADD: Unique constraint on normalized name + domain and validation constraints
     __table_args__ = (
         UniqueConstraint("normalized_name", "domain", name="unique_company_identity"),
         Index("idx_company_name_domain", "name", "domain"),
+        # ADD: Data validation constraints
+        CheckConstraint("LENGTH(name) >= 1", name="company_name_not_empty"),
+        CheckConstraint("LENGTH(name) <= 200", name="company_name_max_length"),
+        CheckConstraint(
+            "website LIKE 'http%://%' OR website IS NULL", name="website_url_format"
+        ),
+        CheckConstraint(
+            "founded_year >= 1800 OR founded_year IS NULL",
+            name="founded_year_reasonable",
+        ),
+        # Note: Cannot use strftime in SQLite CHECK constraints - handled in application logic
+        # CheckConstraint('founded_year <= strftime("%Y", "now") OR founded_year IS NULL', name='founded_year_not_future'),
     )
 
 

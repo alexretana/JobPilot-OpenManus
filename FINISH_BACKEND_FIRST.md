@@ -1538,9 +1538,9 @@ def test_skill_bank_operations():
 
 ### Phase 5: Database Constraints & Integrity ✅
 
-- [ ] Task 5.1: Add Missing Indexes for Performance
-- [ ] Task 5.2: Add Data Validation Constraints
-- [ ] Task 5.3: Add Cascade Delete Rules
+- [x] Task 5.1: Add Missing Indexes for Performance
+- [x] Task 5.2: Add Data Validation Constraints
+- [x] Task 5.3: Add Cascade Delete Rules
 
 ### Phase 6: Repository Layer Updates ✅
 

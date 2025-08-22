@@ -294,7 +294,9 @@ class ResumeDB(Base):
     __tablename__ = "resumes"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("user_profiles.id"), nullable=False)
+    user_id = Column(
+        String, ForeignKey("user_profiles.id", ondelete="CASCADE"), nullable=False
+    )
     title = Column(String, nullable=False)
     resume_type = Column(String, nullable=False, default="base")
     status = Column(String, nullable=False, default="draft")
@@ -309,13 +311,13 @@ class ResumeDB(Base):
     certifications = Column(JSON, default=list)
     custom_sections = Column(JSON, default=list)
 
-    # SIMPLIFIED: Foreign key relationships
-    template_id = Column(String, ForeignKey("resume_templates.id"))
+    # SIMPLIFIED: Foreign key relationships with proper cascade rules
+    template_id = Column(String, ForeignKey("resume_templates.id", ondelete="SET NULL"))
     parent_resume_id = Column(
-        String, ForeignKey("resumes.id")
+        String, ForeignKey("resumes.id", ondelete="SET NULL")
     )  # For versions/tailoring
     target_job_id = Column(
-        String, ForeignKey("job_listings.id")
+        String, ForeignKey("job_listings.id", ondelete="SET NULL")
     )  # If tailored for specific job
 
     # REMOVED: Redundant fields
