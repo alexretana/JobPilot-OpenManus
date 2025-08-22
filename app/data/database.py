@@ -144,7 +144,9 @@ class JobRepository:
 
                 # Convert back to Pydantic model
                 result = sqlalchemy_to_pydantic(job_db, JobListing)
-                logger.info(f"Created job: {result.title} at {result.company}")
+                logger.info(
+                    f"Created job: {result.title} with company_id: {result.company_id}"
+                )
                 return result
 
         except Exception as e:
@@ -1198,11 +1200,16 @@ user_repo = None
 saved_job_repo = None
 application_repo = None
 resume_repo = None
+interaction_repo = None
+# company_repo = None  # Will be added in Task 6.4
 
 
 def initialize_database(database_url: str = None):
     """Initialize global database instances."""
-    global db_manager, job_repo, user_repo, saved_job_repo, application_repo, resume_repo
+    global db_manager, job_repo, user_repo, saved_job_repo, application_repo, resume_repo, interaction_repo
+
+    # Import here to avoid circular imports
+    from app.data.interaction_repository import JobUserInteractionRepository
 
     db_manager = DatabaseManager(database_url)
     job_repo = JobRepository(db_manager)
@@ -1210,6 +1217,7 @@ def initialize_database(database_url: str = None):
     saved_job_repo = SavedJobRepository(db_manager)
     application_repo = ApplicationRepository(db_manager)
     resume_repo = ResumeRepository(db_manager)
+    interaction_repo = JobUserInteractionRepository(db_manager)
 
     logger.info("Database repositories initialized")
 
@@ -1260,3 +1268,11 @@ def get_resume_repository() -> ResumeRepository:
     if resume_repo is None:
         initialize_database()
     return resume_repo
+
+
+def get_interaction_repository():
+    """Get or create interaction repository."""
+    global interaction_repo
+    if interaction_repo is None:
+        initialize_database()
+    return interaction_repo
