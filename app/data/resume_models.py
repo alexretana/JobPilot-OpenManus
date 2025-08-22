@@ -289,7 +289,7 @@ class ResumeDB(Base):
     resume_type = Column(String, nullable=False, default="base")
     status = Column(String, nullable=False, default="draft")
 
-    # JSON content fields
+    # JSON content fields (keep all content fields unchanged)
     contact_info = Column(JSON, nullable=False)
     summary = Column(Text)
     work_experience = Column(JSON, default=list)
@@ -299,28 +299,40 @@ class ResumeDB(Base):
     certifications = Column(JSON, default=list)
     custom_sections = Column(JSON, default=list)
 
-    # Configuration
+    # SIMPLIFIED: Foreign key relationships
     template_id = Column(String, ForeignKey("resume_templates.id"))
-    based_on_resume_id = Column(String, ForeignKey("resumes.id"))
-    job_id = Column(String, ForeignKey("job_listings.id"))
+    parent_resume_id = Column(
+        String, ForeignKey("resumes.id")
+    )  # For versions/tailoring
+    target_job_id = Column(
+        String, ForeignKey("job_listings.id")
+    )  # If tailored for specific job
 
-    # Analysis results
+    # REMOVED: Redundant fields
+    # based_on_resume_id = Column(String, ForeignKey("resumes.id"))  # DELETED - redundant with parent_resume_id
+    # job_id = Column(String, ForeignKey("job_listings.id"))  # DELETED - redundant with target_job_id
+    # parent_version_id = Column(String, ForeignKey("resumes.id"))  # DELETED - redundant with parent_resume_id
+
+    # Analysis results (keep analysis and version control fields)
     ats_score_data = Column(JSON)
     tailoring_analysis = Column(JSON)
 
     # Metadata
     version = Column(Integer, default=1)
-    parent_version_id = Column(String, ForeignKey("resumes.id"))
 
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_generated_at = Column(DateTime)
 
-    # Relationships
+    # IMPROVED: Relationships with better back_populates
     user = relationship("UserProfileDB", back_populates="resumes")
-    template = relationship("ResumeTemplateDB")
-    job = relationship("JobListingDB")
+    template = relationship("ResumeTemplateDB", back_populates="resumes")
+    parent_resume = relationship(
+        "ResumeDB", remote_side=[id], back_populates="child_resumes"
+    )
+    child_resumes = relationship("ResumeDB", back_populates="parent_resume")
+    target_job = relationship("JobListingDB", back_populates="tailored_resumes")
     generations = relationship("ResumeGenerationDB", back_populates="resume")
 
 
