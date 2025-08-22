@@ -1544,8 +1544,8 @@ def test_skill_bank_operations():
 
 ### Phase 6: Repository Layer Updates ✅
 
-- [ ] Task 6.1: Update JobRepository Methods
-- [ ] Task 6.2: Create JobUserInteractionRepository
+- [x] Task 6.1: Update JobRepository Methods
+- [x] Task 6.2: Create JobUserInteractionRepository
 - [ ] Task 6.3: Update get_database_manager Function
 - [ ] Task 6.4: Create CompanyRepository
 
