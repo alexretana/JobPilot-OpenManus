@@ -25,12 +25,12 @@ from app.data.resume_models import (
     ResumeType,
     SectionType,
     Skill,
-    SkillBankDB,
     WorkExperience,
     calculate_resume_completeness,
     create_resume_from_profile,
     generate_ats_score,
 )
+from app.data.skill_bank_models import EnhancedSkillBankDB
 from app.logger import logger
 
 
@@ -544,20 +544,31 @@ class ResumeRepository:
         """Get user's skill bank for resume building."""
         try:
             skill_bank = (
-                self.session.query(SkillBankDB)
-                .filter(SkillBankDB.user_id == user_id)
+                self.session.query(EnhancedSkillBankDB)
+                .filter(EnhancedSkillBankDB.user_id == user_id)
                 .first()
             )
 
             if not skill_bank:
                 return None
 
+            # Extract enhanced skills from new format
+            all_skills = {}
+            if skill_bank.skills:
+                skills_data = skill_bank.skills
+                if isinstance(skills_data, str):
+                    import json
+
+                    skills_data = json.loads(skills_data)
+                all_skills = skills_data
+
             return {
-                "skills": skill_bank.skills or {},
-                "technical_keywords": skill_bank.technical_keywords or [],
-                "soft_skills": skill_bank.soft_skills or [],
-                "industry_keywords": skill_bank.industry_keywords or [],
-                "confidence": skill_bank.skill_confidence or {},
+                "skills": all_skills,
+                "work_experiences": skill_bank.work_experiences or [],
+                "education_entries": skill_bank.education_entries or [],
+                "projects": skill_bank.projects or [],
+                "certifications": skill_bank.certifications or [],
+                "summary_variations": skill_bank.summary_variations or [],
             }
 
         except Exception as e:
@@ -565,50 +576,22 @@ class ResumeRepository:
             return None
 
     async def update_skill_bank_from_resume(self, user_id: str, resume: Resume):
-        """Update user's skill bank based on resume content."""
+        """Update user's skill bank based on resume content (deprecated - use SkillBankRepository)."""
         try:
-            skill_bank = (
-                self.session.query(SkillBankDB)
-                .filter(SkillBankDB.user_id == user_id)
-                .first()
+            # This method is deprecated in favor of the new SkillBankRepository
+            # For now, we'll just log that skills should be managed via the new system
+            logger.info(
+                f"Resume skills update requested for user {user_id} - use SkillBankRepository for skill management"
             )
 
-            if not skill_bank:
-                skill_bank = SkillBankDB(
-                    user_id=user_id,
-                    skills={},
-                    technical_keywords=[],
-                    soft_skills=[],
-                    industry_keywords=[],
-                    skill_confidence={},
-                )
-                self.session.add(skill_bank)
-
-            # Extract skills from resume
-            resume_skills = [skill.name.lower() for skill in resume.skills]
-
-            # Update technical keywords
-            current_tech = set(skill_bank.technical_keywords or [])
-            current_tech.update(resume_skills)
-            skill_bank.technical_keywords = list(current_tech)
-
-            # Update skill confidence (simple heuristic)
-            confidence = skill_bank.skill_confidence or {}
-            for skill in resume_skills:
-                confidence[skill] = (
-                    confidence.get(skill, 0.5) + 0.1
-                )  # Increment confidence
-                confidence[skill] = min(confidence[skill], 1.0)  # Cap at 1.0
-
-            skill_bank.skill_confidence = confidence
-            skill_bank.updated_at = datetime.utcnow()
-
-            self.session.commit()
-            logger.info(f"Updated skill bank for user {user_id}")
+            # Extract skills from resume for backwards compatibility
+            resume_skills = [skill.name for skill in resume.skills]
+            logger.info(
+                f"Resume contains {len(resume_skills)} skills: {', '.join(resume_skills[:5])}{'...' if len(resume_skills) > 5 else ''}"
+            )
 
         except Exception as e:
-            self.session.rollback()
-            logger.error(f"Error updating skill bank: {e}")
+            logger.error(f"Error processing resume skills: {e}")
 
     # =====================================
     # Utility Methods

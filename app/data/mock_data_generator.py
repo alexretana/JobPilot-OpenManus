@@ -353,7 +353,7 @@ class MockDataGenerator:
                 current_title=user_data.get("current_title"),
                 experience_years=user_data.get("experience_years"),
                 bio=user_data.get("bio"),
-                skills=[],  # Will be populated in SkillBank
+                # skills field removed - now handled via SkillBank relationship
                 preferred_locations=["Remote", user_data.get("city", "San Francisco")],
                 preferred_job_types=["Full-time", "Contract"],
                 preferred_remote_types=["Remote", "Hybrid"],
@@ -434,7 +434,7 @@ class MockDataGenerator:
             enhanced_skills.append(enhanced_skill)
 
         # Create skill bank or get existing one
-        skill_bank = await self.skill_bank_repo.get_or_create_skill_bank(user_id)
+        await self.skill_bank_repo.get_or_create_skill_bank(user_id)
 
         # Add skills to skill bank (with duplicate checking)
         skills_added = 0
@@ -1066,13 +1066,18 @@ class MockDataGenerator:
     # =========================================================================
 
     def create_companies(self) -> List[str]:
-        """Create sample companies."""
+        """Create sample companies with proper normalization."""
         companies_data = [
             {
                 "name": "TechFlow Solutions",
+                "normalized_name": "techflow solutions",
+                "domain": "techflowsolutions.com",
                 "industry": "Software Development",
                 "size": "201-500 employees",
+                "size_category": CompanySizeCategory.MEDIUM,
                 "location": "San Francisco, CA",
+                "headquarters_location": "San Francisco, CA",
+                "founded_year": 2015,
                 "website": "https://techflowsolutions.com",
                 "description": "Leading provider of enterprise software solutions specializing in cloud-native applications and data analytics.",
                 "culture": "Fast-paced, collaborative environment with focus on innovation and continuous learning.",
@@ -1087,9 +1092,14 @@ class MockDataGenerator:
             },
             {
                 "name": "DataVision Analytics",
+                "normalized_name": "datavision analytics",
+                "domain": "datavisionanalytics.com",
                 "industry": "Data Analytics",
                 "size": "51-200 employees",
+                "size_category": CompanySizeCategory.SMALL,
                 "location": "Seattle, WA",
+                "headquarters_location": "Seattle, WA",
+                "founded_year": 2018,
                 "website": "https://datavisionanalytics.com",
                 "description": "Data-driven insights company helping businesses make smarter decisions through advanced analytics and machine learning.",
                 "culture": "Data-driven culture with emphasis on scientific methodology and evidence-based decisions.",
@@ -1109,9 +1119,14 @@ class MockDataGenerator:
             },
             {
                 "name": "InnovateLabs Inc",
+                "normalized_name": "innovatelabs inc",
+                "domain": "innovatelabs.com",
                 "industry": "Product Development",
                 "size": "101-250 employees",
+                "size_category": CompanySizeCategory.MEDIUM,
                 "location": "Austin, TX",
+                "headquarters_location": "Austin, TX",
+                "founded_year": 2012,
                 "website": "https://innovatelabs.com",
                 "description": "Product innovation company focused on bringing cutting-edge consumer technology to market.",
                 "culture": "Creative, user-focused environment with rapid prototyping and iterative development.",
@@ -1126,9 +1141,14 @@ class MockDataGenerator:
             },
             {
                 "name": "CloudScale Systems",
+                "normalized_name": "cloudscale systems",
+                "domain": "cloudscalesystems.com",
                 "industry": "Cloud Infrastructure",
                 "size": "501-1000 employees",
+                "size_category": CompanySizeCategory.LARGE,
                 "location": "New York, NY",
+                "headquarters_location": "New York, NY",
+                "founded_year": 2010,
                 "website": "https://cloudscalesystems.com",
                 "description": "Enterprise cloud infrastructure provider offering scalable solutions for modern businesses.",
                 "culture": "Engineering-focused culture with emphasis on reliability, scalability, and operational excellence.",
@@ -1143,9 +1163,14 @@ class MockDataGenerator:
             },
             {
                 "name": "StartupVelocity",
+                "normalized_name": "startupvelocity",
+                "domain": "startupvelocity.com",
                 "industry": "Startup Incubator",
                 "size": "11-50 employees",
+                "size_category": CompanySizeCategory.STARTUP,
                 "location": "Los Angeles, CA",
+                "headquarters_location": "Los Angeles, CA",
+                "founded_year": 2020,
                 "website": "https://startupvelocity.com",
                 "description": "Early-stage startup incubator and accelerator helping entrepreneurs build the next generation of technology companies.",
                 "culture": "High-energy, entrepreneurial environment with focus on rapid growth and market disruption.",
@@ -1177,9 +1202,14 @@ class MockDataGenerator:
                 company = CompanyInfoDB(
                     id=str(uuid4()),
                     name=company_data["name"],
+                    normalized_name=company_data["normalized_name"],
+                    domain=company_data["domain"],
                     industry=company_data["industry"],
                     size=company_data["size"],
+                    size_category=company_data["size_category"],
                     location=company_data["location"],
+                    headquarters_location=company_data["headquarters_location"],
+                    founded_year=company_data["founded_year"],
                     website=company_data["website"],
                     description=company_data["description"],
                     culture=company_data["culture"],
@@ -1453,7 +1483,7 @@ class MockDataGenerator:
                     session.query(JobListingDB)
                     .filter(
                         JobListingDB.title == job_data["title"],
-                        JobListingDB.company == company.name,
+                        JobListingDB.company_id == company_id,
                     )
                     .first()
                 )
@@ -1465,7 +1495,7 @@ class MockDataGenerator:
                 job = JobListingDB(
                     id=str(uuid4()),
                     title=job_data["title"],
-                    company=company.name,
+                    company_id=company_id,
                     location=company.location,
                     description=job_data["description"],
                     requirements=job_data["requirements"],
@@ -1479,10 +1509,8 @@ class MockDataGenerator:
                     skills_required=job_data["skills_required"],
                     skills_preferred=job_data["skills_preferred"],
                     benefits=job_data["benefits"],
-                    company_size=company.size,
-                    industry=company.industry,
+                    # company_size and industry removed - now available through company relationship
                     job_url=f"{company.website}/jobs/{job_data['title'].lower().replace(' ', '-')}",
-                    company_url=company.website,
                     application_url=f"{company.website}/apply/{str(uuid4())[:8]}",
                     posted_date=datetime.utcnow()
                     - timedelta(days=random.randint(1, 30)),
@@ -1512,14 +1540,21 @@ class MockDataGenerator:
 
     def _get_company_size_category(self, size_string: str) -> CompanySizeCategory:
         """Convert size string to category enum."""
-        if "1-50" in size_string or "11-50" in size_string:
-            return CompanySizeCategory.STARTUP
+        # Check in order from largest to smallest ranges to avoid substring conflicts
+        if "501-1000" in size_string:
+            return CompanySizeCategory.LARGE
+        elif "201-500" in size_string:
+            return CompanySizeCategory.MEDIUM
+        elif "101-250" in size_string:
+            return CompanySizeCategory.MEDIUM
         elif "51-200" in size_string:
             return CompanySizeCategory.SMALL
-        elif "201-500" in size_string or "101-250" in size_string:
-            return CompanySizeCategory.MEDIUM
-        elif "501-1000" in size_string:
-            return CompanySizeCategory.LARGE
+        elif "11-50" in size_string:
+            return CompanySizeCategory.STARTUP
+        elif "1-50" in size_string:
+            return CompanySizeCategory.STARTUP
+        elif "1000+" in size_string:
+            return CompanySizeCategory.ENTERPRISE
         else:
             return CompanySizeCategory.ENTERPRISE
 
@@ -1923,8 +1958,8 @@ class MockDataGenerator:
         # Create leads using the Lead management system
         try:
             for lead_info in lead_data:
-                # Create a Lead object
-                lead = Lead(
+                # Create a Lead object (for tracking purposes only)
+                Lead(
                     company=lead_info["company"],
                     position=lead_info["position"],
                     contact_name=lead_info["contact_name"],
@@ -1975,21 +2010,12 @@ class MockDataGenerator:
 
         # Define all application statuses for comprehensive coverage
         application_statuses = [
-            ApplicationStatus.PENDING,
-            ApplicationStatus.REVIEWED,
-            ApplicationStatus.PHONE_SCREEN,
-            ApplicationStatus.INTERVIEW_SCHEDULED,
+            ApplicationStatus.NOT_APPLIED,
+            ApplicationStatus.APPLIED,
             ApplicationStatus.INTERVIEWING,
-            ApplicationStatus.TECHNICAL_INTERVIEW,
-            ApplicationStatus.FINAL_INTERVIEW,
-            ApplicationStatus.REFERENCE_CHECK,
-            ApplicationStatus.OFFER_PENDING,
-            ApplicationStatus.OFFER_RECEIVED,
-            ApplicationStatus.OFFER_ACCEPTED,
-            ApplicationStatus.OFFER_DECLINED,
             ApplicationStatus.REJECTED,
+            ApplicationStatus.ACCEPTED,
             ApplicationStatus.WITHDRAWN,
-            ApplicationStatus.ON_HOLD,
         ]
 
         with self._get_session() as session:
@@ -2056,10 +2082,18 @@ class MockDataGenerator:
                         session.commit()
                         results["timeline_events"] += 1
 
-                # Each user saves 3-6 additional jobs
+                # Each user saves 2-6 additional jobs (if available)
                 remaining_jobs = [j for j in job_ids if j not in user_jobs]
-                saved_job_count = random.randint(3, min(6, len(remaining_jobs)))
-                saved_jobs = random.sample(remaining_jobs, saved_job_count)
+                if remaining_jobs:
+                    max_saved = min(6, len(remaining_jobs))
+                    saved_job_count = random.randint(
+                        2, max(2, max_saved)
+                    )  # Ensure min <= max
+                    saved_jobs = random.sample(
+                        remaining_jobs, min(saved_job_count, len(remaining_jobs))
+                    )
+                else:
+                    saved_jobs = []
 
                 for job_id in saved_jobs:
                     # Check if saved job already exists
@@ -2114,21 +2148,12 @@ class MockDataGenerator:
     def _generate_application_notes(self, status: ApplicationStatus) -> str:
         """Generate realistic application notes based on status."""
         notes_map = {
-            ApplicationStatus.PENDING: "Application submitted through JobPilot. Resume tailored for this specific role requirements.",
-            ApplicationStatus.REVIEWED: "Application has been reviewed by HR. Waiting for next steps from hiring manager.",
-            ApplicationStatus.PHONE_SCREEN: "Completed initial phone screening with recruiter. Discussed background and role requirements.",
-            ApplicationStatus.INTERVIEW_SCHEDULED: "First round interview scheduled with hiring manager for next week. Prepared talking points for technical discussion.",
+            ApplicationStatus.NOT_APPLIED: "Job identified but not yet applied. Researching company and role requirements.",
+            ApplicationStatus.APPLIED: "Application submitted through JobPilot. Resume tailored for this specific role requirements.",
             ApplicationStatus.INTERVIEWING: "Currently in interview process. Had positive initial conversation with team lead.",
-            ApplicationStatus.TECHNICAL_INTERVIEW: "Technical interview completed. Discussed system design and coding approach. Felt confident about solutions provided.",
-            ApplicationStatus.FINAL_INTERVIEW: "Final interview round with senior leadership. Discussed culture fit and career goals.",
-            ApplicationStatus.REFERENCE_CHECK: "Reference check initiated. Provided three professional references from previous roles.",
-            ApplicationStatus.OFFER_PENDING: "Interview process completed successfully. Waiting for official offer details and compensation package.",
-            ApplicationStatus.OFFER_RECEIVED: "Offer received! Reviewing terms and salary package. Need to respond by end of week.",
-            ApplicationStatus.OFFER_ACCEPTED: "Offer accepted! Start date scheduled for next month. Very excited about this opportunity.",
-            ApplicationStatus.OFFER_DECLINED: "Decided to decline offer due to better opportunity elsewhere. Maintained positive relationship.",
             ApplicationStatus.REJECTED: "Application not selected for this role. Received feedback to focus on specific technical skills for future applications.",
+            ApplicationStatus.ACCEPTED: "Offer accepted! Start date scheduled for next month. Very excited about this opportunity.",
             ApplicationStatus.WITHDRAWN: "Withdrew application as accepted position elsewhere. Will consider this company for future opportunities.",
-            ApplicationStatus.ON_HOLD: "Application on hold due to budget freeze. Recruiter mentioned they will revisit in Q2.",
         }
         return notes_map.get(
             status,

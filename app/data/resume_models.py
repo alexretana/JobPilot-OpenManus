@@ -251,37 +251,12 @@ class Resume(BaseModel):
 
 
 # =============================================================================
-# SKILLS BANK MODELS
+# SKILLS BANK MODELS - MOVED
 # =============================================================================
 
-
-class SkillBank(BaseModel):
-    """Centralized skill repository for resume building"""
-
-    user_id: str
-    skills: Dict[str, List[Skill]]  # Categorized skills
-    experience_keywords: List[str] = Field(default_factory=list)
-    industry_keywords: List[str] = Field(default_factory=list)
-    technical_keywords: List[str] = Field(default_factory=list)
-    soft_skills: List[str] = Field(default_factory=list)
-
-    # Auto-extracted from job applications and experiences
-    auto_extracted_skills: List[str] = Field(default_factory=list)
-    skill_confidence: Dict[str, float] = Field(default_factory=dict)
-
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-
-
-class SkillSuggestion(BaseModel):
-    """AI-generated skill suggestions"""
-
-    skill_name: str
-    category: str
-    confidence: float = Field(ge=0, le=1)
-    reason: str  # Why this skill was suggested
-    source: str  # Job posting, experience, etc.
-
+# SkillBank and related models have been moved to skill_bank_models.py
+# to provide enhanced functionality with content variations and structured data management.
+# Use the EnhancedSkillBankDB and SkillBank models from skill_bank_models.py instead.
 
 # =============================================================================
 # SQLALCHEMY MODELS (Database Layer)
@@ -393,28 +368,8 @@ class ResumeTemplateDB(Base):
 # This class is kept for backward compatibility during migration
 
 
-class SkillBankDB(Base):
-    """Skills bank database model (LEGACY - use EnhancedSkillBankDB for new features)"""
-
-    __tablename__ = "skill_banks_legacy"
-
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String, ForeignKey("user_profiles.id"), nullable=False)
-
-    # Skill data
-    skills = Column(JSON, default=dict)
-    experience_keywords = Column(JSON, default=list)
-    industry_keywords = Column(JSON, default=list)
-    technical_keywords = Column(JSON, default=list)
-    soft_skills = Column(JSON, default=list)
-    auto_extracted_skills = Column(JSON, default=list)
-    skill_confidence = Column(JSON, default=dict)
-
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Relationships - REMOVED to avoid conflicts with EnhancedSkillBankDB
-    # user = relationship("UserProfileDB", back_populates="legacy_skill_bank")
+# Legacy SkillBankDB model removed - replaced by EnhancedSkillBankDB in skill_bank_models.py
+# All legacy skill bank functionality has been migrated to the enhanced system
 
 
 class ResumeVersionDB(Base):

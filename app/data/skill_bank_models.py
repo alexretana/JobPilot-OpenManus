@@ -485,24 +485,9 @@ class EnhancedSkillBankDB(Base):
         JSON, default=dict
     )  # Dict[project_id, List[ContentVariation]]
 
-    # LEGACY FIELDS - TO BE REMOVED: Now handled by enhanced skills system
-    # TODO: Remove these fields in next database migration - functionality moved to enhanced skills
-    experience_keywords = Column(
-        JSON, default=list
-    )  # DELETE - use enhanced skills with keywords
-    industry_keywords = Column(
-        JSON, default=list
-    )  # DELETE - use enhanced skills with keywords
-    technical_keywords = Column(
-        JSON, default=list
-    )  # DELETE - use enhanced skills with keywords
-    soft_skills = Column(
-        JSON, default=list
-    )  # DELETE - use enhanced skills with category='soft'
-    auto_extracted_skills = Column(
-        JSON, default=list
-    )  # DELETE - use skill.source='extracted'
-    skill_confidence = Column(JSON, default=dict)  # DELETE - use skill.confidence field
+    # Legacy fields removed - functionality migrated to enhanced skills system
+    # All legacy keyword and skill fields have been replaced by the EnhancedSkill system
+    # which provides more structured and flexible skill management
 
     # Timestamps
     created_at = Column(DateTime, default=datetime.utcnow)

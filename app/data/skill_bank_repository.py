@@ -695,14 +695,6 @@ class SkillBankRepository:
             ),
             education_content_variations=skill_bank.education_content_variations,
             project_content_variations=skill_bank.project_content_variations,
-            # REMOVED: Legacy field assignments - these fields don't exist in SkillBank Pydantic model
-            # Set legacy fields to empty values since they're still in database but not used
-            experience_keywords=[],
-            industry_keywords=[],
-            technical_keywords=[],
-            soft_skills=[],
-            auto_extracted_skills=[],
-            skill_confidence={},
             created_at=skill_bank.created_at,
             updated_at=skill_bank.updated_at,
         )

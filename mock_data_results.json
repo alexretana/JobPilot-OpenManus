@@ -2,51 +2,51 @@
   "database_reset": {
     "status": "success",
     "message": "Database reset successfully",
-    "timestamp": "2025-08-20T17:58:59.629617"
+    "timestamp": "2025-08-23T02:01:37.366190"
   },
   "mock_data_creation": {
-    "timestamp": "2025-08-20T17:58:59.629617",
+    "timestamp": "2025-08-23T02:01:37.366190",
     "created_users": [
       {
-        "user_id": "87a046ab-b5e4-4ab7-ad60-c08aab86c6fd",
+        "user_id": "69fd2672-7b24-4c66-8c71-e44e34463a88",
         "name": "Sarah Johnson",
         "role": "developer"
       },
       {
-        "user_id": "09570ba9-0e4a-4928-bffb-8b1e5b8da00e",
+        "user_id": "158b41e3-a01d-4049-bf0e-c94da404c488",
         "name": "Michael Chen",
         "role": "data_scientist"
       },
       {
-        "user_id": "e993f527-2a7b-4e1c-b9d8-c7329ae7f2be",
+        "user_id": "e24551bd-3ca2-4c67-aa8e-386ef88dabbc",
         "name": "Emma Rodriguez",
         "role": "product_manager"
       }
     ],
     "created_skill_banks": [
       {
-        "user_id": "87a046ab-b5e4-4ab7-ad60-c08aab86c6fd",
-        "skill_bank_id": "335c2fce-1f7d-4ac9-ae7c-bee790629f96",
-        "skills_count": 11,
-        "experiences_count": 3,
-        "projects_count": 3,
-        "certifications_count": 2
+        "user_id": "69fd2672-7b24-4c66-8c71-e44e34463a88",
+        "skill_bank_id": "60f2631c-9981-4392-aacc-adeb5b09de59",
+        "skills_count": 19,
+        "experiences_count": 6,
+        "projects_count": 5,
+        "certifications_count": 4
       },
       {
-        "user_id": "09570ba9-0e4a-4928-bffb-8b1e5b8da00e",
-        "skill_bank_id": "2308d74c-e4e6-4a97-8d90-fc5dc67e5450",
-        "skills_count": 11,
-        "experiences_count": 3,
-        "projects_count": 3,
-        "certifications_count": 2
+        "user_id": "158b41e3-a01d-4049-bf0e-c94da404c488",
+        "skill_bank_id": "a248a0aa-afde-4c9a-90f6-95e8bcf383f5",
+        "skills_count": 19,
+        "experiences_count": 6,
+        "projects_count": 5,
+        "certifications_count": 4
       },
       {
-        "user_id": "e993f527-2a7b-4e1c-b9d8-c7329ae7f2be",
-        "skill_bank_id": "968e3623-9786-49c9-b87a-a54918416251",
-        "skills_count": 13,
-        "experiences_count": 3,
-        "projects_count": 3,
-        "certifications_count": 2
+        "user_id": "e24551bd-3ca2-4c67-aa8e-386ef88dabbc",
+        "skill_bank_id": "40a02513-aa09-46ac-8038-471867b89473",
+        "skills_count": 21,
+        "experiences_count": 6,
+        "projects_count": 5,
+        "certifications_count": 4
       }
     ],
     "created_companies": 5,
@@ -54,20 +54,28 @@
     "created_jobs": 8,
     "created_resume_templates": 3,
     "created_resumes": 3,
-    "created_applications": 11,
-    "created_saved_jobs": 10,
-    "created_timeline_events": 21,
-    "errors": [],
+    "created_applications": 12,
+    "created_saved_jobs": 11,
+    "created_timeline_events": 23,
+    "created_leads": 0,
+    "created_lead_companies": 0,
+    "created_lead_contacts": 0,
+    "errors": [
+      {
+        "operation": "comprehensive_data_creation",
+        "error": "type object 'LeadType' has no attribute 'COLD'"
+      }
+    ],
     "summary": {
       "total_users_created": 3,
       "total_skill_banks_created": 3,
       "total_companies_created": 5,
       "total_jobs_created": 8,
       "total_resumes_created": 3,
-      "total_applications_created": 11,
-      "total_errors": 0,
+      "total_applications_created": 12,
+      "total_errors": 1,
       "success_rate": 1.0
     }
   },
-  "overall_status": "success"
+  "overall_status": "partial_success"
 }
