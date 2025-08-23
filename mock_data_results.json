@@ -2,47 +2,47 @@
   "database_reset": {
     "status": "success",
     "message": "Database reset successfully",
-    "timestamp": "2025-08-23T02:01:37.366190"
+    "timestamp": "2025-08-23T02:54:56.965709"
   },
   "mock_data_creation": {
-    "timestamp": "2025-08-23T02:01:37.366190",
+    "timestamp": "2025-08-23T02:54:56.965709",
     "created_users": [
       {
-        "user_id": "69fd2672-7b24-4c66-8c71-e44e34463a88",
+        "user_id": "f8a486aa-c0a4-41c4-8389-668f293e8924",
         "name": "Sarah Johnson",
         "role": "developer"
       },
       {
-        "user_id": "158b41e3-a01d-4049-bf0e-c94da404c488",
+        "user_id": "83eba57f-b308-4f1e-b425-1537a47066f7",
         "name": "Michael Chen",
         "role": "data_scientist"
       },
       {
-        "user_id": "e24551bd-3ca2-4c67-aa8e-386ef88dabbc",
+        "user_id": "764f098d-51f3-4887-b792-4481da7d2cfe",
         "name": "Emma Rodriguez",
         "role": "product_manager"
       }
     ],
     "created_skill_banks": [
       {
-        "user_id": "69fd2672-7b24-4c66-8c71-e44e34463a88",
-        "skill_bank_id": "60f2631c-9981-4392-aacc-adeb5b09de59",
+        "user_id": "f8a486aa-c0a4-41c4-8389-668f293e8924",
+        "skill_bank_id": "20e2fcf1-df6b-4676-afb7-1d419a70da8b",
         "skills_count": 19,
         "experiences_count": 6,
         "projects_count": 5,
         "certifications_count": 4
       },
       {
-        "user_id": "158b41e3-a01d-4049-bf0e-c94da404c488",
-        "skill_bank_id": "a248a0aa-afde-4c9a-90f6-95e8bcf383f5",
+        "user_id": "83eba57f-b308-4f1e-b425-1537a47066f7",
+        "skill_bank_id": "86995534-e439-4d5e-9614-3236bddcbda4",
         "skills_count": 19,
         "experiences_count": 6,
         "projects_count": 5,
         "certifications_count": 4
       },
       {
-        "user_id": "e24551bd-3ca2-4c67-aa8e-386ef88dabbc",
-        "skill_bank_id": "40a02513-aa09-46ac-8038-471867b89473",
+        "user_id": "764f098d-51f3-4887-b792-4481da7d2cfe",
+        "skill_bank_id": "420348ce-cf6c-45f1-8efd-8b115ea3f3c1",
         "skills_count": 21,
         "experiences_count": 6,
         "projects_count": 5,
@@ -54,28 +54,24 @@
     "created_jobs": 8,
     "created_resume_templates": 3,
     "created_resumes": 3,
-    "created_applications": 12,
-    "created_saved_jobs": 11,
-    "created_timeline_events": 23,
-    "created_leads": 0,
-    "created_lead_companies": 0,
-    "created_lead_contacts": 0,
-    "errors": [
-      {
-        "operation": "comprehensive_data_creation",
-        "error": "type object 'LeadType' has no attribute 'COLD'"
-      }
-    ],
+    "created_applications": 20,
+    "created_saved_jobs": 0,
+    "created_timeline_events": 20,
+    "created_leads": 12,
+    "created_lead_companies": 12,
+    "created_lead_contacts": 12,
+    "errors": [],
+    "created_interactions": 20,
     "summary": {
       "total_users_created": 3,
       "total_skill_banks_created": 3,
       "total_companies_created": 5,
       "total_jobs_created": 8,
       "total_resumes_created": 3,
-      "total_applications_created": 12,
-      "total_errors": 1,
+      "total_applications_created": 20,
+      "total_errors": 0,
       "success_rate": 1.0
     }
   },
-  "overall_status": "partial_success"
+  "overall_status": "success"
 }

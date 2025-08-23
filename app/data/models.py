@@ -113,27 +113,6 @@ class TimelineEventType(str, Enum):
     CUSTOM_EVENT = "custom_event"
 
 
-class ETLProcessingStatus(str, Enum):
-    """ETL processing status for raw data collections."""
-
-    PENDING = "pending"
-    PROCESSING = "processing"
-    COMPLETED = "completed"
-    FAILED = "failed"
-    PARTIAL = "partial"
-    SKIPPED = "skipped"
-
-
-class ETLOperationType(str, Enum):
-    """Types of ETL operations."""
-
-    COLLECTION = "collection"
-    PROCESSING = "processing"
-    LOADING = "loading"
-    RETRY = "retry"
-    CLEANUP = "cleanup"
-
-
 class VerificationStatus(str, Enum):
     """Job verification status."""
 
@@ -505,87 +484,6 @@ class TimelineEvent(BaseModel):
 
 
 # =====================================
-# ETL Pipeline Models
-# =====================================
-
-
-class RawJobCollection(BaseModel):
-    """Raw job collection from external APIs."""
-
-    id: UUID = Field(default_factory=uuid4)
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
-    api_provider: str  # "jsearch", "indeed", etc.
-    query_params: Dict[str, Any]  # Search parameters used
-    raw_response: Dict[str, Any]  # Complete API response
-    metadata: Optional[Dict[str, Any]] = None  # Response metadata
-    processing_status: ETLProcessingStatus = ETLProcessingStatus.PENDING
-    error_info: Optional[Dict[str, Any]] = None  # Error details if failed
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-
-    class Config:
-        from_attributes = True
-
-
-class JobProcessingLog(BaseModel):
-    """Log of job processing operations."""
-
-    id: UUID = Field(default_factory=uuid4)
-    collection_id: UUID  # Reference to raw collection
-    operation_type: ETLOperationType
-    started_at: datetime = Field(default_factory=datetime.utcnow)
-    completed_at: Optional[datetime] = None
-    status: ETLProcessingStatus
-    jobs_processed: int = 0
-    jobs_failed: int = 0
-    errors: Optional[List[Dict[str, Any]]] = None
-    metrics: Optional[Dict[str, Any]] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-
-    class Config:
-        from_attributes = True
-
-
-class ProcessedJobData(BaseModel):
-    """Processed job data ready for loading."""
-
-    processing_id: UUID  # Reference to processing log
-    job_index: int  # Index in the processing batch
-    processed_data: Dict[str, Any]  # Transformed job data
-    embedding_vector: Optional[List[float]] = None  # Generated embeddings
-    duplicate_of: Optional[UUID] = None  # If duplicate, reference to canonical
-    load_status: ETLProcessingStatus = ETLProcessingStatus.PENDING
-    quality_score: Optional[float] = None  # Data quality assessment
-    validation_errors: Optional[List[str]] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-
-    class Config:
-        from_attributes = True
-
-
-class ETLOperationLog(BaseModel):
-    """Comprehensive ETL operation logging."""
-
-    id: UUID = Field(default_factory=uuid4)
-    operation_type: ETLOperationType
-    operation_name: (
-        str  # Specific operation (e.g., "jsearch_collection", "embedding_generation")
-    )
-    status: ETLProcessingStatus
-    started_at: datetime = Field(default_factory=datetime.utcnow)
-    completed_at: Optional[datetime] = None
-    duration_ms: Optional[int] = None
-    input_data: Optional[Dict[str, Any]] = None  # Operation parameters
-    output_data: Optional[Dict[str, Any]] = None  # Operation results
-    error_message: Optional[str] = None
-    error_details: Optional[Dict[str, Any]] = None
-    operation_metadata: Optional[Dict[str, Any]] = None  # Renamed from metadata
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-
-    class Config:
-        from_attributes = True
-
-
-# =====================================
 # SQLAlchemy Database Models
 # =====================================
 
@@ -871,61 +769,6 @@ class UserProfileDB(Base):
     )
 
 
-class JobApplicationDB(Base):
-    """SQLAlchemy model for job applications."""
-
-    __tablename__ = "applications"
-
-    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    job_id = Column(String, ForeignKey("job_listings.id"), nullable=False)
-    user_profile_id = Column(String, ForeignKey("user_profiles.id"), nullable=False)
-
-    # Application details
-    status = Column(SQLEnum(ApplicationStatus), default=ApplicationStatus.NOT_APPLIED)
-    applied_date = Column(DateTime)
-    response_date = Column(DateTime)
-
-    # Application materials
-    resume_version = Column(String)
-    cover_letter = Column(Text)
-    notes = Column(Text)
-
-    # Follow-up tracking
-    follow_up_date = Column(DateTime)
-    interview_scheduled = Column(DateTime)
-
-    # Metadata
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Relationships
-    # job = relationship("JobListingDB", back_populates="applications")  # REMOVE - applications relationship no longer exists in JobListingDB
-    # user_profile = relationship("UserProfileDB", back_populates="applications")  # REMOVE - no longer valid relationship
-
-
-class SavedJobDB(Base):
-    """SQLAlchemy model for saved jobs."""
-
-    __tablename__ = "saved_jobs"
-
-    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    job_id = Column(String, ForeignKey("job_listings.id"), nullable=False)
-    user_profile_id = Column(String, ForeignKey("user_profiles.id"), nullable=False)
-
-    # Saved job details
-    status = Column(SQLEnum(SavedJobStatus), default=SavedJobStatus.SAVED)
-    notes = Column(Text)
-    tags = Column(JSON)  # User-defined tags for organization
-
-    # Metadata
-    saved_date = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Relationships
-    job = relationship("JobListingDB")
-    user_profile = relationship("UserProfileDB")
-
-
 class JobUserInteractionDB(Base):
     """Consolidated user-job interactions (replaces JobApplicationDB + SavedJobDB)."""
 
@@ -1071,8 +914,8 @@ class TimelineEventDB(Base):
         String, ForeignKey("job_listings.id"), nullable=True
     )  # Can be None for general events
     application_id = Column(
-        String, ForeignKey("applications.id"), nullable=True
-    )  # Link to specific application
+        String, nullable=True
+    )  # Link to specific application (legacy field - no FK constraint)
     user_profile_id = Column(String, ForeignKey("user_profiles.id"), nullable=False)
 
     # Event details
@@ -1093,105 +936,8 @@ class TimelineEventDB(Base):
 
     # Relationships
     job = relationship("JobListingDB")
-    application = relationship("JobApplicationDB")
+    # application = relationship("JobApplicationDB")  # REMOVED - JobApplicationDB no longer exists
     user_profile = relationship("UserProfileDB")
-
-
-# =====================================
-# ETL Pipeline SQLAlchemy Models
-# =====================================
-
-
-class RawJobCollectionDB(Base):
-    """SQLAlchemy model for raw job collections from external APIs."""
-
-    __tablename__ = "raw_job_collections"
-
-    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    timestamp = Column(DateTime, nullable=False, default=datetime.utcnow)
-    api_provider = Column(String, nullable=False)  # "jsearch", "indeed", etc.
-    query_params = Column(JSON, nullable=False)  # Search parameters used
-    raw_response = Column(JSON, nullable=False)  # Complete API response
-    response_metadata = Column(JSON)  # Response metadata (renamed from metadata)
-    processing_status = Column(
-        SQLEnum(ETLProcessingStatus), default=ETLProcessingStatus.PENDING
-    )
-    error_info = Column(JSON)  # Error details if failed
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    # Relationships
-    processing_logs = relationship(
-        "JobProcessingLogDB", back_populates="raw_collection"
-    )
-
-
-class JobProcessingLogDB(Base):
-    """SQLAlchemy model for job processing operations."""
-
-    __tablename__ = "job_processing_logs"
-
-    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    collection_id = Column(String, ForeignKey("raw_job_collections.id"), nullable=False)
-    operation_type = Column(SQLEnum(ETLOperationType), nullable=False)
-    started_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    completed_at = Column(DateTime)
-    status = Column(SQLEnum(ETLProcessingStatus), nullable=False)
-    jobs_processed = Column(Integer, default=0)
-    jobs_failed = Column(Integer, default=0)
-    errors = Column(JSON)  # List of error dictionaries
-    metrics = Column(JSON)  # Processing metrics
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    # Relationships
-    raw_collection = relationship(
-        "RawJobCollectionDB", back_populates="processing_logs"
-    )
-    processed_data = relationship("ProcessedJobDataDB", back_populates="processing_log")
-
-
-class ProcessedJobDataDB(Base):
-    """SQLAlchemy model for processed job data ready for loading."""
-
-    __tablename__ = "processed_job_data"
-
-    processing_id = Column(
-        String, ForeignKey("job_processing_logs.id"), primary_key=True
-    )
-    job_index = Column(Integer, primary_key=True)  # Index in the processing batch
-    processed_data = Column(JSON, nullable=False)  # Transformed job data
-    embedding_vector = Column(JSON)  # Generated embeddings as JSON array
-    duplicate_of = Column(String)  # If duplicate, reference to canonical job UUID
-    load_status = Column(
-        SQLEnum(ETLProcessingStatus), default=ETLProcessingStatus.PENDING
-    )
-    quality_score = Column(Float)  # Data quality assessment
-    validation_errors = Column(JSON)  # List of validation error strings
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    # Relationships
-    processing_log = relationship("JobProcessingLogDB", back_populates="processed_data")
-
-
-class ETLOperationLogDB(Base):
-    """SQLAlchemy model for comprehensive ETL operation logging."""
-
-    __tablename__ = "etl_operation_logs"
-
-    id = Column(String, primary_key=True, default=lambda: str(uuid4()))
-    operation_type = Column(SQLEnum(ETLOperationType), nullable=False)
-    operation_name = Column(String, nullable=False)  # Specific operation name
-    status = Column(SQLEnum(ETLProcessingStatus), nullable=False)
-    started_at = Column(DateTime, nullable=False, default=datetime.utcnow)
-    completed_at = Column(DateTime)
-    duration_ms = Column(Integer)  # Operation duration in milliseconds
-    input_data = Column(JSON)  # Operation parameters
-    output_data = Column(JSON)  # Operation results
-    error_message = Column(Text)  # Human-readable error message
-    error_details = Column(JSON)  # Structured error details
-    operation_metadata = Column(
-        JSON
-    )  # Additional operation metadata (renamed from metadata)
-    created_at = Column(DateTime, default=datetime.utcnow)
 
 
 # =====================================
@@ -1228,15 +974,7 @@ def pydantic_to_sqlalchemy(pydantic_obj: BaseModel, sqlalchemy_class):
             data[key] = str(value)
 
     # Handle field name mappings for renamed fields
-    if sqlalchemy_class.__name__ == "RawJobCollectionDB":
-        if "metadata" in data:
-            data["response_metadata"] = data.pop("metadata")
-    elif sqlalchemy_class.__name__ == "ETLOperationLogDB":
-        if "metadata" in data:
-            data["operation_metadata"] = data.pop("metadata")
-        elif "operation_metadata" in data:
-            # Handle both naming conventions
-            pass
+    # No special mappings needed after ETL removal
 
     return sqlalchemy_class(**data)
 
@@ -1249,16 +987,7 @@ def sqlalchemy_to_pydantic(sqlalchemy_obj, pydantic_class):
         column_name = column.name
 
         # Handle field name mappings for renamed fields
-        if (
-            sqlalchemy_obj.__class__.__name__ == "RawJobCollectionDB"
-            and column_name == "response_metadata"
-        ):
-            column_name = "metadata"
-        elif (
-            sqlalchemy_obj.__class__.__name__ == "ETLOperationLogDB"
-            and column_name == "operation_metadata"
-        ):
-            column_name = "metadata"
+        # No special mappings needed after ETL removal
 
         # Handle None values for list fields
         if value is None and column_name in [
@@ -1284,9 +1013,6 @@ def sqlalchemy_to_pydantic(sqlalchemy_obj, pydantic_class):
             "rate_limit_config",
             "source_metadata",
             "benefits_parsed",
-            "metadata",
-            "operation_metadata",
-            "response_metadata",
         ]:
             value = {}
         # Skip None values for required fields - let Pydantic handle defaults

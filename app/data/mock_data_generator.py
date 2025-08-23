@@ -16,14 +16,13 @@ from app.data.models import (
     CompanyInfoDB,
     CompanySizeCategory,
     ExperienceLevel,
-    JobApplicationDB,
+    InteractionType,
     JobListingDB,
     JobSourceDB,
     JobStatus,
     JobType,
+    JobUserInteractionDB,
     RemoteType,
-    SavedJobDB,
-    SavedJobStatus,
     SeniorityLevel,
     TimelineEventDB,
     TimelineEventType,
@@ -1812,7 +1811,7 @@ class MockDataGenerator:
                 "contact_email": "sarah.kim@microsoft.com",
                 "contact_phone": "+1 (425) 555-0123",
                 "lead_status": LeadStatus.NEW,
-                "lead_type": LeadType.COLD,
+                "lead_type": LeadType.RECRUITER,
                 "notes": "Found through LinkedIn search. Large tech company with great benefits. Good cultural fit based on values.",
                 "priority": "high",
                 "source": "LinkedIn",
@@ -1824,7 +1823,7 @@ class MockDataGenerator:
                 "contact_email": "alex.chen@google.com",
                 "contact_phone": "+1 (650) 555-0456",
                 "lead_status": LeadStatus.CONTACTED,
-                "lead_type": LeadType.COLD,
+                "lead_type": LeadType.HIRING_MANAGER,
                 "notes": "Reached out via LinkedIn. Waiting for response. Role matches PM experience perfectly.",
                 "priority": "high",
                 "source": "LinkedIn",
@@ -1835,8 +1834,8 @@ class MockDataGenerator:
                 "contact_name": "Jennifer Rodriguez",
                 "contact_email": "j.rodriguez@apple.com",
                 "contact_phone": "+1 (408) 555-0789",
-                "lead_status": LeadStatus.IN_PROGRESS,
-                "lead_type": LeadType.COLD,
+                "lead_status": LeadStatus.RESPONDED,
+                "lead_type": LeadType.HIRING_MANAGER,
                 "notes": "Had initial phone screening. Positive conversation about ML applications in consumer products.",
                 "priority": "high",
                 "source": "Company Website",
@@ -1848,8 +1847,8 @@ class MockDataGenerator:
                 "contact_name": "Michael Brown",
                 "contact_email": "michael.brown@netflix.com",
                 "contact_phone": "+1 (408) 555-1234",
-                "lead_status": LeadStatus.QUALIFIED,
-                "lead_type": LeadType.WARM,
+                "lead_status": LeadStatus.MEETING_SCHEDULED,
+                "lead_type": LeadType.REFERRAL,
                 "notes": "Referred by former colleague. Engineering manager very interested. Scheduling technical interview.",
                 "priority": "high",
                 "source": "Referral - John Smith",
@@ -1860,8 +1859,8 @@ class MockDataGenerator:
                 "contact_name": "Lisa Wang",
                 "contact_email": "lisa.wang@uber.com",
                 "contact_phone": "+1 (415) 555-5678",
-                "lead_status": LeadStatus.NURTURING,
-                "lead_type": LeadType.WARM,
+                "lead_status": LeadStatus.FOLLOW_UP_NEEDED,
+                "lead_type": LeadType.NETWORKING,
                 "notes": "Met at industry conference. Discussed mobility tech trends. Following up quarterly.",
                 "priority": "medium",
                 "source": "Conference - TechCrunch Disrupt",
@@ -1873,8 +1872,8 @@ class MockDataGenerator:
                 "contact_name": "David Park",
                 "contact_email": "david.park@stripe.com",
                 "contact_phone": "+1 (415) 555-9012",
-                "lead_status": LeadStatus.INTERVIEW_SCHEDULED,
-                "lead_type": LeadType.HOT,
+                "lead_status": LeadStatus.MEETING_SCHEDULED,
+                "lead_type": LeadType.RECRUITER,
                 "notes": "Recruiter reached out directly. Technical interview scheduled for next week. High interest level.",
                 "priority": "high",
                 "source": "Recruiter Outreach",
@@ -1885,8 +1884,8 @@ class MockDataGenerator:
                 "contact_name": "Emma Thompson",
                 "contact_email": "emma.thompson@airbnb.com",
                 "contact_phone": "+1 (415) 555-3456",
-                "lead_status": LeadStatus.PROPOSAL_SENT,
-                "lead_type": LeadType.HOT,
+                "lead_status": LeadStatus.RESPONDED,
+                "lead_type": LeadType.HIRING_MANAGER,
                 "notes": "Completed all interview rounds. Salary negotiation in progress. Very promising opportunity.",
                 "priority": "high",
                 "source": "Job Board - Indeed",
@@ -1899,7 +1898,7 @@ class MockDataGenerator:
                 "contact_email": "robert.johnson@tesla.com",
                 "contact_phone": "+1 (650) 555-7890",
                 "lead_status": LeadStatus.CLOSED_WON,
-                "lead_type": LeadType.HOT,
+                "lead_type": LeadType.REFERRAL,
                 "notes": "Offer accepted! Starting next month. Excellent growth opportunity in sustainable technology.",
                 "priority": "high",
                 "source": "Employee Referral",
@@ -1911,7 +1910,7 @@ class MockDataGenerator:
                 "contact_email": "sophie.martin@meta.com",
                 "contact_phone": "+1 (650) 555-2468",
                 "lead_status": LeadStatus.CLOSED_LOST,
-                "lead_type": LeadType.WARM,
+                "lead_type": LeadType.NETWORKING,
                 "notes": "Position filled internally. Maintaining contact for future opportunities. Good relationship built.",
                 "priority": "low",
                 "source": "LinkedIn",
@@ -1924,7 +1923,7 @@ class MockDataGenerator:
                 "contact_email": "james.wilson@salesforce.com",
                 "contact_phone": "+1 (415) 555-1357",
                 "lead_status": LeadStatus.NEW,
-                "lead_type": LeadType.COLD,
+                "lead_type": LeadType.OTHER,
                 "notes": "Large enterprise software company. Remote-friendly culture. Need to research more about the role.",
                 "priority": "medium",
                 "source": "Company Website",
@@ -1936,7 +1935,7 @@ class MockDataGenerator:
                 "contact_email": "rachel.green@adobe.com",
                 "contact_phone": "+1 (408) 555-8642",
                 "lead_status": LeadStatus.CONTACTED,
-                "lead_type": LeadType.WARM,
+                "lead_type": LeadType.EMPLOYEE,
                 "notes": "Responded positively to initial outreach. Creative industry leader with innovative projects.",
                 "priority": "medium",
                 "source": "Dribbble Portfolio View",
@@ -1947,8 +1946,8 @@ class MockDataGenerator:
                 "contact_name": "Tom Anderson",
                 "contact_email": "tom.anderson@slack.com",
                 "contact_phone": "+1 (415) 555-9753",
-                "lead_status": LeadStatus.NURTURING,
-                "lead_type": LeadType.COLD,
+                "lead_status": LeadStatus.FOLLOW_UP_NEEDED,
+                "lead_type": LeadType.OTHER,
                 "notes": "Interesting collaboration tools company. Building relationship through technical blog comments.",
                 "priority": "low",
                 "source": "Tech Blog",
@@ -1960,16 +1959,19 @@ class MockDataGenerator:
             for lead_info in lead_data:
                 # Create a Lead object (for tracking purposes only)
                 Lead(
+                    id=str(uuid4()),
+                    user_profile_id="00000000-0000-4000-8000-000000000001",
+                    name=lead_info["contact_name"],
+                    title=lead_info["position"],
                     company=lead_info["company"],
-                    position=lead_info["position"],
-                    contact_name=lead_info["contact_name"],
-                    contact_email=lead_info["contact_email"],
-                    contact_phone=lead_info.get("contact_phone"),
-                    lead_status=lead_info["lead_status"],
+                    email=lead_info["contact_email"],
+                    phone=lead_info.get("contact_phone"),
                     lead_type=lead_info["lead_type"],
+                    status=lead_info["lead_status"],
                     notes=lead_info["notes"],
-                    priority=lead_info["priority"],
                     source=lead_info["source"],
+                    created_at=datetime.utcnow(),
+                    updated_at=datetime.utcnow(),
                 )
 
                 # Note: Since we don't have direct database access for Lead objects,
@@ -2002,11 +2004,11 @@ class MockDataGenerator:
         )
         return results
 
-    def create_applications_and_interactions(
+    def create_job_interactions(
         self, user_ids: List[str], job_ids: List[str]
     ) -> Dict[str, int]:
-        """Create job applications, saved jobs, and timeline events with enhanced status coverage."""
-        results = {"applications": 0, "saved_jobs": 0, "timeline_events": 0}
+        """Create job user interactions and timeline events with enhanced status coverage."""
+        results = {"interactions": 0, "timeline_events": 0}
 
         # Define all application statuses for comprehensive coverage
         application_statuses = [
@@ -2019,61 +2021,86 @@ class MockDataGenerator:
         ]
 
         with self._get_session() as session:
-            # Create applications for each user to some jobs
+            # Create interactions for each user to some jobs
             for user_id in user_ids:
                 # Each user applies to 3-6 jobs for better coverage
                 user_job_count = random.randint(3, 6)
                 user_jobs = random.sample(job_ids, min(user_job_count, len(job_ids)))
 
                 for i, job_id in enumerate(user_jobs):
-                    # Check if application already exists
-                    existing_app = (
-                        session.query(JobApplicationDB)
+                    # Check if application interaction already exists
+                    existing_applied = (
+                        session.query(JobUserInteractionDB)
                         .filter(
-                            JobApplicationDB.user_profile_id == user_id,
-                            JobApplicationDB.job_id == job_id,
+                            JobUserInteractionDB.user_id == user_id,
+                            JobUserInteractionDB.job_id == job_id,
+                            JobUserInteractionDB.interaction_type
+                            == InteractionType.APPLIED,
                         )
                         .first()
                     )
 
-                    if not existing_app:
+                    if not existing_applied:
                         # Ensure we use a variety of statuses, including all critical ones
                         if i < len(application_statuses):
-                            status = application_statuses[i]
+                            app_status = application_statuses[i]
                         else:
-                            status = random.choice(application_statuses)
+                            app_status = random.choice(application_statuses)
 
                         # Create application with enhanced notes based on status
-                        application_notes = self._generate_application_notes(status)
-
-                        # Create application
-                        application = JobApplicationDB(
-                            id=str(uuid4()),
-                            job_id=job_id,
-                            user_profile_id=user_id,
-                            status=status,
-                            applied_date=datetime.utcnow()
-                            - timedelta(days=random.randint(1, 45)),
-                            notes=application_notes,
-                            created_at=datetime.utcnow(),
-                            updated_at=datetime.utcnow(),
+                        application_notes = self._generate_application_notes(app_status)
+                        applied_date = datetime.utcnow() - timedelta(
+                            days=random.randint(1, 45)
                         )
-                        session.add(application)
+
+                        # Get job details for snapshot
+                        job = (
+                            session.query(JobListingDB)
+                            .filter(JobListingDB.id == job_id)
+                            .first()
+                        )
+                        job_snapshot = {
+                            "title": job.title,
+                            "company_name": job.company.name if job.company else None,
+                            "location": job.location,
+                            "salary_min": job.salary_min,
+                            "salary_max": job.salary_max,
+                            "snapshot_date": applied_date.isoformat(),
+                        }
+
+                        # Create application interaction
+                        interaction = JobUserInteractionDB(
+                            id=str(uuid4()),
+                            user_id=user_id,
+                            job_id=job_id,
+                            interaction_type=InteractionType.APPLIED,
+                            application_status=app_status,
+                            applied_date=applied_date,
+                            notes=application_notes,
+                            job_snapshot=job_snapshot,
+                            first_interaction=applied_date,
+                            last_interaction=applied_date,
+                            interaction_count=1,
+                        )
+                        session.add(interaction)
                         session.commit()
-                        session.refresh(application)
-                        results["applications"] += 1
+                        session.refresh(interaction)
+                        results["interactions"] += 1
 
                         # Create timeline event for application
                         timeline_event = TimelineEventDB(
                             id=str(uuid4()),
                             job_id=job_id,
-                            application_id=application.id,
+                            application_id=None,  # No legacy application_id
                             user_profile_id=user_id,
                             event_type=TimelineEventType.APPLICATION_SUBMITTED,
                             title="Application Submitted",
-                            description=f"Applied to {session.query(JobListingDB).filter(JobListingDB.id == job_id).first().title}",
-                            event_data={"application_method": "JobPilot"},
-                            event_date=application.applied_date,
+                            description=f"Applied to {job.title}",
+                            event_data={
+                                "application_method": "JobPilot",
+                                "interaction_id": interaction.id,
+                            },
+                            event_date=applied_date,
                             is_milestone=True,
                             created_at=datetime.utcnow(),
                             updated_at=datetime.utcnow(),
@@ -2096,42 +2123,70 @@ class MockDataGenerator:
                     saved_jobs = []
 
                 for job_id in saved_jobs:
-                    # Check if saved job already exists
+                    # Check if saved interaction already exists
                     existing_saved = (
-                        session.query(SavedJobDB)
+                        session.query(JobUserInteractionDB)
                         .filter(
-                            SavedJobDB.user_profile_id == user_id,
-                            SavedJobDB.job_id == job_id,
+                            JobUserInteractionDB.user_id == user_id,
+                            JobUserInteractionDB.job_id == job_id,
+                            JobUserInteractionDB.interaction_type
+                            == InteractionType.SAVED,
                         )
                         .first()
                     )
 
                     if not existing_saved:
-                        saved_job = SavedJobDB(
-                            id=str(uuid4()),
-                            job_id=job_id,
-                            user_profile_id=user_id,
-                            status=SavedJobStatus.SAVED,
-                            notes="Interesting opportunity, need to review requirements more closely.",
-                            tags=["interesting", "remote-friendly"],
-                            saved_date=datetime.utcnow()
-                            - timedelta(days=random.randint(1, 14)),
-                            updated_at=datetime.utcnow(),
+                        saved_date = datetime.utcnow() - timedelta(
+                            days=random.randint(1, 14)
                         )
-                        session.add(saved_job)
+
+                        # Get job details for snapshot
+                        job = (
+                            session.query(JobListingDB)
+                            .filter(JobListingDB.id == job_id)
+                            .first()
+                        )
+                        job_snapshot = {
+                            "title": job.title,
+                            "company_name": job.company.name if job.company else None,
+                            "location": job.location,
+                            "salary_min": job.salary_min,
+                            "salary_max": job.salary_max,
+                            "snapshot_date": saved_date.isoformat(),
+                        }
+
+                        interaction = JobUserInteractionDB(
+                            id=str(uuid4()),
+                            user_id=user_id,
+                            job_id=job_id,
+                            interaction_type=InteractionType.SAVED,
+                            saved_date=saved_date,
+                            tags=["interesting", "remote-friendly"],
+                            notes="Interesting opportunity, need to review requirements more closely.",
+                            job_snapshot=job_snapshot,
+                            first_interaction=saved_date,
+                            last_interaction=saved_date,
+                            interaction_count=1,
+                        )
+                        session.add(interaction)
                         session.commit()
-                        results["saved_jobs"] += 1
+                        session.refresh(interaction)
+                        results["interactions"] += 1
 
                         # Create timeline event for saving job
                         timeline_event = TimelineEventDB(
                             id=str(uuid4()),
                             job_id=job_id,
+                            application_id=None,  # No legacy application_id
                             user_profile_id=user_id,
                             event_type=TimelineEventType.JOB_SAVED,
                             title="Job Saved",
-                            description=f"Saved {session.query(JobListingDB).filter(JobListingDB.id == job_id).first().title} for later review",
-                            event_data={"tags": ["interesting", "remote-friendly"]},
-                            event_date=saved_job.saved_date,
+                            description=f"Saved {job.title} for later review",
+                            event_data={
+                                "tags": ["interesting", "remote-friendly"],
+                                "interaction_id": interaction.id,
+                            },
+                            event_date=saved_date,
                             is_milestone=False,
                             created_at=datetime.utcnow(),
                             updated_at=datetime.utcnow(),
@@ -2141,7 +2196,7 @@ class MockDataGenerator:
                         results["timeline_events"] += 1
 
         print(
-            f"   📝 Created {results['applications']} applications, {results['saved_jobs']} saved jobs, {results['timeline_events']} timeline events"
+            f"   🔗 Created {results['interactions']} job interactions, {results['timeline_events']} timeline events"
         )
         return results
 
@@ -2250,14 +2305,16 @@ class MockDataGenerator:
             resume_ids = self.create_resumes(user_ids, template_ids)
             results["created_resumes"] = len(resume_ids)
 
-            # 7. Create applications, saved jobs, and timeline events
-            print("\n📝 Creating applications and interactions...")
-            interaction_results = self.create_applications_and_interactions(
-                user_ids, job_ids
-            )
-            results["created_applications"] = interaction_results["applications"]
-            results["created_saved_jobs"] = interaction_results["saved_jobs"]
+            # 7. Create job interactions and timeline events
+            print("\n📝 Creating job interactions and timeline events...")
+            interaction_results = self.create_job_interactions(user_ids, job_ids)
+            results["created_interactions"] = interaction_results["interactions"]
             results["created_timeline_events"] = interaction_results["timeline_events"]
+            # For backward compatibility in results
+            results["created_applications"] = interaction_results["interactions"]
+            results["created_saved_jobs"] = (
+                0  # No longer separate, included in interactions
+            )
 
             # 8. Create lead management data
             print("\n📊 Creating lead management data...")

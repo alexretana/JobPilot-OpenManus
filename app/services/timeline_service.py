@@ -11,11 +11,10 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from sqlalchemy import and_, desc, or_
+from sqlalchemy import and_, desc
 from sqlalchemy.orm import Session
 
 from app.data.models import (
-    JobApplicationDB,
     TimelineEvent,
     TimelineEventDB,
     TimelineEventType,
@@ -151,27 +150,15 @@ class TimelineService:
     def get_application_timeline(
         self, application_id: str, limit: int = 50
     ) -> List[TimelineEvent]:
-        """Get timeline events for a specific application."""
+        """Get timeline events for a specific application ID.
+
+        Note: With the new job_user_interactions structure, this method
+        now simply filters timeline events by the application_id field.
+        """
 
         try:
             query = self.db.query(TimelineEventDB).filter(
-                or_(
-                    TimelineEventDB.application_id == application_id,
-                    and_(
-                        TimelineEventDB.job_id
-                        == (
-                            self.db.query(JobApplicationDB.job_id)
-                            .filter(JobApplicationDB.id == application_id)
-                            .scalar()
-                        ),
-                        TimelineEventDB.user_profile_id
-                        == (
-                            self.db.query(JobApplicationDB.user_profile_id)
-                            .filter(JobApplicationDB.id == application_id)
-                            .scalar()
-                        ),
-                    ),
-                )
+                TimelineEventDB.application_id == application_id
             )
 
             # Order by event date (chronological order for application timeline)

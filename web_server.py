@@ -574,99 +574,29 @@ DEFAULT_USER_ID = "00000000-0000-4000-8000-000000000001"  # Fixed UUID for defau
 
 @app.post("/api/jobs/{job_id}/save")
 async def save_job(job_id: str, request: SaveJobRequest):
-    """Save a job for the user."""
-    try:
-        from app.data.database import (
-            get_job_repository,
-            get_saved_job_repository,
-            get_user_repository,
-        )
-        from app.data.models import UserProfile
-        from app.services.timeline_service import TimelineService
+    """Save a job for the user.
 
-        # Get repositories
-        saved_job_repo = get_saved_job_repository()
-        user_repo = get_user_repository()
-        job_repo = get_job_repository()
-
-        # Ensure default user exists
-        user = user_repo.get_user(DEFAULT_USER_ID)
-        if not user:
-            # Create default user
-            from uuid import UUID
-
-            default_user = UserProfile(
-                id=UUID(DEFAULT_USER_ID),
-                first_name="Demo",
-                last_name="User",
-                email="demo@jobpilot.com",
-            )
-            user = user_repo.create_user(default_user)
-
-        # Save the job
-        saved_job = saved_job_repo.save_job(
-            job_id=request.job_id,
-            user_profile_id=DEFAULT_USER_ID,
-            notes=request.notes,
-            tags=request.tags,
-        )
-
-        # Log timeline event for job saved
-        try:
-            job = job_repo.get_job(request.job_id)
-            if job:
-                from app.data.database import get_database_manager
-
-                db_manager = get_database_manager()
-                with db_manager.get_session() as db_session:
-                    timeline_service = TimelineService(db_session)
-                    timeline_service.log_job_saved(
-                        user_profile_id=DEFAULT_USER_ID,
-                        job_id=request.job_id,
-                        job_title=job.title,
-                        company_name=job.company,
-                        notes=request.notes,
-                        tags=request.tags,
-                    )
-        except Exception as e:
-            logger.warning(f"Failed to log timeline event for saved job: {e}")
-
-        return {
-            "message": "Job saved successfully",
-            "saved_job_id": str(saved_job.id),
-            "job_id": request.job_id,
-            "saved_date": saved_job.saved_date.isoformat(),
-            "timestamp": datetime.now().isoformat(),
-        }
-
-    except Exception as e:
-        logger.error(f"Error saving job {job_id}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    DEPRECATED: This endpoint uses legacy saved jobs functionality.
+    The SavedJobRepository has been replaced with JobUserInteractionRepository.
+    This endpoint is kept for backward compatibility but may not function correctly.
+    """
+    # Legacy functionality - SavedJobRepository removed
+    raise HTTPException(
+        status_code=501,
+        detail="Saved jobs functionality has been migrated to job interactions. Please use the new interaction endpoints.",
+    )
 
 
 @app.delete("/api/jobs/{job_id}/save")
 async def unsave_job(job_id: str):
-    """Remove a job from saved jobs."""
-    try:
-        from app.data.database import get_saved_job_repository
+    """Remove a job from saved jobs.
 
-        saved_job_repo = get_saved_job_repository()
-        success = saved_job_repo.unsave_job(job_id, DEFAULT_USER_ID)
-
-        if success:
-            return {
-                "message": "Job unsaved successfully",
-                "job_id": job_id,
-                "timestamp": datetime.now().isoformat(),
-            }
-        else:
-            raise HTTPException(status_code=404, detail="Saved job not found")
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error unsaving job {job_id}: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    DEPRECATED: Legacy saved jobs functionality has been removed.
+    """
+    raise HTTPException(
+        status_code=501,
+        detail="Saved jobs functionality has been migrated to job interactions. Please use the new interaction endpoints.",
+    )
 
 
 @app.get("/api/saved-jobs")

@@ -7,7 +7,6 @@ import os
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
-from uuid import UUID
 
 from sqlalchemy import and_, create_engine, desc, or_, text
 from sqlalchemy.orm import sessionmaker
@@ -18,21 +17,15 @@ from app.data.company_matcher import (
     validate_company_data,
 )
 from app.data.models import (
-    ApplicationStatus,
     Base,
     CompanyInfoDB,
     CompanySizeCategory,
     ExperienceLevel,
-    JobApplication,
-    JobApplicationDB,
     JobListing,
     JobListingDB,
     JobStatus,
     JobType,
     RemoteType,
-    SavedJob,
-    SavedJobDB,
-    SavedJobStatus,
     UserProfile,
     UserProfileDB,
     pydantic_to_sqlalchemy,
@@ -117,8 +110,8 @@ class DatabaseManager:
             with self.get_session() as session:
                 stats["job_listings"] = session.query(JobListingDB).count()
                 stats["user_profiles"] = session.query(UserProfileDB).count()
-                stats["applications"] = session.query(JobApplicationDB).count()
                 stats["companies"] = session.query(CompanyInfoDB).count()
+                # Note: Legacy applications and saved_jobs tables removed
         except Exception as e:
             logger.error(f"Error getting table stats: {e}")
             stats = {"error": str(e)}
@@ -628,226 +621,6 @@ class UserRepository:
             return [], 0
 
 
-class SavedJobRepository:
-    """Repository for saved job operations."""
-
-    def __init__(self, db_manager: DatabaseManager):
-        """Initialize saved job repository."""
-        self.db_manager = db_manager
-
-    def save_job(
-        self,
-        job_id: str,
-        user_profile_id: str,
-        notes: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-    ) -> SavedJob:
-        """Save a job for a user."""
-        try:
-            with self.db_manager.get_session() as session:
-                # Check if job is already saved
-                existing = (
-                    session.query(SavedJobDB)
-                    .filter(
-                        and_(
-                            SavedJobDB.job_id == job_id,
-                            SavedJobDB.user_profile_id == user_profile_id,
-                            SavedJobDB.status == SavedJobStatus.SAVED,
-                        )
-                    )
-                    .first()
-                )
-
-                if existing:
-                    # Update existing saved job
-                    existing.notes = notes
-                    existing.tags = tags or []
-                    existing.updated_at = datetime.utcnow()
-                    result = sqlalchemy_to_pydantic(existing, SavedJob)
-                    logger.info(
-                        f"Updated saved job: {job_id} for user: {user_profile_id}"
-                    )
-                else:
-                    # Create new saved job
-                    saved_job_data = SavedJob(
-                        job_id=UUID(job_id),
-                        user_profile_id=UUID(user_profile_id),
-                        notes=notes,
-                        tags=tags or [],
-                    )
-                    saved_job_db = pydantic_to_sqlalchemy(saved_job_data, SavedJobDB)
-                    session.add(saved_job_db)
-                    session.flush()
-
-                    result = sqlalchemy_to_pydantic(saved_job_db, SavedJob)
-                    logger.info(f"Saved job: {job_id} for user: {user_profile_id}")
-
-                return result
-
-        except Exception as e:
-            logger.error(f"Error saving job {job_id}: {e}")
-            raise
-
-    def unsave_job(self, job_id: str, user_profile_id: str) -> bool:
-        """Remove a job from saved jobs."""
-        try:
-            with self.db_manager.get_session() as session:
-                saved_job_db = (
-                    session.query(SavedJobDB)
-                    .filter(
-                        and_(
-                            SavedJobDB.job_id == job_id,
-                            SavedJobDB.user_profile_id == user_profile_id,
-                            SavedJobDB.status == SavedJobStatus.SAVED,
-                        )
-                    )
-                    .first()
-                )
-
-                if saved_job_db:
-                    session.delete(saved_job_db)
-                    logger.info(f"Unsaved job: {job_id} for user: {user_profile_id}")
-                    return True
-                return False
-
-        except Exception as e:
-            logger.error(f"Error unsaving job {job_id}: {e}")
-            return False
-
-    def get_saved_jobs(
-        self,
-        user_profile_id: str,
-        status: SavedJobStatus = SavedJobStatus.SAVED,
-        limit: int = 50,
-    ) -> List[Dict[str, Any]]:
-        """Get saved jobs for a user with job details."""
-        try:
-            with self.db_manager.get_session() as session:
-                # Join SavedJobDB with JobListingDB to get complete job information
-                saved_jobs = (
-                    session.query(SavedJobDB, JobListingDB)
-                    .join(JobListingDB, SavedJobDB.job_id == JobListingDB.id)
-                    .filter(
-                        and_(
-                            SavedJobDB.user_profile_id == user_profile_id,
-                            SavedJobDB.status == status,
-                        )
-                    )
-                    .order_by(desc(SavedJobDB.saved_date))
-                    .limit(limit)
-                    .all()
-                )
-
-                result = []
-                for saved_job_db, job_db in saved_jobs:
-                    job_data = sqlalchemy_to_pydantic(job_db, JobListing)
-                    saved_job_data = sqlalchemy_to_pydantic(saved_job_db, SavedJob)
-
-                    result.append(
-                        {"saved_job": saved_job_data.dict(), "job": job_data.dict()}
-                    )
-
-                logger.info(
-                    f"Retrieved {len(result)} saved jobs for user: {user_profile_id}"
-                )
-                return result
-
-        except Exception as e:
-            logger.error(f"Error getting saved jobs for user {user_profile_id}: {e}")
-            return []
-
-    def is_job_saved(self, job_id: str, user_profile_id: str) -> bool:
-        """Check if a job is saved by a user."""
-        try:
-            with self.db_manager.get_session() as session:
-                saved_job = (
-                    session.query(SavedJobDB)
-                    .filter(
-                        and_(
-                            SavedJobDB.job_id == job_id,
-                            SavedJobDB.user_profile_id == user_profile_id,
-                            SavedJobDB.status == SavedJobStatus.SAVED,
-                        )
-                    )
-                    .first()
-                )
-
-                return saved_job is not None
-
-        except Exception as e:
-            logger.error(f"Error checking if job {job_id} is saved: {e}")
-            return False
-
-    def archive_saved_job(self, job_id: str, user_profile_id: str) -> bool:
-        """Archive a saved job (change status to archived)."""
-        try:
-            with self.db_manager.get_session() as session:
-                saved_job_db = (
-                    session.query(SavedJobDB)
-                    .filter(
-                        and_(
-                            SavedJobDB.job_id == job_id,
-                            SavedJobDB.user_profile_id == user_profile_id,
-                            SavedJobDB.status == SavedJobStatus.SAVED,
-                        )
-                    )
-                    .first()
-                )
-
-                if saved_job_db:
-                    saved_job_db.status = SavedJobStatus.ARCHIVED
-                    saved_job_db.updated_at = datetime.utcnow()
-                    logger.info(
-                        f"Archived saved job: {job_id} for user: {user_profile_id}"
-                    )
-                    return True
-                return False
-
-        except Exception as e:
-            logger.error(f"Error archiving saved job {job_id}: {e}")
-            return False
-
-    def update_saved_job(
-        self,
-        job_id: str,
-        user_profile_id: str,
-        notes: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-    ) -> Optional[SavedJob]:
-        """Update notes and tags for a saved job."""
-        try:
-            with self.db_manager.get_session() as session:
-                saved_job_db = (
-                    session.query(SavedJobDB)
-                    .filter(
-                        and_(
-                            SavedJobDB.job_id == job_id,
-                            SavedJobDB.user_profile_id == user_profile_id,
-                            SavedJobDB.status == SavedJobStatus.SAVED,
-                        )
-                    )
-                    .first()
-                )
-
-                if saved_job_db:
-                    if notes is not None:
-                        saved_job_db.notes = notes
-                    if tags is not None:
-                        saved_job_db.tags = tags
-                    saved_job_db.updated_at = datetime.utcnow()
-
-                    result = sqlalchemy_to_pydantic(saved_job_db, SavedJob)
-                    logger.info(
-                        f"Updated saved job: {job_id} for user: {user_profile_id}"
-                    )
-                    return result
-                return None
-
-        except Exception as e:
-            logger.error(f"Error updating saved job {job_id}: {e}")
-            return None
-
-
 class ResumeRepository:
     """Repository for resume operations."""
 
@@ -1017,188 +790,10 @@ class ResumeRepository:
             return 0
 
 
-class ApplicationRepository:
-    """Repository for job application operations."""
-
-    def __init__(self, db_manager: DatabaseManager):
-        """Initialize application repository."""
-        self.db_manager = db_manager
-
-    @retry_db_write()
-    def create_application(self, app_data: JobApplication) -> JobApplication:
-        """Create a new job application."""
-        try:
-            with self.db_manager.get_session() as session:
-                app_db = pydantic_to_sqlalchemy(app_data, JobApplicationDB)
-                session.add(app_db)
-                session.flush()  # Get the ID
-
-                result = sqlalchemy_to_pydantic(app_db, JobApplication)
-                logger.info(f"Created application: {result.id} for job {result.job_id}")
-                return result
-
-        except Exception as e:
-            logger.error(f"Error creating application: {e}")
-            raise
-
-    def get_application(self, application_id: str) -> Optional[JobApplication]:
-        """Get application by ID."""
-        try:
-            with self.db_manager.get_session() as session:
-                app_db = (
-                    session.query(JobApplicationDB)
-                    .filter(JobApplicationDB.id == application_id)
-                    .first()
-                )
-                if app_db:
-                    return sqlalchemy_to_pydantic(app_db, JobApplication)
-                return None
-        except Exception as e:
-            logger.error(f"Error getting application {application_id}: {e}")
-            return None
-
-    def get_application_by_job_and_user(
-        self, job_id: str, user_profile_id: str
-    ) -> Optional[JobApplication]:
-        """Get application by job and user combination."""
-        try:
-            with self.db_manager.get_session() as session:
-                app_db = (
-                    session.query(JobApplicationDB)
-                    .filter(
-                        and_(
-                            JobApplicationDB.job_id == job_id,
-                            JobApplicationDB.user_profile_id == user_profile_id,
-                        )
-                    )
-                    .first()
-                )
-                if app_db:
-                    return sqlalchemy_to_pydantic(app_db, JobApplication)
-                return None
-        except Exception as e:
-            logger.error(
-                f"Error getting application for job {job_id} and user {user_profile_id}: {e}"
-            )
-            return None
-
-    def get_applications(
-        self,
-        user_profile_id: str,
-        status: Optional[ApplicationStatus] = None,
-        limit: int = 50,
-        offset: int = 0,
-    ) -> Tuple[List[JobApplication], int]:
-        """Get user's applications with filtering."""
-        try:
-            with self.db_manager.get_session() as session:
-                query_obj = session.query(JobApplicationDB).filter(
-                    JobApplicationDB.user_profile_id == user_profile_id
-                )
-
-                # Filter by status
-                if status:
-                    query_obj = query_obj.filter(JobApplicationDB.status == status)
-
-                # Get total count
-                total = query_obj.count()
-
-                # Apply pagination and ordering
-                apps_db = (
-                    query_obj.order_by(desc(JobApplicationDB.created_at))
-                    .offset(offset)
-                    .limit(limit)
-                    .all()
-                )
-
-                applications = [
-                    sqlalchemy_to_pydantic(app_db, JobApplication) for app_db in apps_db
-                ]
-
-                logger.info(
-                    f"Retrieved {len(applications)} applications for user {user_profile_id}"
-                )
-                return applications, total
-
-        except Exception as e:
-            logger.error(f"Error getting applications for user {user_profile_id}: {e}")
-            return [], 0
-
-    @retry_db_write()
-    def update_application(
-        self, application_id: str, update_data: Dict[str, Any]
-    ) -> Optional[JobApplication]:
-        """Update application."""
-        try:
-            with self.db_manager.get_session() as session:
-                app_db = (
-                    session.query(JobApplicationDB)
-                    .filter(JobApplicationDB.id == application_id)
-                    .first()
-                )
-                if not app_db:
-                    return None
-
-                # Update fields
-                for field, value in update_data.items():
-                    if hasattr(app_db, field):
-                        setattr(app_db, field, value)
-
-                app_db.updated_at = datetime.utcnow()
-                session.flush()
-
-                result = sqlalchemy_to_pydantic(app_db, JobApplication)
-                logger.info(f"Updated application: {application_id}")
-                return result
-
-        except Exception as e:
-            logger.error(f"Error updating application {application_id}: {e}")
-            raise
-
-    def delete_application(self, application_id: str) -> bool:
-        """Delete application."""
-        try:
-            with self.db_manager.get_session() as session:
-                app_db = (
-                    session.query(JobApplicationDB)
-                    .filter(JobApplicationDB.id == application_id)
-                    .first()
-                )
-                if app_db:
-                    session.delete(app_db)
-                    logger.info(f"Deleted application: {application_id}")
-                    return True
-                return False
-        except Exception as e:
-            logger.error(f"Error deleting application {application_id}: {e}")
-            return False
-
-    def get_applications_by_job(self, job_id: str) -> List[JobApplication]:
-        """Get all applications for a specific job."""
-        try:
-            with self.db_manager.get_session() as session:
-                apps_db = (
-                    session.query(JobApplicationDB)
-                    .filter(JobApplicationDB.job_id == job_id)
-                    .order_by(desc(JobApplicationDB.created_at))
-                    .all()
-                )
-
-                return [
-                    sqlalchemy_to_pydantic(app_db, JobApplication) for app_db in apps_db
-                ]
-
-        except Exception as e:
-            logger.error(f"Error getting applications for job {job_id}: {e}")
-            return []
-
-
 # Global instances (initialized when needed)
 db_manager = None
 job_repo = None
 user_repo = None
-saved_job_repo = None
-application_repo = None
 resume_repo = None
 interaction_repo = None
 company_repo = None
@@ -1206,7 +801,7 @@ company_repo = None
 
 def initialize_database(database_url: str = None):
     """Initialize global database instances."""
-    global db_manager, job_repo, user_repo, saved_job_repo, application_repo, resume_repo, interaction_repo, company_repo
+    global db_manager, job_repo, user_repo, resume_repo, interaction_repo, company_repo
 
     # Import here to avoid circular imports
     from app.data.company_repository import CompanyRepository
@@ -1215,8 +810,6 @@ def initialize_database(database_url: str = None):
     db_manager = DatabaseManager(database_url)
     job_repo = JobRepository(db_manager)
     user_repo = UserRepository(db_manager)
-    saved_job_repo = SavedJobRepository(db_manager)
-    application_repo = ApplicationRepository(db_manager)
     resume_repo = ResumeRepository(db_manager)
     interaction_repo = JobUserInteractionRepository(db_manager)
     company_repo = CompanyRepository(db_manager)
@@ -1248,22 +841,6 @@ def get_user_repository() -> UserRepository:
     return user_repo
 
 
-def get_saved_job_repository() -> SavedJobRepository:
-    """Get or create saved job repository."""
-    global saved_job_repo
-    if saved_job_repo is None:
-        initialize_database()
-    return saved_job_repo
-
-
-def get_application_repository() -> ApplicationRepository:
-    """Get or create application repository."""
-    global application_repo
-    if application_repo is None:
-        initialize_database()
-    return application_repo
-
-
 def get_resume_repository() -> ResumeRepository:
     """Get or create resume repository."""
     global resume_repo
@@ -1286,3 +863,9 @@ def get_company_repository():
     if company_repo is None:
         initialize_database()
     return company_repo
+
+
+def get_application_repository():
+    """Get or create application repository (legacy compatibility - uses interaction repository)."""
+    # Legacy compatibility: applications are now handled by the interaction repository
+    return get_interaction_repository()

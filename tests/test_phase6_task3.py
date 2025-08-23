@@ -22,8 +22,6 @@ class TestDatabaseManagerInitialization:
         assert database.db_manager is not None
         assert database.job_repo is not None
         assert database.user_repo is not None
-        assert database.saved_job_repo is not None
-        assert database.application_repo is not None
         assert database.resume_repo is not None
 
         # NEW: Verify new repositories are created
@@ -32,18 +30,14 @@ class TestDatabaseManagerInitialization:
 
         # Verify repository types
         from app.data.database import (
-            ApplicationRepository,
             JobRepository,
             ResumeRepository,
-            SavedJobRepository,
             UserRepository,
         )
         from app.data.interaction_repository import JobUserInteractionRepository
 
         assert isinstance(database.job_repo, JobRepository)
         assert isinstance(database.user_repo, UserRepository)
-        assert isinstance(database.saved_job_repo, SavedJobRepository)
-        assert isinstance(database.application_repo, ApplicationRepository)
         assert isinstance(database.resume_repo, ResumeRepository)
         assert isinstance(database.interaction_repo, JobUserInteractionRepository)
 
@@ -116,24 +110,6 @@ class TestRepositoryGetterFunctions:
 
         assert isinstance(user_repo, UserRepository)
 
-    def test_get_saved_job_repository_returns_instance(self):
-        """Test that get_saved_job_repository returns a SavedJobRepository instance."""
-        saved_job_repo = database.get_saved_job_repository()
-
-        assert saved_job_repo is not None
-        from app.data.database import SavedJobRepository
-
-        assert isinstance(saved_job_repo, SavedJobRepository)
-
-    def test_get_application_repository_returns_instance(self):
-        """Test that get_application_repository returns an ApplicationRepository instance."""
-        app_repo = database.get_application_repository()
-
-        assert app_repo is not None
-        from app.data.database import ApplicationRepository
-
-        assert isinstance(app_repo, ApplicationRepository)
-
     def test_get_resume_repository_returns_instance(self):
         """Test that get_resume_repository returns a ResumeRepository instance."""
         resume_repo = database.get_resume_repository()
@@ -176,13 +152,11 @@ class TestRepositoryConsistency:
         job_repo = database.get_job_repository()
         user_repo = database.get_user_repository()
         interaction_repo = database.get_interaction_repository()
-        saved_job_repo = database.get_saved_job_repository()
 
         # All repositories should share the same database manager
         assert job_repo.db_manager is db_manager
         assert user_repo.db_manager is db_manager
         assert interaction_repo.db_manager is db_manager
-        assert saved_job_repo.db_manager is db_manager
 
     def test_repositories_are_singletons(self):
         """Test that getter functions return the same instances on multiple calls."""
@@ -325,17 +299,15 @@ class TestBackwardCompatibility:
         db_manager = database.get_database_manager()
         job_repo = database.get_job_repository()
         user_repo = database.get_user_repository()
-        saved_job_repo = database.get_saved_job_repository()
-        application_repo = database.get_application_repository()
         resume_repo = database.get_resume_repository()
+        interaction_repo = database.get_interaction_repository()
 
         # All should be valid instances
         assert db_manager is not None
         assert job_repo is not None
         assert user_repo is not None
-        assert saved_job_repo is not None
-        assert application_repo is not None
         assert resume_repo is not None
+        assert interaction_repo is not None
 
     def test_database_manager_table_stats_includes_interactions(self):
         """Test that database manager can handle the new interactions table."""
