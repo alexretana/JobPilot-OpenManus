@@ -17,8 +17,11 @@ from app.data.models import (
     CompanySizeCategory,
     ExperienceLevel,
     InteractionType,
+    JobDeduplicationDB,
+    JobEmbeddingDB,
     JobListingDB,
     JobSourceDB,
+    JobSourceListingDB,
     JobStatus,
     JobType,
     JobUserInteractionDB,
@@ -1283,6 +1286,407 @@ class MockDataGenerator:
         print(f"   🔗 Created/found {len(source_ids)} job sources")
         return source_ids
 
+    def create_job_embeddings(self, job_ids: List[str]) -> List[str]:
+        """Create mock embeddings for job listings."""
+        embedding_ids = []
+        model_name = "sentence-transformers/all-MiniLM-L6-v2"
+        embedding_dimension = 384
+
+        with self._get_session() as session:
+            for job_id in job_ids:
+                # Check if embedding already exists for this job
+                existing = (
+                    session.query(JobEmbeddingDB)
+                    .filter(JobEmbeddingDB.job_id == job_id)
+                    .first()
+                )
+
+                if existing:
+                    embedding_ids.append(existing.id)
+                    continue
+
+                # Get job details for creating content hash
+                job = (
+                    session.query(JobListingDB)
+                    .filter(JobListingDB.id == job_id)
+                    .first()
+                )
+
+                if not job:
+                    continue
+
+                # Create content hash from job description and title
+                import hashlib
+
+                content_text = (
+                    f"{job.title} {job.description or ''} {job.requirements or ''}"
+                )
+                content_hash = hashlib.md5(content_text.encode()).hexdigest()
+
+                # Generate realistic embedding vector (384-dimensional)
+                # In a real implementation, this would use an actual embedding model
+                import random
+
+                random.seed(
+                    hash(content_hash) % (2**32)
+                )  # Deterministic based on content
+                embedding_vector = [
+                    round(random.uniform(-1.0, 1.0), 6)
+                    for _ in range(embedding_dimension)
+                ]
+
+                # Create embedding record
+                embedding = JobEmbeddingDB(
+                    id=str(uuid4()),
+                    job_id=job_id,
+                    embedding_model=model_name,
+                    content_hash=content_hash,
+                    embedding_vector=embedding_vector,
+                    embedding_dimension=embedding_dimension,
+                    content_type="job_description",
+                    created_at=datetime.utcnow(),
+                )
+                session.add(embedding)
+                session.commit()
+                session.refresh(embedding)
+                embedding_ids.append(embedding.id)
+
+        print(f"   🧠 Created/found {len(embedding_ids)} job embeddings")
+        return embedding_ids
+
+    def create_job_duplications(self, job_ids: List[str]) -> List[str]:
+        """Create job duplication records with realistic confidence scores."""
+        if len(job_ids) < 2:
+            print(
+                f"   ⚠️  Need at least 2 jobs to create duplications, only have {len(job_ids)}"
+            )
+            return []
+
+        duplication_ids = []
+
+        with self._get_session() as session:
+            # Create 2-3 duplication pairs with different scenarios
+            scenarios = [
+                {
+                    "name": "Similar titles, same company",
+                    "confidence_range": (0.90, 0.95),
+                    "matching_fields": ["title", "company", "location"],
+                    "status": "confirmed",
+                    "notes": "Near-identical positions posted on different job boards",
+                },
+                {
+                    "name": "Same title, different companies in same location",
+                    "confidence_range": (0.85, 0.90),
+                    "matching_fields": ["title", "location", "requirements"],
+                    "status": "likely",
+                    "notes": "Similar roles with matching skill requirements",
+                },
+                {
+                    "name": "Similar responsibilities, different titles",
+                    "confidence_range": (0.85, 0.88),
+                    "matching_fields": ["requirements", "responsibilities", "location"],
+                    "status": "possible",
+                    "notes": "Different job titles but overlapping responsibilities",
+                },
+            ]
+
+            # Get all jobs for matching
+            jobs = (
+                session.query(JobListingDB).filter(JobListingDB.id.in_(job_ids)).all()
+            )
+
+            # Create duplication pairs based on scenarios
+            for i, scenario in enumerate(scenarios[: min(3, len(job_ids) // 2)]):
+                # Select two jobs for this scenario
+                available_jobs = [
+                    j for j in jobs if j.id not in [d for d in duplication_ids]
+                ]
+                if len(available_jobs) < 2:
+                    # Use all available jobs if needed
+                    available_jobs = jobs
+
+                canonical_job = available_jobs[i * 2 % len(available_jobs)]
+                duplicate_job = available_jobs[(i * 2 + 1) % len(available_jobs)]
+
+                # Skip if trying to duplicate the same job
+                if canonical_job.id == duplicate_job.id:
+                    continue
+
+                # Check if this duplication pair already exists
+                existing = (
+                    session.query(JobDeduplicationDB)
+                    .filter(
+                        (
+                            (JobDeduplicationDB.canonical_job_id == canonical_job.id)
+                            & (JobDeduplicationDB.duplicate_job_id == duplicate_job.id)
+                        )
+                        | (
+                            (JobDeduplicationDB.canonical_job_id == duplicate_job.id)
+                            & (JobDeduplicationDB.duplicate_job_id == canonical_job.id)
+                        )
+                    )
+                    .first()
+                )
+
+                if existing:
+                    duplication_ids.append(existing.id)
+                    continue
+
+                # Generate realistic confidence score within scenario range
+                confidence_score = round(
+                    random.uniform(*scenario["confidence_range"]), 3
+                )
+
+                # Create the duplication record using only fields that exist in the model
+                duplication = JobDeduplicationDB(
+                    id=str(uuid4()),
+                    canonical_job_id=canonical_job.id,
+                    duplicate_job_id=duplicate_job.id,
+                    confidence_score=confidence_score,
+                    matching_fields=scenario["matching_fields"],
+                    merge_strategy="keep_canonical",
+                    reviewed=False,  # Automated detection, not yet reviewed
+                    created_at=datetime.utcnow(),
+                )
+
+                session.add(duplication)
+                session.commit()
+                session.refresh(duplication)
+                duplication_ids.append(duplication.id)
+
+                print(
+                    f"   🔗 Created duplication: {canonical_job.title} <-> {duplicate_job.title} (confidence: {confidence_score})"
+                )
+
+        print(f"   🎯 Created/found {len(duplication_ids)} job duplications")
+        return duplication_ids
+
+    def create_job_source_listings(
+        self, job_ids: List[str], source_ids: List[str]
+    ) -> List[str]:
+        """Create job source listings to show jobs appearing on multiple platforms."""
+        if not job_ids or not source_ids:
+            print("   ⚠️  Need jobs and sources to create source listings")
+            return []
+
+        source_listing_ids = []
+
+        with self._get_session() as session:
+            # Get all jobs and sources for processing
+            jobs = (
+                session.query(JobListingDB).filter(JobListingDB.id.in_(job_ids)).all()
+            )
+            sources = (
+                session.query(JobSourceDB).filter(JobSourceDB.id.in_(source_ids)).all()
+            )
+
+            # For each job, create 1-3 source listings (showing same job on multiple platforms)
+            for job in jobs:
+                # Determine how many sources this job appears on (1-3)
+                num_sources = random.choice(
+                    [1, 1, 2, 2, 3]
+                )  # Weighted toward 1-2 sources
+                selected_sources = random.sample(
+                    sources, min(num_sources, len(sources))
+                )
+
+                for source in selected_sources:
+                    # Check if this job-source combination already exists
+                    existing = (
+                        session.query(JobSourceListingDB)
+                        .filter(
+                            JobSourceListingDB.job_id == job.id,
+                            JobSourceListingDB.source_id == source.id,
+                        )
+                        .first()
+                    )
+
+                    if existing:
+                        source_listing_ids.append(existing.id)
+                        continue
+
+                    # Generate platform-specific data
+                    platform_data = self._generate_source_listing_data(job, source)
+
+                    # Create the source listing
+                    source_listing = JobSourceListingDB(
+                        id=str(uuid4()),
+                        job_id=job.id,
+                        source_id=source.id,
+                        source_job_id=platform_data["source_job_id"],
+                        source_url=platform_data["source_url"],
+                        source_metadata=platform_data["metadata"],
+                        scraped_at=platform_data["scraped_at"],
+                        last_updated=platform_data["last_updated"],
+                    )
+
+                    session.add(source_listing)
+                    session.commit()
+                    session.refresh(source_listing)
+                    source_listing_ids.append(source_listing.id)
+
+        print(f"   🔗 Created/found {len(source_listing_ids)} job source listings")
+        return source_listing_ids
+
+    def _generate_source_listing_data(
+        self, job: JobListingDB, source: JobSourceDB
+    ) -> Dict[str, Any]:
+        """Generate platform-specific data for a job source listing."""
+        import random
+        from datetime import datetime, timedelta
+
+        # Generate scraped/updated times (within last 30 days)
+        scraped_at = datetime.utcnow() - timedelta(days=random.randint(1, 30))
+        last_updated = scraped_at + timedelta(hours=random.randint(0, 72))
+
+        # Platform-specific data generation
+        if source.name == "linkedin":
+            return {
+                "source_job_id": f"linkedin_{random.randint(1000000000, 9999999999)}",
+                "source_url": f"https://www.linkedin.com/jobs/view/{random.randint(1000000000, 9999999999)}",
+                "metadata": {
+                    "platform": "LinkedIn",
+                    "job_function": self._get_linkedin_job_function(job.title),
+                    "seniority_level": (
+                        job.experience_level.value
+                        if job.experience_level
+                        else "Mid-Senior level"
+                    ),
+                    "employment_type": (
+                        job.job_type.value if job.job_type else "Full-time"
+                    ),
+                    "company_linkedin_id": f"company_{random.randint(100000, 999999)}",
+                    "posting_language": "en",
+                    "easy_apply": random.choice([True, False]),
+                    "linkedin_recruiter_posted": random.choice([True, False]),
+                    "view_count": random.randint(50, 2000),
+                    "applicant_count": random.randint(10, 500),
+                },
+                "scraped_at": scraped_at,
+                "last_updated": last_updated,
+            }
+
+        elif source.name == "indeed":
+            return {
+                "source_job_id": f"indeed_{random.randint(100000000, 999999999)}",
+                "source_url": f"https://www.indeed.com/viewjob?jk={random.randint(100000000, 999999999)}",
+                "metadata": {
+                    "platform": "Indeed",
+                    "job_key": f"jk_{random.randint(100000000, 999999999)}",
+                    "sponsored": random.choice([True, False]),
+                    "indeed_apply": random.choice([True, False]),
+                    "company_rating": round(random.uniform(3.0, 5.0), 1),
+                    "company_review_count": random.randint(10, 5000),
+                    "urgently_hiring": random.choice([True, False]),
+                    "work_from_home": (
+                        job.remote_type.value if job.remote_type else "No"
+                    ),
+                    "estimated_salary": (
+                        {
+                            "min": job.salary_min,
+                            "max": job.salary_max,
+                            "currency": job.salary_currency or "USD",
+                        }
+                        if job.salary_min
+                        else None
+                    ),
+                },
+                "scraped_at": scraped_at,
+                "last_updated": last_updated,
+            }
+
+        elif source.name == "glassdoor":
+            return {
+                "source_job_id": f"glassdoor_{random.randint(10000000, 99999999)}",
+                "source_url": f"https://www.glassdoor.com/job-listing/{random.randint(10000000, 99999999)}",
+                "metadata": {
+                    "platform": "Glassdoor",
+                    "employer_id": f"EI_IC{random.randint(1000000, 9999999)}",
+                    "company_rating": round(random.uniform(2.5, 5.0), 1),
+                    "company_review_count": random.randint(50, 10000),
+                    "ceo_approval_rating": round(random.uniform(60, 95), 0),
+                    "recommend_to_friend_rating": round(random.uniform(50, 90), 0),
+                    "easy_apply": random.choice([True, False]),
+                    "company_size": self._get_glassdoor_company_size(job),
+                    "company_industry": (
+                        job.company.industry if job.company else "Technology"
+                    ),
+                    "salary_estimate": (
+                        {
+                            "min": job.salary_min,
+                            "max": job.salary_max,
+                            "source": random.choice(
+                                ["Glassdoor Estimate", "Employer Provided"]
+                            ),
+                        }
+                        if job.salary_min
+                        else None
+                    ),
+                },
+                "scraped_at": scraped_at,
+                "last_updated": last_updated,
+            }
+
+        else:
+            # Generic source data
+            return {
+                "source_job_id": f"{source.name}_{random.randint(100000, 999999)}",
+                "source_url": f"{source.base_url}/job/{random.randint(100000, 999999)}",
+                "metadata": {
+                    "platform": source.display_name,
+                    "job_reference": f"JOB_{random.randint(100000, 999999)}",
+                    "posting_date": (
+                        scraped_at - timedelta(days=random.randint(1, 14))
+                    ).isoformat(),
+                    "application_method": random.choice(
+                        ["Direct", "Email", "External Link"]
+                    ),
+                },
+                "scraped_at": scraped_at,
+                "last_updated": last_updated,
+            }
+
+    def _get_linkedin_job_function(self, job_title: str) -> str:
+        """Map job title to LinkedIn job function."""
+        title_lower = job_title.lower()
+
+        if any(
+            word in title_lower
+            for word in ["engineer", "developer", "architect", "devops"]
+        ):
+            return "Engineering"
+        elif any(
+            word in title_lower
+            for word in ["data", "scientist", "analyst", "machine learning"]
+        ):
+            return "Information Technology"
+        elif any(word in title_lower for word in ["product", "manager", "owner"]):
+            return "Product Management"
+        elif any(word in title_lower for word in ["design", "ux", "ui"]):
+            return "Design"
+        elif any(word in title_lower for word in ["marketing", "growth", "brand"]):
+            return "Marketing"
+        elif any(word in title_lower for word in ["sales", "business development"]):
+            return "Sales"
+        else:
+            return "Information Technology"
+
+    def _get_glassdoor_company_size(self, job: JobListingDB) -> str:
+        """Get Glassdoor-style company size description."""
+        if job.company and job.company.size:
+            size_str = job.company.size.lower()
+            if "1-50" in size_str or "11-50" in size_str:
+                return "1-50 employees"
+            elif "51-200" in size_str:
+                return "51-200 employees"
+            elif "201-500" in size_str or "101-250" in size_str:
+                return "201-500 employees"
+            elif "501-1000" in size_str:
+                return "501-1000 employees"
+            elif "1000+" in size_str:
+                return "1000+ employees"
+        return "201-500 employees"  # Default
+
     def create_job_listings(self, company_ids: List[str]) -> List[str]:
         """Create sample job listings."""
         jobs_data = [
@@ -2257,6 +2661,21 @@ class MockDataGenerator:
             job_ids = self.create_job_listings(company_ids)
             results["created_jobs"] = len(job_ids)
 
+            # 3.5. Create job embeddings
+            print("\n🧠 Creating job embeddings...")
+            embedding_ids = self.create_job_embeddings(job_ids)
+            results["created_embeddings"] = len(embedding_ids)
+
+            # 3.6. Create job duplications
+            print("\n🎯 Creating job duplications...")
+            duplication_ids = self.create_job_duplications(job_ids)
+            results["created_duplications"] = len(duplication_ids)
+
+            # 3.7. Create job source listings
+            print("\n🔗 Creating job source listings...")
+            source_listing_ids = self.create_job_source_listings(job_ids, source_ids)
+            results["created_source_listings"] = len(source_listing_ids)
+
             # 4. Create resume templates
             print("\n📄 Creating resume templates...")
             template_ids = self.create_resume_templates()
@@ -2334,6 +2753,9 @@ class MockDataGenerator:
             "total_skill_banks_created": len(results["created_skill_banks"]),
             "total_companies_created": results["created_companies"],
             "total_jobs_created": results["created_jobs"],
+            "total_embeddings_created": results.get("created_embeddings", 0),
+            "total_duplications_created": results.get("created_duplications", 0),
+            "total_source_listings_created": results.get("created_source_listings", 0),
             "total_resumes_created": results["created_resumes"],
             "total_applications_created": results["created_applications"],
             "total_errors": len(results["errors"]),
@@ -2423,6 +2845,15 @@ if __name__ == "__main__":
             print(f"   Skill banks created: {summary['total_skill_banks_created']}")
             print(f"   Companies created: {summary['total_companies_created']}")
             print(f"   Jobs created: {summary['total_jobs_created']}")
+            print(
+                f"   Embeddings created: {summary.get('total_embeddings_created', 0)}"
+            )
+            print(
+                f"   Duplications created: {summary.get('total_duplications_created', 0)}"
+            )
+            print(
+                f"   Source listings created: {summary.get('total_source_listings_created', 0)}"
+            )
             print(f"   Resumes created: {summary['total_resumes_created']}")
             print(f"   Applications created: {summary['total_applications_created']}")
             # Add lead management summary if available
