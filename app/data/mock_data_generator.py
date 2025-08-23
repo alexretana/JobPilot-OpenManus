@@ -2525,6 +2525,500 @@ class MockDataGenerator:
 
         return suggestions[:4]  # Max 4 suggestions
 
+    def create_resume_versions(self, resume_ids: List[str]) -> List[str]:
+        """Create version history for each resume showing progression of improvements."""
+        if not resume_ids:
+            print("   ⚠️  No resume IDs provided for version creation")
+            return []
+
+        # Import required model
+        from app.data.resume_models import ResumeVersionDB
+
+        version_ids = []
+
+        # Different types of changes that can happen to resumes
+        change_types = [
+            {
+                "type": "initial_creation",
+                "summary": "Initial resume created",
+                "created_by": "user",
+                "weight": 1,
+            },
+            {
+                "type": "skill_addition",
+                "summary": "Added new technical skills and certifications",
+                "created_by": "user",
+                "weight": 3,
+            },
+            {
+                "type": "experience_update",
+                "summary": "Updated work experience with quantified achievements",
+                "created_by": "user",
+                "weight": 3,
+            },
+            {
+                "type": "summary_optimization",
+                "summary": "Enhanced professional summary for better ATS compatibility",
+                "created_by": "ai_optimization",
+                "weight": 2,
+            },
+            {
+                "type": "formatting_improvement",
+                "summary": "Improved formatting and section organization",
+                "created_by": "user",
+                "weight": 1,
+            },
+            {
+                "type": "job_tailoring",
+                "summary": "Tailored resume for specific job application",
+                "created_by": "ai_optimization",
+                "weight": 2,
+            },
+            {
+                "type": "keyword_optimization",
+                "summary": "Optimized keywords based on industry analysis",
+                "created_by": "ai_optimization",
+                "weight": 2,
+            },
+            {
+                "type": "project_addition",
+                "summary": "Added relevant projects and portfolio links",
+                "created_by": "user",
+                "weight": 2,
+            },
+            {
+                "type": "education_update",
+                "summary": "Updated education section with recent coursework",
+                "created_by": "user",
+                "weight": 1,
+            },
+            {
+                "type": "achievement_quantification",
+                "summary": "Quantified achievements with specific metrics and results",
+                "created_by": "ai_optimization",
+                "weight": 3,
+            },
+        ]
+
+        with self._get_session() as session:
+            for resume_id in resume_ids:
+                # Get resume details for context
+                from app.data.resume_models import ResumeDB
+
+                resume = (
+                    session.query(ResumeDB).filter(ResumeDB.id == resume_id).first()
+                )
+                if not resume:
+                    continue
+
+                # Create 3-6 versions per resume showing progression
+                num_versions = random.randint(3, 6)
+
+                # Generate versions chronologically
+                base_time = datetime.utcnow() - timedelta(days=random.randint(30, 180))
+
+                for version_num in range(1, num_versions + 1):
+                    # Check if version already exists
+                    existing = (
+                        session.query(ResumeVersionDB)
+                        .filter(
+                            ResumeVersionDB.resume_id == resume_id,
+                            ResumeVersionDB.version_number == version_num,
+                        )
+                        .first()
+                    )
+
+                    if existing:
+                        version_ids.append(existing.id)
+                        continue
+
+                    # Select appropriate change type for this version
+                    if version_num == 1:
+                        # First version is always initial creation
+                        change_type = change_types[0]  # initial_creation
+                    else:
+                        # Weighted random selection for subsequent versions
+                        weighted_changes = []
+                        for change in change_types[1:]:  # Skip initial_creation
+                            weighted_changes.extend([change] * change["weight"])
+                        change_type = random.choice(weighted_changes)
+
+                    # Generate realistic content snapshot based on version progression
+                    content_snapshot = self._generate_version_content_snapshot(
+                        resume, version_num, change_type
+                    )
+
+                    # Create version timestamp (versions created over time)
+                    days_offset = random.randint(
+                        (version_num - 1) * 5,  # Earlier versions are older
+                        (version_num - 1) * 15 + 10,
+                    )
+                    version_created_at = base_time + timedelta(days=days_offset)
+
+                    # Create enhanced change summary
+                    changes_summary = self._generate_detailed_changes_summary(
+                        change_type, version_num, resume.title
+                    )
+
+                    # Create version record
+                    version = ResumeVersionDB(
+                        id=str(uuid4()),
+                        resume_id=resume_id,
+                        version_number=version_num,
+                        changes_summary=changes_summary,
+                        content_snapshot=content_snapshot,
+                        created_at=version_created_at,
+                        created_by=change_type["created_by"],
+                    )
+
+                    session.add(version)
+                    session.commit()
+                    session.refresh(version)
+                    version_ids.append(version.id)
+
+        print(f"   📑 Created/found {len(version_ids)} resume versions")
+        return version_ids
+
+    def _generate_version_content_snapshot(
+        self, resume: "ResumeDB", version_num: int, change_type: Dict[str, str]
+    ) -> Dict[str, Any]:
+        """Generate realistic content snapshot for a resume version."""
+        # Start with base resume content structure
+        snapshot = {
+            "version": version_num,
+            "title": resume.title,
+            "contact_info": resume.contact_info or {},
+            "summary": resume.summary or "",
+            "skills": resume.skills or [],
+            "work_experience": resume.work_experience or [],
+            "education": resume.education or [],
+            "projects": resume.projects or [],
+            "certifications": resume.certifications or [],
+            "custom_sections": resume.custom_sections or [],
+        }
+
+        # Modify content based on change type and version progression
+        if change_type["type"] == "initial_creation":
+            # Basic initial content
+            snapshot["summary"] = "Experienced professional seeking new opportunities."
+            snapshot["skills"] = self._get_basic_skills_for_version(resume.title)
+
+        elif change_type["type"] == "skill_addition":
+            # Add more skills progressively
+            current_skills = len(snapshot.get("skills", []))
+            new_skills_count = random.randint(2, 5)
+            snapshot["skills"] = self._get_progressive_skills(
+                resume.title, current_skills + new_skills_count
+            )
+
+        elif change_type["type"] == "summary_optimization":
+            # Improve the summary
+            snapshot["summary"] = self._get_optimized_summary_for_version(
+                resume.title, version_num
+            )
+
+        elif change_type["type"] == "experience_update":
+            # Add achievements to experience
+            snapshot["work_experience"] = self._enhance_experience_for_version(
+                snapshot.get("work_experience", []), version_num
+            )
+
+        # Add version metadata
+        snapshot["version_metadata"] = {
+            "change_type": change_type["type"],
+            "created_by": change_type["created_by"],
+            "snapshot_date": datetime.utcnow().isoformat(),
+            "completeness_score": self._calculate_version_completeness(snapshot),
+            "estimated_ats_score": random.randint(
+                65 + (version_num * 5), 95
+            ),  # Progressive improvement
+            "word_count": self._estimate_content_word_count(snapshot),
+        }
+
+        return snapshot
+
+    def _generate_detailed_changes_summary(
+        self, change_type: Dict[str, str], version_num: int, resume_title: str
+    ) -> str:
+        """Generate detailed summary of changes for this version."""
+        base_summary = change_type["summary"]
+
+        # Add specific details based on change type
+        if change_type["type"] == "initial_creation":
+            return f"Version {version_num}: {base_summary} with basic contact information, summary, and core sections."
+
+        elif change_type["type"] == "skill_addition":
+            skills_examples = self._get_skill_examples_for_role(resume_title)
+            return f"Version {version_num}: {base_summary}. Added skills: {', '.join(skills_examples[:3])} and updated technical competencies section."
+
+        elif change_type["type"] == "experience_update":
+            return f"Version {version_num}: {base_summary}. Enhanced job descriptions with measurable outcomes and impact metrics."
+
+        elif change_type["type"] == "summary_optimization":
+            return f"Version {version_num}: {base_summary}. Restructured opening statement to better highlight key value propositions and industry keywords."
+
+        elif change_type["type"] == "job_tailoring":
+            return f"Version {version_num}: {base_summary}. Customized content to match specific role requirements and company culture."
+
+        elif change_type["type"] == "keyword_optimization":
+            return f"Version {version_num}: {base_summary}. Integrated trending industry keywords and improved ATS compatibility score."
+
+        elif change_type["type"] == "project_addition":
+            return f"Version {version_num}: {base_summary}. Expanded portfolio section with detailed project descriptions and technical implementations."
+
+        elif change_type["type"] == "achievement_quantification":
+            return f"Version {version_num}: {base_summary}. Transformed generic descriptions into specific, measurable accomplishments."
+
+        else:
+            return f"Version {version_num}: {base_summary}. Improved overall resume quality and professional presentation."
+
+    def _get_basic_skills_for_version(self, resume_title: str) -> List[Dict[str, Any]]:
+        """Get basic skills for initial resume version."""
+        title_lower = resume_title.lower()
+
+        if "software engineer" in title_lower or "developer" in title_lower:
+            return [
+                {
+                    "name": "JavaScript",
+                    "level": "intermediate",
+                    "category": "Programming",
+                },
+                {"name": "Python", "level": "intermediate", "category": "Programming"},
+                {
+                    "name": "HTML/CSS",
+                    "level": "advanced",
+                    "category": "Web Development",
+                },
+            ]
+        elif "data scientist" in title_lower:
+            return [
+                {"name": "Python", "level": "advanced", "category": "Programming"},
+                {"name": "SQL", "level": "intermediate", "category": "Database"},
+                {"name": "Excel", "level": "advanced", "category": "Analysis"},
+            ]
+        elif "product manager" in title_lower:
+            return [
+                {
+                    "name": "Product Strategy",
+                    "level": "advanced",
+                    "category": "Product",
+                },
+                {"name": "Agile", "level": "intermediate", "category": "Methodology"},
+                {"name": "Analytics", "level": "intermediate", "category": "Analysis"},
+            ]
+        else:
+            return [
+                {
+                    "name": "Communication",
+                    "level": "advanced",
+                    "category": "Soft Skills",
+                },
+                {
+                    "name": "Problem Solving",
+                    "level": "advanced",
+                    "category": "Soft Skills",
+                },
+                {
+                    "name": "Leadership",
+                    "level": "intermediate",
+                    "category": "Soft Skills",
+                },
+            ]
+
+    def _get_progressive_skills(
+        self, resume_title: str, total_skills: int
+    ) -> List[Dict[str, Any]]:
+        """Get progressively more skills as versions advance."""
+        basic_skills = self._get_basic_skills_for_version(resume_title)
+
+        title_lower = resume_title.lower()
+        advanced_skills = []
+
+        if "software engineer" in title_lower or "developer" in title_lower:
+            advanced_skills = [
+                {"name": "React", "level": "advanced", "category": "Frameworks"},
+                {"name": "Node.js", "level": "intermediate", "category": "Backend"},
+                {
+                    "name": "TypeScript",
+                    "level": "intermediate",
+                    "category": "Programming",
+                },
+                {"name": "AWS", "level": "intermediate", "category": "Cloud"},
+                {"name": "Docker", "level": "beginner", "category": "DevOps"},
+                {"name": "MongoDB", "level": "intermediate", "category": "Database"},
+            ]
+        elif "data scientist" in title_lower:
+            advanced_skills = [
+                {"name": "Machine Learning", "level": "advanced", "category": "AI/ML"},
+                {
+                    "name": "TensorFlow",
+                    "level": "intermediate",
+                    "category": "Frameworks",
+                },
+                {"name": "R", "level": "intermediate", "category": "Programming"},
+                {"name": "Tableau", "level": "advanced", "category": "Visualization"},
+                {"name": "Apache Spark", "level": "beginner", "category": "Big Data"},
+                {"name": "Statistics", "level": "expert", "category": "Mathematics"},
+            ]
+        elif "product manager" in title_lower:
+            advanced_skills = [
+                {"name": "User Research", "level": "advanced", "category": "Research"},
+                {
+                    "name": "A/B Testing",
+                    "level": "intermediate",
+                    "category": "Analysis",
+                },
+                {"name": "Jira", "level": "expert", "category": "Tools"},
+                {"name": "Figma", "level": "intermediate", "category": "Design Tools"},
+                {"name": "SQL", "level": "intermediate", "category": "Analysis"},
+                {"name": "Roadmapping", "level": "advanced", "category": "Strategy"},
+            ]
+
+        # Return appropriate number of skills up to total_skills
+        all_skills = basic_skills + advanced_skills
+        return all_skills[: min(total_skills, len(all_skills))]
+
+    def _get_skill_examples_for_role(self, resume_title: str) -> List[str]:
+        """Get example skill names for change summaries."""
+        title_lower = resume_title.lower()
+
+        if "software engineer" in title_lower or "developer" in title_lower:
+            return ["React", "TypeScript", "AWS", "Docker", "GraphQL", "Kubernetes"]
+        elif "data scientist" in title_lower:
+            return [
+                "Machine Learning",
+                "TensorFlow",
+                "Apache Spark",
+                "Tableau",
+                "Deep Learning",
+            ]
+        elif "product manager" in title_lower:
+            return [
+                "User Research",
+                "A/B Testing",
+                "Product Analytics",
+                "Roadmapping",
+                "Stakeholder Management",
+            ]
+        else:
+            return [
+                "Leadership",
+                "Strategic Planning",
+                "Project Management",
+                "Communication",
+                "Analysis",
+            ]
+
+    def _get_optimized_summary_for_version(
+        self, resume_title: str, version_num: int
+    ) -> str:
+        """Get progressively better summary text."""
+        title_lower = resume_title.lower()
+
+        if version_num <= 2:
+            # Basic summary
+            if "software engineer" in title_lower:
+                return "Experienced software engineer with expertise in web development and modern technologies."
+            elif "data scientist" in title_lower:
+                return "Data scientist with strong analytical skills and experience in machine learning."
+            elif "product manager" in title_lower:
+                return "Product manager with experience in agile development and user-centered design."
+        else:
+            # Optimized summary with keywords and metrics
+            if "software engineer" in title_lower:
+                return "Senior Software Engineer with 5+ years of experience building scalable web applications using React, Node.js, and cloud technologies. Proven track record of delivering high-quality software solutions that improve user experience and drive business growth."
+            elif "data scientist" in title_lower:
+                return "Data Scientist with 3+ years of experience developing machine learning models that drive strategic business decisions. Expert in Python, SQL, and statistical analysis with a track record of delivering insights that increase revenue by 25%+."
+            elif "product manager" in title_lower:
+                return "Product Manager with 7+ years of experience leading cross-functional teams to deliver innovative products. Proven ability to drive user engagement by 40%+ through data-driven product decisions and agile methodologies."
+
+        return "Experienced professional with proven track record of success and continuous learning mindset."
+
+    def _enhance_experience_for_version(
+        self, experience_list: List[Dict], version_num: int
+    ) -> List[Dict]:
+        """Add achievements to work experience progressively."""
+        if not experience_list:
+            return experience_list
+
+        enhanced_experience = experience_list.copy()
+
+        # Add achievements to experience entries based on version progression
+        for exp in enhanced_experience:
+            if version_num >= 3:  # Add achievements in later versions
+                if "achievements" not in exp:
+                    exp["achievements"] = []
+
+                # Add more achievements as versions progress
+                base_achievements = [
+                    "Improved team productivity by 25%",
+                    "Led successful project delivery on time and under budget",
+                    "Mentored 2 junior team members",
+                ]
+
+                advanced_achievements = [
+                    "Increased system performance by 40% through optimization initiatives",
+                    "Reduced deployment time from 2 hours to 15 minutes through automation",
+                    "Established code review process improving code quality by 60%",
+                ]
+
+                if version_num >= 4:
+                    exp["achievements"] = (
+                        base_achievements + advanced_achievements[: version_num - 3]
+                    )
+                else:
+                    exp["achievements"] = base_achievements[: version_num - 2]
+
+        return enhanced_experience
+
+    def _calculate_version_completeness(self, snapshot: Dict[str, Any]) -> float:
+        """Calculate completeness score for a resume version."""
+        score = 0
+        total_sections = 8
+
+        # Check essential sections
+        if snapshot.get("contact_info") and len(snapshot["contact_info"]) > 1:
+            score += 1
+        if snapshot.get("summary") and len(snapshot["summary"].strip()) > 30:
+            score += 1
+        if snapshot.get("work_experience") and len(snapshot["work_experience"]) > 0:
+            score += 1
+        if snapshot.get("education") and len(snapshot["education"]) > 0:
+            score += 1
+        if snapshot.get("skills") and len(snapshot["skills"]) >= 3:
+            score += 1
+        if snapshot.get("projects") and len(snapshot["projects"]) > 0:
+            score += 1
+        if snapshot.get("certifications") and len(snapshot["certifications"]) > 0:
+            score += 1
+        if any(
+            exp.get("achievements", []) for exp in snapshot.get("work_experience", [])
+        ):
+            score += 1
+
+        return round((score / total_sections) * 100, 1)
+
+    def _estimate_content_word_count(self, snapshot: Dict[str, Any]) -> int:
+        """Estimate word count for resume content."""
+        word_count = 0
+
+        # Count words in text fields
+        if snapshot.get("summary"):
+            word_count += len(snapshot["summary"].split())
+
+        # Estimate words in experience descriptions and achievements
+        for exp in snapshot.get("work_experience", []):
+            if exp.get("description"):
+                word_count += len(exp["description"].split())
+            word_count += sum(len(ach.split()) for ach in exp.get("achievements", []))
+
+        # Add estimated words for other sections
+        word_count += len(snapshot.get("skills", [])) * 2  # Skill names
+        word_count += len(snapshot.get("projects", [])) * 20  # Project descriptions
+        word_count += len(snapshot.get("certifications", [])) * 3  # Cert names
+
+        return max(word_count, 50)  # Minimum word count
+
     def create_resumes(self, user_ids: List[str], template_ids: List[str]) -> List[str]:
         """Create sample resumes for users."""
         resume_ids = []
@@ -2939,7 +3433,7 @@ class MockDataGenerator:
                         timeline_event = TimelineEventDB(
                             id=str(uuid4()),
                             job_id=job_id,
-                            application_id=None,  # No legacy application_id
+                            interaction_id=interaction.id,  # Link to the interaction
                             user_profile_id=user_id,
                             event_type=TimelineEventType.APPLICATION_SUBMITTED,
                             title="Application Submitted",
@@ -3025,7 +3519,7 @@ class MockDataGenerator:
                         timeline_event = TimelineEventDB(
                             id=str(uuid4()),
                             job_id=job_id,
-                            application_id=None,  # No legacy application_id
+                            interaction_id=interaction.id,  # Link to the interaction
                             user_profile_id=user_id,
                             event_type=TimelineEventType.JOB_SAVED,
                             title="Job Saved",
@@ -3178,6 +3672,11 @@ class MockDataGenerator:
             optimization_ids = self.create_resume_optimizations(resume_ids, job_ids)
             results["created_resume_optimizations"] = len(optimization_ids)
 
+            # 6.7. Create resume versions
+            print("\n📑 Creating resume versions...")
+            version_ids = self.create_resume_versions(resume_ids)
+            results["created_resume_versions"] = len(version_ids)
+
             # 7. Create job interactions and timeline events
             print("\n📝 Creating job interactions and timeline events...")
             interaction_results = self.create_job_interactions(user_ids, job_ids)
@@ -3201,23 +3700,47 @@ class MockDataGenerator:
                 {"operation": "comprehensive_data_creation", "error": str(e)}
             )
 
-        # Calculate summary
+        # Calculate comprehensive summary
         results["summary"] = {
+            # Core entities
             "total_users_created": len(results["created_users"]),
             "total_skill_banks_created": len(results["created_skill_banks"]),
             "total_companies_created": results["created_companies"],
+            "total_job_sources_created": results["created_job_sources"],
             "total_jobs_created": results["created_jobs"],
+            # Job-related tables
             "total_embeddings_created": results.get("created_embeddings", 0),
             "total_duplications_created": results.get("created_duplications", 0),
             "total_source_listings_created": results.get("created_source_listings", 0),
+            # Resume-related tables
+            "total_resume_templates_created": results["created_resume_templates"],
             "total_resumes_created": results["created_resumes"],
-            "total_applications_created": results["created_applications"],
+            "total_resume_generations_created": results.get(
+                "created_resume_generations", 0
+            ),
+            "total_resume_optimizations_created": results.get(
+                "created_resume_optimizations", 0
+            ),
+            "total_resume_versions_created": results.get("created_resume_versions", 0),
+            # User interaction tables
+            "total_interactions_created": results.get("created_interactions", 0),
+            "total_timeline_events_created": results.get("created_timeline_events", 0),
+            "total_applications_created": results.get(
+                "created_applications", 0
+            ),  # Legacy compatibility
+            # Lead management (if available)
+            "total_leads_created": results.get("created_leads", 0),
+            "total_lead_companies_created": results.get("created_lead_companies", 0),
+            "total_lead_contacts_created": results.get("created_lead_contacts", 0),
+            # Quality metrics
             "total_errors": len(results["errors"]),
             "success_rate": (
                 len(results["created_users"]) / len(self.SAMPLE_USERS)
                 if self.SAMPLE_USERS
                 else 0
             ),
+            # Table coverage summary
+            "tables_populated": self._get_table_population_summary(results),
         }
 
         return results
@@ -3225,6 +3748,27 @@ class MockDataGenerator:
     # =========================================================================
     # DATABASE RESET UTILITIES
     # =========================================================================
+
+    def _get_table_population_summary(self, results: Dict[str, Any]) -> Dict[str, bool]:
+        """Get summary of which database tables were populated with data."""
+        return {
+            "user_profiles": len(results.get("created_users", [])) > 0,
+            "skill_banks": len(results.get("created_skill_banks", [])) > 0,
+            "companies": results.get("created_companies", 0) > 0,
+            "job_sources": results.get("created_job_sources", 0) > 0,
+            "job_listings": results.get("created_jobs", 0) > 0,
+            "job_embeddings": results.get("created_embeddings", 0) > 0,
+            "job_duplications": results.get("created_duplications", 0) > 0,
+            "job_source_listings": results.get("created_source_listings", 0) > 0,
+            "resume_templates": results.get("created_resume_templates", 0) > 0,
+            "resumes": results.get("created_resumes", 0) > 0,
+            "resume_generations": results.get("created_resume_generations", 0) > 0,
+            "resume_optimizations": results.get("created_resume_optimizations", 0) > 0,
+            "resume_versions": results.get("created_resume_versions", 0) > 0,
+            "job_interactions": results.get("created_interactions", 0) > 0,
+            "timeline_events": results.get("created_timeline_events", 0) > 0,
+            "leads": results.get("created_leads", 0) > 0,
+        }
 
     def reset_database(self) -> Dict[str, Any]:
         """Reset database by dropping and recreating tables."""

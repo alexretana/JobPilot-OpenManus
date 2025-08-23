@@ -2,47 +2,47 @@
   "database_reset": {
     "status": "success",
     "message": "Database reset successfully",
-    "timestamp": "2025-08-23T12:50:51.276340"
+    "timestamp": "2025-08-23T13:50:08.811199"
   },
   "mock_data_creation": {
-    "timestamp": "2025-08-23T12:50:51.276406",
+    "timestamp": "2025-08-23T13:50:08.811302",
     "created_users": [
       {
-        "user_id": "122f2724-40de-4be8-a815-8d0f8071aebe",
+        "user_id": "84f89650-3817-452e-a986-fa4e0aaac4f2",
         "name": "Sarah Johnson",
         "role": "developer"
       },
       {
-        "user_id": "86b2b762-a194-4220-89d1-b2d97936a277",
+        "user_id": "c4b90bdd-6304-4b46-bae1-da6f17d0b036",
         "name": "Michael Chen",
         "role": "data_scientist"
       },
       {
-        "user_id": "76c0a4c9-94ec-4410-98b5-835b15ac7964",
+        "user_id": "609658cb-f678-4c08-9346-6ba004fa94a4",
         "name": "Emma Rodriguez",
         "role": "product_manager"
       }
     ],
     "created_skill_banks": [
       {
-        "user_id": "122f2724-40de-4be8-a815-8d0f8071aebe",
-        "skill_bank_id": "72146ccc-eb2a-4bc8-a129-21408d033f84",
+        "user_id": "84f89650-3817-452e-a986-fa4e0aaac4f2",
+        "skill_bank_id": "223222fd-b983-4283-8633-8ca69f5f254f",
         "skills_count": 19,
         "experiences_count": 6,
         "projects_count": 5,
         "certifications_count": 4
       },
       {
-        "user_id": "86b2b762-a194-4220-89d1-b2d97936a277",
-        "skill_bank_id": "2b30a696-901a-42eb-8006-6f0817b1b811",
+        "user_id": "c4b90bdd-6304-4b46-bae1-da6f17d0b036",
+        "skill_bank_id": "a3a10163-f379-4ac5-9bbd-7a5ff4d50cd8",
         "skills_count": 19,
         "experiences_count": 6,
         "projects_count": 5,
         "certifications_count": 4
       },
       {
-        "user_id": "76c0a4c9-94ec-4410-98b5-835b15ac7964",
-        "skill_bank_id": "bb126a21-4988-4dd0-a355-a8502886c013",
+        "user_id": "609658cb-f678-4c08-9346-6ba004fa94a4",
+        "skill_bank_id": "ed211a35-3cae-46a9-884a-bbb86af5014b",
         "skills_count": 21,
         "experiences_count": 6,
         "projects_count": 5,
@@ -54,31 +54,60 @@
     "created_jobs": 8,
     "created_resume_templates": 3,
     "created_resumes": 3,
-    "created_applications": 21,
+    "created_applications": 22,
     "created_saved_jobs": 0,
-    "created_timeline_events": 21,
+    "created_timeline_events": 22,
     "created_leads": 0,
     "created_lead_companies": 0,
     "created_lead_contacts": 0,
     "errors": [],
     "created_embeddings": 8,
     "created_duplications": 3,
-    "created_source_listings": 19,
-    "created_resume_generations": 9,
-    "created_resume_optimizations": 8,
-    "created_interactions": 21,
+    "created_source_listings": 14,
+    "created_resume_generations": 7,
+    "created_resume_optimizations": 7,
+    "created_resume_versions": 15,
+    "created_interactions": 22,
     "summary": {
       "total_users_created": 3,
       "total_skill_banks_created": 3,
       "total_companies_created": 5,
+      "total_job_sources_created": 3,
       "total_jobs_created": 8,
       "total_embeddings_created": 8,
       "total_duplications_created": 3,
-      "total_source_listings_created": 19,
+      "total_source_listings_created": 14,
+      "total_resume_templates_created": 3,
       "total_resumes_created": 3,
-      "total_applications_created": 21,
+      "total_resume_generations_created": 7,
+      "total_resume_optimizations_created": 7,
+      "total_resume_versions_created": 15,
+      "total_interactions_created": 22,
+      "total_timeline_events_created": 22,
+      "total_applications_created": 22,
+      "total_leads_created": 0,
+      "total_lead_companies_created": 0,
+      "total_lead_contacts_created": 0,
       "total_errors": 0,
-      "success_rate": 1.0
+      "success_rate": 1.0,
+      "tables_populated": {
+        "user_profiles": true,
+        "skill_banks": true,
+        "companies": true,
+        "job_sources": true,
+        "job_listings": true,
+        "job_embeddings": true,
+        "job_duplications": true,
+        "job_source_listings": true,
+        "resume_templates": true,
+        "resumes": true,
+        "resume_generations": true,
+        "resume_optimizations": true,
+        "resume_versions": true,
+        "job_interactions": true,
+        "timeline_events": true,
+        "leads": false
+      }
     }
   },
   "overall_status": "success"

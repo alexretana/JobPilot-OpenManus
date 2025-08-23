@@ -837,16 +837,19 @@ class JobUserInteractionDB(Base):
             "last_interaction",
         ),
         Index("idx_job_interaction_type", "job_id", "interaction_type"),
-        # Ensure application fields are set when interaction_type is APPLIED
-        # CheckConstraint(
-        #     "interaction_type != 'applied' OR application_status IS NOT NULL",
-        #     name="applied_interactions_need_status"
-        # ),
-        # Ensure saved_date is set when interaction_type is SAVED
-        # CheckConstraint(
-        #     "interaction_type != 'saved' OR saved_date IS NOT NULL",
-        #     name="saved_interactions_need_date"
-        # ),
+        # Business logic constraints
+        CheckConstraint(
+            "interaction_type != 'applied' OR application_status IS NOT NULL",
+            name="applied_interactions_need_status",
+        ),
+        CheckConstraint(
+            "interaction_type != 'saved' OR saved_date IS NOT NULL",
+            name="saved_interactions_need_date",
+        ),
+        CheckConstraint(
+            "interaction_type != 'applied' OR application_status != 'not_applied'",
+            name="applied_interactions_cannot_be_not_applied",
+        ),
     )
 
 
@@ -913,9 +916,9 @@ class TimelineEventDB(Base):
     job_id = Column(
         String, ForeignKey("job_listings.id"), nullable=True
     )  # Can be None for general events
-    application_id = Column(
-        String, nullable=True
-    )  # Link to specific application (legacy field - no FK constraint)
+    interaction_id = Column(
+        String, ForeignKey("job_user_interactions.id"), nullable=True
+    )  # Link to specific user-job interaction
     user_profile_id = Column(String, ForeignKey("user_profiles.id"), nullable=False)
 
     # Event details
@@ -936,7 +939,7 @@ class TimelineEventDB(Base):
 
     # Relationships
     job = relationship("JobListingDB")
-    # application = relationship("JobApplicationDB")  # REMOVED - JobApplicationDB no longer exists
+    interaction = relationship("JobUserInteractionDB")
     user_profile = relationship("UserProfileDB")
 
 
