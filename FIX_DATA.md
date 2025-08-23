@@ -161,17 +161,17 @@ existing functionality
 
 #### Step 3.4: Resume Generations Mock Data
 
-- [ ] Create `create_resume_generations()` method in mock data generator
-- [ ] Generate file paths like `/tmp/resumes/user-123-resume-v1.pdf`
-- [ ] Create different formats (PDF, DOCX, HTML)
-- [ ] Add realistic file sizes and generation timestamps
+- [x] Create `create_resume_generations()` method in mock data generator
+- [x] Generate file paths like `/tmp/resumes/user-123-resume-v1.pdf`
+- [x] Create different formats (PDF, DOCX, HTML)
+- [x] Add realistic file sizes and generation timestamps
 
 #### Step 3.5: Resume Optimizations Mock Data
 
-- [ ] Create `create_resume_optimizations()` method in mock data generator
-- [ ] Create optimization records linking resumes to specific jobs
-- [ ] Generate match scores (75-95%), keyword matches, missing skills
-- [ ] Add realistic recommendations
+- [x] Create `create_resume_optimizations()` method in mock data generator
+- [x] Create optimization records linking resumes to specific jobs
+- [x] Generate match scores (75-95%), keyword matches, missing skills
+- [x] Add realistic recommendations
 
 #### Step 3.6: Resume Versions Mock Data
 

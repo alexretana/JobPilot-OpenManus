@@ -2081,6 +2081,450 @@ class MockDataGenerator:
         print(f"   📄 Created/found {len(template_ids)} resume templates")
         return template_ids
 
+    def create_resume_generations(self, resume_ids: List[str]) -> List[str]:
+        """Create resume generations with mock file paths and metadata."""
+        if not resume_ids:
+            print("   ⚠️  No resume IDs provided for generation creation")
+            return []
+
+        # Import required models
+        from app.data.resume_models import ResumeFormat, ResumeGenerationDB
+
+        generation_ids = []
+
+        # Different file formats to generate for each resume
+        formats = [ResumeFormat.PDF, ResumeFormat.DOCX, ResumeFormat.HTML]
+
+        # Sample template names
+        template_names = [
+            "Modern Professional",
+            "ATS-Friendly",
+            "Creative Portfolio",
+            "Executive Summary",
+            "Technical Focus",
+        ]
+
+        with self._get_session() as session:
+            for resume_id in resume_ids:
+                # Get resume details for context
+                from app.data.resume_models import ResumeDB
+
+                resume = (
+                    session.query(ResumeDB).filter(ResumeDB.id == resume_id).first()
+                )
+                if not resume:
+                    continue
+
+                # Create 2-3 generations per resume (different formats)
+                num_generations = random.randint(2, 3)
+                selected_formats = random.sample(
+                    formats, min(num_generations, len(formats))
+                )
+
+                for format_type in selected_formats:
+                    # Check if generation already exists for this resume/format combo
+                    existing = (
+                        session.query(ResumeGenerationDB)
+                        .filter(
+                            ResumeGenerationDB.resume_id == resume_id,
+                            ResumeGenerationDB.format == format_type.value,
+                        )
+                        .first()
+                    )
+
+                    if existing:
+                        generation_ids.append(existing.id)
+                        continue
+
+                    # Generate realistic file paths
+                    file_extension = format_type.value.lower()
+                    user_id_short = resume.user_id[:8] if resume.user_id else "unknown"
+                    version = random.randint(1, 5)
+                    filename = (
+                        f"user-{user_id_short}-resume-v{version}.{file_extension}"
+                    )
+
+                    # Different base paths for different formats
+                    if format_type == ResumeFormat.PDF:
+                        file_path = f"/tmp/resumes/pdf/{filename}"
+                        base_size = 150000  # ~150KB
+                    elif format_type == ResumeFormat.DOCX:
+                        file_path = f"/tmp/resumes/docx/{filename}"
+                        base_size = 80000  # ~80KB
+                    elif format_type == ResumeFormat.HTML:
+                        file_path = f"/tmp/resumes/html/{filename}"
+                        base_size = 25000  # ~25KB
+                    else:
+                        file_path = f"/tmp/resumes/other/{filename}"
+                        base_size = 50000  # ~50KB
+
+                    # Add some randomness to file size (±30%)
+                    size_variance = random.uniform(0.7, 1.3)
+                    file_size = int(base_size * size_variance)
+
+                    # Generate realistic generation parameters
+                    generation_params = {
+                        "template": random.choice(template_names),
+                        "format": format_type.value,
+                        "tone": random.choice(
+                            ["professional", "creative", "technical"]
+                        ),
+                        "length": random.choice(["concise", "standard", "detailed"]),
+                        "ai_provider": "openai",
+                        "model": "gpt-4",
+                        "focus_areas": random.sample(
+                            [
+                                "technical_skills",
+                                "leadership",
+                                "achievements",
+                                "education",
+                                "projects",
+                                "certifications",
+                            ],
+                            random.randint(2, 4),
+                        ),
+                        "generation_time": round(
+                            random.uniform(15.0, 45.0), 2
+                        ),  # seconds
+                        "optimization_applied": random.choice([True, False]),
+                    }
+
+                    # Determine generation status (most successful, some failed)
+                    status_weights = (
+                        ["completed"] * 85 + ["failed"] * 10 + ["pending"] * 5
+                    )
+                    status = random.choice(status_weights)
+
+                    error_message = None
+                    if status == "failed":
+                        errors = [
+                            "Template rendering failed",
+                            "File system write error",
+                            "PDF generation timeout",
+                            "Template not found",
+                            "Insufficient disk space",
+                            "Network error during generation",
+                        ]
+                        error_message = random.choice(errors)
+                        file_size = 0  # No file if failed
+
+                    # Generate realistic timestamp (within last 90 days)
+                    generated_at = datetime.utcnow() - timedelta(
+                        days=random.randint(0, 90),
+                        hours=random.randint(0, 23),
+                        minutes=random.randint(0, 59),
+                    )
+
+                    # Create generation record
+                    generation = ResumeGenerationDB(
+                        id=str(uuid4()),
+                        resume_id=resume_id,
+                        format=format_type.value,
+                        template_name=generation_params["template"],
+                        file_path=file_path,
+                        file_size=file_size,
+                        generation_params=generation_params,
+                        status=status,
+                        error_message=error_message,
+                        generated_at=generated_at,
+                    )
+
+                    session.add(generation)
+                    session.commit()
+                    session.refresh(generation)
+                    generation_ids.append(generation.id)
+
+        print(f"   📄 Created/found {len(generation_ids)} resume generations")
+        return generation_ids
+
+    def create_resume_optimizations(
+        self, resume_ids: List[str], job_ids: List[str]
+    ) -> List[str]:
+        """Create resume optimizations with realistic match scores and recommendations."""
+        if not resume_ids or not job_ids:
+            print("   ⚠️  Need both resume IDs and job IDs for optimization creation")
+            return []
+
+        # Import required model
+        from app.data.resume_models import ResumeOptimizationDB
+
+        optimization_ids = []
+
+        # Create realistic optimization data
+        with self._get_session() as session:
+            # For each resume, create optimizations for 2-4 jobs
+            for resume_id in resume_ids:
+                # Get resume details for context
+                from app.data.resume_models import ResumeDB
+
+                resume = (
+                    session.query(ResumeDB).filter(ResumeDB.id == resume_id).first()
+                )
+                if not resume:
+                    continue
+
+                # Select 2-4 jobs to optimize against
+                num_optimizations = random.randint(2, min(4, len(job_ids)))
+                selected_job_ids = random.sample(job_ids, num_optimizations)
+
+                for job_id in selected_job_ids:
+                    # Check if optimization already exists for this resume/job combo
+                    existing = (
+                        session.query(ResumeOptimizationDB)
+                        .filter(
+                            ResumeOptimizationDB.resume_id == resume_id,
+                            ResumeOptimizationDB.job_id == job_id,
+                        )
+                        .first()
+                    )
+
+                    if existing:
+                        optimization_ids.append(existing.id)
+                        continue
+
+                    # Get job details for realistic matching
+                    job = (
+                        session.query(JobListingDB)
+                        .filter(JobListingDB.id == job_id)
+                        .first()
+                    )
+                    if not job:
+                        continue
+
+                    # Generate realistic match score (75-95%)
+                    match_score = round(random.uniform(75.0, 95.0), 1)
+
+                    # Generate realistic keyword matches from job requirements
+                    job_keywords = set()
+                    if job.skills_required:
+                        job_keywords.update(
+                            skill.lower() for skill in job.skills_required
+                        )
+                    if job.skills_preferred:
+                        job_keywords.update(
+                            skill.lower() for skill in job.skills_preferred
+                        )
+
+                    # Add some keywords from job title and description
+                    title_keywords = [
+                        word.lower() for word in job.title.split() if len(word) > 2
+                    ]
+                    job_keywords.update(title_keywords[:3])  # Add top 3 title keywords
+
+                    # Simulate keyword matching (60-85% of keywords match)
+                    all_keywords = list(job_keywords)
+                    if all_keywords:
+                        match_percentage = random.uniform(0.6, 0.85)
+                        num_matches = int(len(all_keywords) * match_percentage)
+                        matched_keywords = random.sample(all_keywords, num_matches)
+                        missing_keywords = [
+                            kw for kw in all_keywords if kw not in matched_keywords
+                        ]
+                    else:
+                        matched_keywords = []
+                        missing_keywords = []
+
+                    # Generate skill matches and missing skills
+                    resume_skills = self._get_resume_skills_for_role(resume.title)
+                    job_skills = job.skills_required or []
+                    if job.skills_preferred:
+                        job_skills.extend(job.skills_preferred)
+
+                    # Simulate skill matching
+                    skill_matches = []
+                    missing_skills = []
+
+                    for skill in job_skills:
+                        if random.choice([True, False, True]):  # 67% chance of match
+                            skill_matches.append(skill)
+                        else:
+                            missing_skills.append(skill)
+
+                    # Add some realistic skills not in job requirements
+                    additional_matches = random.sample(
+                        resume_skills, min(3, len(resume_skills))
+                    )
+                    skill_matches.extend(additional_matches)
+
+                    # Generate realistic recommendations
+                    recommendations = self._generate_optimization_recommendations(
+                        match_score, missing_skills, missing_keywords, job.title
+                    )
+
+                    # Sections to emphasize based on job type
+                    sections_to_emphasize = self._get_sections_to_emphasize(job.title)
+
+                    # Content suggestions
+                    content_suggestions = self._generate_content_suggestions(
+                        missing_skills, missing_keywords, job.title
+                    )
+
+                    # Generate realistic timestamp (within last 30 days)
+                    analyzed_at = datetime.utcnow() - timedelta(
+                        days=random.randint(0, 30),
+                        hours=random.randint(0, 23),
+                        minutes=random.randint(0, 59),
+                    )
+
+                    # Create optimization record
+                    optimization = ResumeOptimizationDB(
+                        id=str(uuid4()),
+                        resume_id=resume_id,
+                        job_id=job_id,
+                        match_score=match_score,
+                        keyword_matches=matched_keywords,
+                        missing_keywords=missing_keywords[:10],  # Top 10
+                        skill_matches=skill_matches,
+                        missing_skills=missing_skills[:8],  # Top 8
+                        recommendations=recommendations,
+                        sections_to_emphasize=sections_to_emphasize,
+                        content_suggestions=content_suggestions,
+                        analyzed_at=analyzed_at,
+                        analysis_version="v1.0",
+                    )
+
+                    session.add(optimization)
+                    session.commit()
+                    session.refresh(optimization)
+                    optimization_ids.append(optimization.id)
+
+        print(f"   🎯 Created/found {len(optimization_ids)} resume optimizations")
+        return optimization_ids
+
+    def _get_resume_skills_for_role(self, resume_title: str) -> List[str]:
+        """Get realistic skills for a resume based on title."""
+        title_lower = resume_title.lower()
+
+        if "software engineer" in title_lower or "developer" in title_lower:
+            return ["JavaScript", "Python", "React", "Node.js", "Git", "Docker", "AWS"]
+        elif "data scientist" in title_lower:
+            return [
+                "Python",
+                "R",
+                "SQL",
+                "Machine Learning",
+                "TensorFlow",
+                "Pandas",
+                "Jupyter",
+            ]
+        elif "product manager" in title_lower:
+            return [
+                "Agile",
+                "Scrum",
+                "Jira",
+                "Analytics",
+                "User Research",
+                "Roadmapping",
+            ]
+        else:
+            return [
+                "Communication",
+                "Leadership",
+                "Problem Solving",
+                "Project Management",
+            ]
+
+    def _generate_optimization_recommendations(
+        self,
+        match_score: float,
+        missing_skills: List[str],
+        missing_keywords: List[str],
+        job_title: str,
+    ) -> List[str]:
+        """Generate realistic optimization recommendations."""
+        recommendations = []
+
+        if match_score < 80:
+            recommendations.append(
+                "Consider adding more job-specific keywords to improve ATS compatibility"
+            )
+
+        if missing_skills:
+            top_missing = missing_skills[:3]
+            recommendations.append(
+                f"Highlight experience with: {', '.join(top_missing)}"
+            )
+
+        if missing_keywords:
+            recommendations.append(
+                "Incorporate more industry-specific terminology from the job description"
+            )
+
+        if "senior" in job_title.lower():
+            recommendations.append(
+                "Emphasize leadership experience and mentoring responsibilities"
+            )
+
+        if "remote" in job_title.lower():
+            recommendations.append(
+                "Highlight remote work experience and self-management skills"
+            )
+
+        # Add some general recommendations
+        general_recs = [
+            "Quantify achievements with specific metrics and numbers",
+            "Use action verbs to describe accomplishments",
+            "Tailor the summary section to match the job requirements",
+            "Include relevant certifications or training",
+            "Optimize section ordering based on job priorities",
+        ]
+
+        recommendations.extend(random.sample(general_recs, random.randint(1, 3)))
+
+        return recommendations[:6]  # Max 6 recommendations
+
+    def _get_sections_to_emphasize(self, job_title: str) -> List[str]:
+        """Get sections to emphasize based on job type."""
+        title_lower = job_title.lower()
+
+        if "senior" in title_lower or "lead" in title_lower:
+            return ["experience", "skills", "achievements"]
+        elif "data" in title_lower or "analyst" in title_lower:
+            return ["skills", "projects", "education"]
+        elif "manager" in title_lower:
+            return ["experience", "achievements", "leadership"]
+        elif "entry" in title_lower or "junior" in title_lower:
+            return ["education", "projects", "skills"]
+        else:
+            return ["skills", "experience", "achievements"]
+
+    def _generate_content_suggestions(
+        self, missing_skills: List[str], missing_keywords: List[str], job_title: str
+    ) -> List[str]:
+        """Generate specific content suggestions for resume optimization."""
+        suggestions = []
+
+        if missing_skills:
+            suggestions.append(
+                f"Add experience with {missing_skills[0]} to your work history"
+            )
+            if len(missing_skills) > 1:
+                suggestions.append(
+                    f"Consider highlighting {missing_skills[1]} in your project descriptions"
+                )
+
+        if missing_keywords:
+            suggestions.append(
+                f"Include '{missing_keywords[0]}' in your summary or skills section"
+            )
+
+        # Role-specific suggestions
+        title_lower = job_title.lower()
+        if "engineer" in title_lower:
+            suggestions.append(
+                "Emphasize technical problem-solving and code quality metrics"
+            )
+        elif "manager" in title_lower:
+            suggestions.append(
+                "Quantify team size and project scope in your experience"
+            )
+        elif "designer" in title_lower:
+            suggestions.append(
+                "Include links to portfolio work and design process examples"
+            )
+
+        return suggestions[:4]  # Max 4 suggestions
+
     def create_resumes(self, user_ids: List[str], template_ids: List[str]) -> List[str]:
         """Create sample resumes for users."""
         resume_ids = []
@@ -2723,6 +3167,16 @@ class MockDataGenerator:
             print("\n📋 Creating resumes...")
             resume_ids = self.create_resumes(user_ids, template_ids)
             results["created_resumes"] = len(resume_ids)
+
+            # 6.5. Create resume generations
+            print("\n📄 Creating resume generations...")
+            generation_ids = self.create_resume_generations(resume_ids)
+            results["created_resume_generations"] = len(generation_ids)
+
+            # 6.6. Create resume optimizations
+            print("\n🎯 Creating resume optimizations...")
+            optimization_ids = self.create_resume_optimizations(resume_ids, job_ids)
+            results["created_resume_optimizations"] = len(optimization_ids)
 
             # 7. Create job interactions and timeline events
             print("\n📝 Creating job interactions and timeline events...")
